@@ -1,7 +1,10 @@
 //go:generate go run ./internal/gen/gen.go map_generated
 package loz
 
-type IndexedVal[T any] struct {
-	Index uint
-	Val T
+// Map1.Fold is identical to [Seq.Fold] except that the type of the result can be different than than the type of the elements in the sequence.
+func (m Map1[T, O]) Fold(initial O, combine reducer[T, O]) O {
+	for v := range m {
+		initial = combine(initial, v)
+	}
+	return initial
 }
