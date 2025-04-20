@@ -18,23 +18,28 @@ Map{{ . }}[{{ template "typerange" add 1 . | numsTo }}]
 {{ if eq . 1 }}Seq[T2]{{ else }}Map{{ add . -1 }}[{{ template "typerange" add . 1 | numsTo | skip 1 }}]{{ end }}
 {{- end -}}
 
-{{- define "seqderef" }}
+{{- define "seqderef" -}}
+// See [Seq.Where].
 func (s {{ template "maptype" . }}) Where(filter yielder[T1]) {{ template "maptype" . }} {
 	return {{ template "maptype" . }}(Seq[T1](s).Where(filter))
 }
 
+// See [Seq.Skip].
 func (s {{ template "maptype" . }}) Skip(toSkip int) {{ template "maptype" . }} {
 	return {{ template "maptype" . }}(Seq[T1](s).Skip(toSkip))
 }
 
+// See [Seq.SkipWhile].
 func (s {{ template "maptype" . }}) SkipWhile(test yielder[T1]) {{ template "maptype" . }} {
 	return {{ template "maptype" . }}(Seq[T1](s).SkipWhile(test))
 }
 
+// See [Seq.Take].
 func (s {{ template "maptype" . }}) Take(toTake int) {{ template "maptype" . }} {
 	return {{ template "maptype" . }}(Seq[T1](s).Take(toTake))
 }
 
+// See [Seq.TakeWhile].
 func (s {{ template "maptype" . }}) TakeWhile(test yielder[T1]) {{ template "maptype" . }} {
 	return {{ template "maptype" . }}(Seq[T1](s).TakeWhile(test))
 }
@@ -43,8 +48,10 @@ func (s {{ template "maptype" . }}) TakeWhile(test yielder[T1]) {{ template "map
 package {{ .package }}
 
 {{ range numsTo .levels -}}
+// A Map{{ .I }} is a wrapper around [Seq] that provides methods to map to {{ .I }} additional type{{ if gt .I 1 }}s{{ end }}.
 type {{ template "maptypedef" .I }} {{ template "prevmaptype" .I }}
 
+// Map transforms the elements within the iterator using the provided mapper function.
 func (s {{ template "maptype" .I }}) Map(mapper func(T1) T2) {{ template "prevmapresult" .I }} {
 	return func(yield yielder[T2]) {
 		for v := range s {
@@ -56,5 +63,4 @@ func (s {{ template "maptype" .I }}) Map(mapper func(T1) T2) {{ template "prevma
 }
 
 {{ template "seqderef" .I }}
-
 {{ end }}

@@ -61,7 +61,7 @@ func main() {
 
 	err = template.Execute(outFile, map[string]any{
 		"package": "loz",
-		"levels":  12,
+		"levels":  9,
 	})
 	panicIfErr(err)
 }
