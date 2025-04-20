@@ -1,10 +1,27 @@
 package loz
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
+
+func ExampleSeq_TakeWhile() {
+	result := Values([]int{2, 4, 5, 6, 8}).
+		TakeWhile(func(n int) bool { return n%2 == 0 }).
+		ToSlice()
+	fmt.Printf("%v", result)
+	// Output: [2 4]
+}
+
+func ExampleSeq_SkipWhile() {
+	result := Values([]int{2, 4, 5, 6, 8}).
+		SkipWhile(func(n int) bool { return n%2 == 0 }).
+		ToSlice()
+	fmt.Printf("%v", result)
+	// Output: [5 6 8]
+}
 
 func TestWhere(t *testing.T) {
 	filteredSlice := Values([]bool{true, false, true, false, true}).Where(
