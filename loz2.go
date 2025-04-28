@@ -14,7 +14,7 @@ func All[V any](slice []V) Seq2[int, V] {
 	return Seq2[int, V](slices.All(slice))
 }
 
-func (s Seq2[K, V]) IterKeys() Seq[K] {
+func (s Seq2[K, V]) Keys() Seq[K] {
 	return func(yield yielder[K]) {
 		for k, _ := range s {
 			if !yield(k) {
@@ -24,7 +24,7 @@ func (s Seq2[K, V]) IterKeys() Seq[K] {
 	}
 }
 
-func (s Seq2[K, V]) IterValues() Seq[V] {
+func (s Seq2[K, V]) Values() Seq[V] {
 	return func(yield yielder[V]) {
 		for _, v := range s {
 			if !yield(v) {
@@ -51,6 +51,7 @@ func (s Seq2[K, V]) Map(mapper func(K, V) (K, V)) Seq2[K, V] {
 }
 
 type reducer22[K, V any] = func(K, V, K, V) (K, V)
+
 func (s Seq2[K, V]) Reduce(combine reducer22[K, V]) (K, V, error) {
 	var keyResult K
 	var valResult V
@@ -178,7 +179,7 @@ func (s Seq2[K, V]) SkipWhile(test yielder2[K, V]) Seq2[K, V] {
 }
 
 func (s Seq2[K, V]) Take(toTake int) Seq2[K, V] {
-	return func(yield yielder2[K, V])  {
+	return func(yield yielder2[K, V]) {
 		var took int
 		for k, v := range s {
 			if took >= toTake {
