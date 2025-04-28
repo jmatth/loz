@@ -6,22 +6,22 @@ import (
 	"slices"
 )
 
-type yielder[T any] = func(T) bool
+type yielder[V any] = func(V) bool
 
 // Seq is an alias to [iter.Seq] that provides additional methods for filtering and transforming the elements.
-type Seq[T any] iter.Seq[T]
+type Seq[V any] iter.Seq[V]
 
-func Values[T any](slice []T) Seq[T] {
-	return Seq[T](slices.Values(slice))
+func Values[V any](slice []V) Seq[V] {
+	return Seq[V](slices.Values(slice))
 }
 
 // ToSlice collects all the elements within the iterator into a slice by calling [slices.Collect].
-func (s Seq[T]) ToSlice() []T {
-	return slices.Collect(iter.Seq[T](s))
+func (s Seq[V]) ToSlice() []V {
+	return slices.Collect(iter.Seq[V](s))
 }
 
 // ForEach consumes the iterator and calls the provided function with each of the elements.
-func (s Seq[T]) ForEach(process func(T)) {
+func (s Seq[V]) ForEach(process func(V)) {
 	for v := range s {
 		process(v)
 	}
@@ -30,8 +30,8 @@ func (s Seq[T]) ForEach(process func(T)) {
 // Map transforms the elements within the iterator using the provided mapper function.
 // Due to limitations of the Go type system, the mapped value must be the same type as the input.
 // To perform mapping operations that change type, see [Map1], [Map2], etc.
-func (s Seq[T]) Map(mapper func(T) T) Seq[T] {
-	return func(yield yielder[T]) {
+func (s Seq[V]) Map(mapper func(V) V) Seq[V] {
+	return func(yield yielder[V]) {
 		for v := range s {
 			if !yield(mapper(v)) {
 				break
@@ -40,12 +40,13 @@ func (s Seq[T]) Map(mapper func(T) T) Seq[T] {
 	}
 }
 
-type reducer[E, O any] = func(a O, b E) O
+type reducer[V, O any] = func(O, V) O
+type reducer2[K, V, O any] = func(O, K, V) O
 
 // Reduce reduces the iterator to a single value by iteratively combining its elements using the provided function.
 // If the iterator is empty a zero value will be returned along with an error.
-func (s Seq[T]) Reduce(combine reducer[T, T]) (T, error) {
-	var result T
+func (s Seq[V]) Reduce(combine reducer[V, V]) (V, error) {
+	var result V
 	isFirst := true
 	for v := range s {
 		if isFirst {
@@ -56,14 +57,14 @@ func (s Seq[T]) Reduce(combine reducer[T, T]) (T, error) {
 		result = combine(result, v)
 	}
 	if isFirst {
-		return result, errors.New("Reduce called on a Seq with no elements")
+		return result, errors.New("reduce called on a Seq with no elements")
 	}
 	return result, nil
 }
 
 // Fold reduces the iterator to a single value by iteratively combining its elements with an initial value using the provided function.
 // If the iterator is empty the initial value will be returned unmodified.
-func (s Seq[T]) Fold(initial T, combine reducer[T, T]) T {
+func (s Seq[V]) Fold(initial V, combine reducer[V, V]) V {
 	for v := range s {
 		initial = combine(initial, v)
 	}
@@ -72,38 +73,38 @@ func (s Seq[T]) Fold(initial T, combine reducer[T, T]) T {
 
 // First consumes the iterator and returns its first element.
 // If the iterator is empty a zero value will be returned with an error.
-func (s Seq[T]) First() (T, error) {
-	var result T
+func (s Seq[V]) First() (V, error) {
+	var result V
 	isEmpty := true
 	for result = range s {
 		isEmpty = false
 		break
 	}
 	if isEmpty {
-		return result, errors.New("First called on empty Seq")
+		return result, errors.New("first called on empty Seq")
 	}
 	return result, nil
 }
 
 // Last consumes the iterator and returns its last element.
 // If the iterator is empty a zero value will be returned with an error.
-func (s Seq[T]) Last() (T, error) {
+func (s Seq[V]) Last() (V, error) {
 	isEmpty := true
-	var result T
+	var result V
 	for result = range s {
 		if isEmpty {
 			isEmpty = false
 		}
 	}
 	if isEmpty {
-		return result, errors.New("First called on empty Seq")
+		return result, errors.New("last called on empty Seq")
 	}
 	return result, nil
 }
 
 // Any returns true if test returns true for at least one element in the iterator, and false otherwise.
 // Returns false for an empty iterator.
-func (s Seq[T]) Any(test yielder[T]) bool {
+func (s Seq[V]) Any(test yielder[V]) bool {
 	for v := range s {
 		if test(v) {
 			return true
@@ -114,7 +115,7 @@ func (s Seq[T]) Any(test yielder[T]) bool {
 
 // Every returns true if test returns false for every element of the iterator, and false otherwise.
 // Returns true for an empty iterator.
-func (s Seq[T]) None(test yielder[T]) bool {
+func (s Seq[V]) None(test yielder[V]) bool {
 	for v := range s {
 		if test(v) {
 			return false
@@ -125,7 +126,7 @@ func (s Seq[T]) None(test yielder[T]) bool {
 
 // Every returns true if test returns true for every element of the iterator, and false otherwise.
 // Returns true for an empty iterator.
-func (s Seq[T]) Every(test yielder[T]) bool {
+func (s Seq[V]) Every(test yielder[V]) bool {
 	for v := range s {
 		if !test(v) {
 			return false
@@ -134,12 +135,12 @@ func (s Seq[T]) Every(test yielder[T]) bool {
 	return true
 }
 
-// Where filters the iterator to only include only elements for which filter returns true.
-func (s Seq[E]) Where(filter yielder[E]) Seq[E] {
-	return func(yield yielder[E]) {
+// Filter filters the iterator to only include only elements for which filter returns true.
+func (s Seq[V]) Filter(filter yielder[V]) Seq[V] {
+	return func(yield yielder[V]) {
 		for v := range s {
 			if filter(v) {
-				if !yield(v) {
+			if !yield(v) {
 					break
 				}
 			}
@@ -149,9 +150,9 @@ func (s Seq[E]) Where(filter yielder[E]) Seq[E] {
 
 // Skip skips the first toSkip elements of the iterator.
 // If toSkip is greater than or equal to the number of elements in the iterator the result will be an empty iterator.
-func (s Seq[E]) Skip(toSkip int) Seq[E] {
-	return func(yield yielder[E]) {
-		skipped := 0
+func (s Seq[V]) Skip(toSkip int) Seq[V] {
+	return func(yield yielder[V]) {
+		var skipped int
 		for v := range s {
 			if skipped < toSkip {
 				skipped++
@@ -165,16 +166,15 @@ func (s Seq[E]) Skip(toSkip int) Seq[E] {
 }
 
 // SkipWhile skips the leading elements for which test returns true.
-func (s Seq[E]) SkipWhile(test yielder[E]) Seq[E] {
-	return func(yield yielder[E]) {
+func (s Seq[V]) SkipWhile(test yielder[V]) Seq[V] {
+	return func(yield yielder[V]) {
 		skipping := true
 		for v := range s {
 			if skipping {
 				if test(v) {
 					continue
-				} else {
-					skipping = false
 				}
+				skipping = false
 			}
 			if !yield(v) {
 				break
@@ -184,9 +184,9 @@ func (s Seq[E]) SkipWhile(test yielder[E]) Seq[E] {
 }
 
 // Take restricts the iterator to at most the first toTake elements.
-func (s Seq[E]) Take(toTake int) Seq[E] {
-	return func(yield yielder[E]) {
-		took := 0
+func (s Seq[V]) Take(toTake int) Seq[V] {
+	return func(yield yielder[V]) {
+		var took int
 		for v := range s {
 			if took >= toTake {
 				break
@@ -200,14 +200,35 @@ func (s Seq[E]) Take(toTake int) Seq[E] {
 }
 
 // TakeWhile restricts the iterator to the leading elements for which test returns true.
-func (s Seq[E]) TakeWhile(test yielder[E]) Seq[E] {
-	return func(yield yielder[E]) {
+func (s Seq[V]) TakeWhile(test yielder[V]) Seq[V] {
+	return func(yield yielder[V]) {
 		for v := range s {
-			if !test(v) {
+			if !test(v) && yield(v) {
 				break
 			}
-			if !yield(v) {
+		}
+	}
+}
+
+func (s Seq[V]) Indexed() Seq2[int, V] {
+	return func(yield yielder2[int, V]) {
+		var i int
+		for v := range s {
+			if !yield(i, v) {
 				break
+			}
+			i++
+		}
+	}
+}
+
+func (s Seq[V]) Expand(toElements func(V) Seq[V]) Seq[V] {
+	return func(yield yielder[V]) {
+		for v := range s {
+			for e := range toElements(v) {
+				if !yield(e) {
+					break
+				}
 			}
 		}
 	}

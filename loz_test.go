@@ -24,7 +24,7 @@ func ExampleSeq_SkipWhile() {
 }
 
 func TestWhere(t *testing.T) {
-	filteredSlice := Values([]bool{true, false, true, false, true}).Where(
+	filteredSlice := Values([]bool{true, false, true, false, true}).Filter(
 		func(b bool) bool {
 			return !b
 		}).ToSlice()
