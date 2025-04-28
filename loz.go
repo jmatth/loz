@@ -57,7 +57,7 @@ func (s Seq[V]) Reduce(combine reducer[V, V]) (V, error) {
 		result = combine(result, v)
 	}
 	if isFirst {
-		return result, errors.New("reduce called on a Seq with no elements")
+		return result, errors.New("Reduce called on empty Seq")
 	}
 	return result, nil
 }
@@ -81,7 +81,7 @@ func (s Seq[V]) First() (V, error) {
 		break
 	}
 	if isEmpty {
-		return result, errors.New("first called on empty Seq")
+		return result, errors.New("First called on empty Seq")
 	}
 	return result, nil
 }
@@ -97,7 +97,7 @@ func (s Seq[V]) Last() (V, error) {
 		}
 	}
 	if isEmpty {
-		return result, errors.New("last called on empty Seq")
+		return result, errors.New("Last called on empty Seq")
 	}
 	return result, nil
 }
@@ -140,7 +140,7 @@ func (s Seq[V]) Filter(filter yielder[V]) Seq[V] {
 	return func(yield yielder[V]) {
 		for v := range s {
 			if filter(v) {
-			if !yield(v) {
+				if !yield(v) {
 					break
 				}
 			}
@@ -203,7 +203,7 @@ func (s Seq[V]) Take(toTake int) Seq[V] {
 func (s Seq[V]) TakeWhile(test yielder[V]) Seq[V] {
 	return func(yield yielder[V]) {
 		for v := range s {
-			if !test(v) && yield(v) {
+			if !test(v) || !yield(v) {
 				break
 			}
 		}
