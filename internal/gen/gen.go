@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"iter"
 	"os"
+	"os/exec"
 	"text/template"
 )
 
@@ -63,5 +64,8 @@ func main() {
 		"package": "loz",
 		"levels":  9,
 	})
+	panicIfErr(err)
+
+	err = exec.Command("go", "fmt", outFile.Name()).Run()
 	panicIfErr(err)
 }

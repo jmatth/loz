@@ -48,16 +48,16 @@ func (s {{ template "maptype" . }}) TakeWhile(test yielder[V1]) {{ template "map
 package {{ .package }}
 
 {{ range numsTo .levels -}}
-// An Map{{ .I }} is a wrapper around [Seq] that provides methods to map to {{ .I }} additional type{{ if gt .I 1 }}s{{ end }}.
+// A Map{{ .I }} is a wrapper around [Seq] that provides methods to map to {{ .I }} additional type{{ if gt .I 1 }}s{{ end }}.
 type {{ template "maptypedef" .I }} {{ template "prevmaptype" .I }}
 
 // Map transforms the elements within the iterator using the provided mapper function.
 func (s {{ template "maptype" .I }}) Map(mapper func(V1) V2) {{ template "prevmapresult" .I }} {
 	return func(yield yielder[V2]) {
 		for v := range s {
-				if !yield(mapper(v)) {
-					break
-				}
+			if !yield(mapper(v)) {
+				break
+			}
 		}
 	}
 }
