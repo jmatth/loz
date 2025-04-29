@@ -8,7 +8,7 @@ import (
 )
 
 func ExampleSeq_TakeWhile() {
-	result := Values([]int{2, 4, 5, 6, 8}).
+	result := IterSlice([]int{2, 4, 5, 6, 8}).
 		TakeWhile(func(n int) bool { return n%2 == 0 }).
 		ToSlice()
 	fmt.Printf("%v", result)
@@ -16,7 +16,7 @@ func ExampleSeq_TakeWhile() {
 }
 
 func ExampleSeq_SkipWhile() {
-	result := Values([]int{2, 4, 5, 6, 8}).
+	result := IterSlice([]int{2, 4, 5, 6, 8}).
 		SkipWhile(func(n int) bool { return n%2 == 0 }).
 		ToSlice()
 	fmt.Printf("%v", result)
@@ -24,7 +24,7 @@ func ExampleSeq_SkipWhile() {
 }
 
 func ExampleSeq_Filter() {
-	filteredSlice := Values([]bool{true, false, true, false, true}).
+	filteredSlice := IterSlice([]bool{true, false, true, false, true}).
 		Filter(
 			func(b bool) bool {
 				return !b
@@ -35,21 +35,21 @@ func ExampleSeq_Filter() {
 
 func ExampleSeq_Skip() {
 	nums := []int{1, 2, 3, 4, 5, 6, 7, 8, 9}
-	skipped := Values(nums).Skip(3).ToSlice()
+	skipped := IterSlice(nums).Skip(3).ToSlice()
 	fmt.Printf("%v", skipped)
 	// Output: [4 5 6 7 8 9]
 }
 
 func ExampleSeq_Take() {
 	nums := []int{1, 2, 3, 4, 5, 6, 7, 8, 9}
-	took := Values(nums).Take(3).ToSlice()
+	took := IterSlice(nums).Take(3).ToSlice()
 	fmt.Printf("%v", took)
 	// Output: [1 2 3]
 }
 
 func ExampleSeq_Map() {
 	nums := []int{1, 2, 3}
-	doubled := Values(nums).Map(func(n int) int { return n * 2 }).ToSlice()
+	doubled := IterSlice(nums).Map(func(n int) int { return n * 2 }).ToSlice()
 	fmt.Printf("%v", doubled)
 	// Output: [2 4 6]
 }
@@ -63,8 +63,8 @@ func ExampleSeq_Any() {
 	}
 
 	nums := []int{1, 3, 7, 9_001}
-	anyEven := Values(nums).Any(isEven)
-	anyBig := Values(nums).Any(isBig)
+	anyEven := IterSlice(nums).Any(isEven)
+	anyBig := IterSlice(nums).Any(isBig)
 	fmt.Printf("%v, %v", anyEven, anyBig)
 	// Output: false, true
 }
@@ -78,8 +78,8 @@ func ExampleSeq_None() {
 	}
 
 	nums := []int{1, 3, 7, 9_001}
-	anyEven := Values(nums).None(isEven)
-	anyBig := Values(nums).None(isBig)
+	anyEven := IterSlice(nums).None(isEven)
+	anyBig := IterSlice(nums).None(isBig)
 	fmt.Printf("%v, %v", anyEven, anyBig)
 	// Output: true, false
 }
@@ -93,8 +93,8 @@ func ExampleSeq_Every() {
 	}
 
 	nums := []int{1, 3, 7, 9_001}
-	anyEven := Values(nums).Every(isOdd)
-	anyBig := Values(nums).Every(isBig)
+	anyEven := IterSlice(nums).Every(isOdd)
+	anyBig := IterSlice(nums).Every(isBig)
 	fmt.Printf("%v, %v", anyEven, anyBig)
 	// Output: true, false
 }
@@ -111,26 +111,26 @@ func ExampleSeq_Expand() {
 	}
 
 	nums := []int{1, 2, 3, 0, 5}
-	expanded := Values(nums).Expand(expander).ToSlice()
+	expanded := IterSlice(nums).Expand(expander).ToSlice()
 	fmt.Printf("%v", expanded)
 	// Output: [1 1 2 1 2 3 1 2 3 4 5]
 }
 
 func ExampleSeq_First() {
-	first, err := Values([]int{}).First()
-	fmt.Printf("%v, %v\n", first, err)
-	first, err = Values([]int{1, 2, 3}).First()
+	first, err := IterSlice([]int{}).First()
+	fmt.Printf("%v, %v\n", first, err != nil)
+	first, err = IterSlice([]int{1, 2, 3}).First()
 	fmt.Printf("%v, %v", first, err)
-	// Output: 0, First called on empty Seq
+	// Output: 0, true
 	// 1, <nil>
 }
 
 func ExampleSeq_Last() {
-	first, err := Values([]int{}).Last()
-	fmt.Printf("%v, %v\n", first, err)
-	first, err = Values([]int{1, 2, 3}).Last()
+	first, err := IterSlice([]int{}).Last()
+	fmt.Printf("%v, %v\n", first, err != nil)
+	first, err = IterSlice([]int{1, 2, 3}).Last()
 	fmt.Printf("%v, %v", first, err)
-	// Output: 0, Last called on empty Seq
+	// Output: 0, true
 	// 3, <nil>
 }
 
@@ -138,8 +138,8 @@ func ExampleSeq_Fold() {
 	mult := func(a, b int) int {
 		return a * b
 	}
-	foldEmpty := Values([]int{}).Fold(100, mult)
-	foldVals := Values([]int{2, 4, 2}).Fold(1, mult)
+	foldEmpty := IterSlice([]int{}).Fold(100, mult)
+	foldVals := IterSlice([]int{2, 4, 2}).Fold(1, mult)
 	fmt.Printf("%v, %v", foldEmpty, foldVals)
 	// Output: 100, 16
 }
@@ -148,16 +148,16 @@ func ExampleSeq_Reduce() {
 	mult := func(a, b int) int {
 		return a * b
 	}
-	reduced, err := Values([]int{}).Reduce(mult)
+	reduced, err := IterSlice([]int{}).Reduce(mult)
+	fmt.Printf("%v, %v\n", reduced, err != nil)
+	reduced, err = IterSlice([]int{2, 4, 2}).Reduce(mult)
 	fmt.Printf("%v, %v\n", reduced, err)
-	reduced, err = Values([]int{2, 4, 2}).Reduce(mult)
-	fmt.Printf("%v, %v\n", reduced, err)
-	// Output: 0, Reduce called on empty Seq
+	// Output: 0, true
 	// 16, <nil>
 }
 
 func ExampleSeq_ForEach() {
-	Values([]int{1, 2, 3}).ForEach(func(i int) {
+	IterSlice([]int{1, 2, 3}).ForEach(func(i int) {
 		fmt.Printf("(%v)", i)
 	})
 	// Output: (1)(2)(3)
@@ -165,19 +165,19 @@ func ExampleSeq_ForEach() {
 
 func TestSkipAll(t *testing.T) {
 	nums := []int{1, 2, 3, 4, 5, 6, 7, 8, 9}
-	skipped := Values(nums).Skip(100).ToSlice()
+	skipped := IterSlice(nums).Skip(100).ToSlice()
 	assert.Empty(t, skipped)
 }
 
 func TestSkipAndTake(t *testing.T) {
 	nums := []int{1, 2, 3, 4, 5, 6, 7, 8, 9}
-	took := Values(nums).Skip(3).Take(3).ToSlice()
+	took := IterSlice(nums).Skip(3).Take(3).ToSlice()
 	assert.Equal(t, []int{4, 5, 6}, took)
 }
 
 func TestRepeatCalls(t *testing.T) {
 	nums := []int{1, 2, 3, 4, 5, 6, 7, 8, 9}
-	baseSeq := Values(nums).Skip(3)
+	baseSeq := IterSlice(nums).Skip(3)
 	took := baseSeq.Take(3).ToSlice()
 	skipped := baseSeq.Skip(3).ToSlice()
 	assert.Equal(t, []int{4, 5, 6}, took)

@@ -11,7 +11,8 @@ type yielder[V any] = func(V) bool
 // Seq is an alias to [iter.Seq] that provides additional methods for filtering and transforming the elements.
 type Seq[V any] iter.Seq[V]
 
-func Values[V any](slice []V) Seq[V] {
+// IterSlice creates a Seq over the contents of a slice.
+func IterSlice[V any](slice []V) Seq[V] {
 	return Seq[V](slices.Values(slice))
 }
 
@@ -41,7 +42,6 @@ func (s Seq[V]) Map(mapper func(V) V) Seq[V] {
 }
 
 type reducer[V, O any] = func(O, V) O
-type reducer2[K, V, O any] = func(O, K, V) O
 
 // Reduce reduces the iterator to a single value by iteratively combining its elements using the provided function.
 // If the iterator is empty a zero value will be returned along with an error.

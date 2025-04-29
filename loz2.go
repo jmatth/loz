@@ -3,20 +3,26 @@ package loz
 import (
 	"errors"
 	"iter"
-	"slices"
+	"maps"
 )
 
 type yielder2[K, V any] = func(K, V) bool
 
 type Seq2[K, V any] iter.Seq2[K, V]
 
-func All[V any](slice []V) Seq2[int, V] {
-	return Seq2[int, V](slices.All(slice))
+// IterMap creates a Seq over the key/value pairs of a map.
+func IterMap[K comparable, V any](input map[K]V) Seq2[K, V] {
+	return Seq2[K, V](maps.All(input))
 }
 
+func ToMap[K comparable, V any](seq Seq2[K, V]) map[K]V {
+	return maps.Collect(iter.Seq2[K, V](seq))
+}
+
+// ToKeys converts a Seq2[K, V] to a Seq[K], continuing the iteration with only the keys.
 func (s Seq2[K, V]) Keys() Seq[K] {
 	return func(yield yielder[K]) {
-		for k, _ := range s {
+		for k := range s {
 			if !yield(k) {
 				break
 			}
@@ -24,6 +30,7 @@ func (s Seq2[K, V]) Keys() Seq[K] {
 	}
 }
 
+// Values converts a Seq2[K, V] to a Seq[V], continuing the iteration with only the values.
 func (s Seq2[K, V]) Values() Seq[V] {
 	return func(yield yielder[V]) {
 		for _, v := range s {
@@ -50,9 +57,9 @@ func (s Seq2[K, V]) Map(mapper func(K, V) (K, V)) Seq2[K, V] {
 	}
 }
 
-type reducer22[K, V any] = func(K, V, K, V) (K, V)
+type reducer2[K, V any] = func(K, V, K, V) (K, V)
 
-func (s Seq2[K, V]) Reduce(combine reducer22[K, V]) (K, V, error) {
+func (s Seq2[K, V]) Reduce(combine reducer2[K, V]) (K, V, error) {
 	var keyResult K
 	var valResult V
 	isFirst := true
@@ -71,7 +78,7 @@ func (s Seq2[K, V]) Reduce(combine reducer22[K, V]) (K, V, error) {
 	return keyResult, valResult, nil
 }
 
-func (s Seq2[K, V]) Fold(initialKey K, initialVal V, combine reducer22[K, V]) (K, V) {
+func (s Seq2[K, V]) Fold(initialKey K, initialVal V, combine reducer2[K, V]) (K, V) {
 	for k, v := range s {
 		initialKey, initialVal = combine(initialKey, initialVal, k, v)
 	}
@@ -102,7 +109,7 @@ func (s Seq2[K, V]) Last() (K, V, error) {
 		}
 	}
 	if isEmpty {
-		return key, val, errors.New("Last called on empty Seq")
+		return key, val, errors.New("Last called on empty Seq2")
 	}
 	return key, val, nil
 }
@@ -163,7 +170,7 @@ func (s Seq2[K, V]) Skip(toSkip int) Seq2[K, V] {
 
 func (s Seq2[K, V]) SkipWhile(test yielder2[K, V]) Seq2[K, V] {
 	return func(yield yielder2[K, V]) {
-		skipping := false
+		skipping := true
 		for k, v := range s {
 			if skipping {
 				if test(k, v) {
@@ -196,7 +203,7 @@ func (s Seq2[K, V]) Take(toTake int) Seq2[K, V] {
 func (s Seq2[K, V]) TakeWhile(test yielder2[K, V]) Seq2[K, V] {
 	return func(yield yielder2[K, V]) {
 		for k, v := range s {
-			if !test(k, v) && yield(k, v) {
+			if !test(k, v) || !yield(k, v) {
 				break
 			}
 		}
