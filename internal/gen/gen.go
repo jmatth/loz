@@ -24,7 +24,7 @@ type countLoopVal struct {
 
 func main() {
 	output := os.Args[1]
-	template := template.Must(template.New("map.tmpl.go").Funcs(template.FuncMap{
+	template := template.Must(template.New("map.go.tmpl").Funcs(template.FuncMap{
 		"add": func(a, b int) int {
 			return a + b
 		},
@@ -55,7 +55,7 @@ func main() {
 				}
 			}
 		},
-	}).ParseGlob("./internal/gen/*.tmpl.go"))
+	}).ParseGlob("./internal/gen/*.go.tmpl"))
 
 	outFile, err := os.Create(fmt.Sprintf("%v.go", output))
 	panicIfErr(err)

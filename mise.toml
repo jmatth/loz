@@ -1,0 +1,22 @@
+[tools]
+go = "1.24.2"
+
+[tasks.generate]
+description = "Run go code generators"
+run = "go generate ."
+
+[tasks.format]
+description = "Apply code formatting"
+run = "go fmt ."
+
+[tasks.get]
+description = "Fetch dependencies"
+run = "go get -t"
+
+[tasks.test]
+description = "Run tests"
+run = "go test -v"
+
+[tasks.doc-preview]
+description = "Run godoc on localhost:6060"
+run = "godoc"
