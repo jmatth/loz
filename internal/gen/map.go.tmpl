@@ -2,20 +2,40 @@
 {{ range . }}V{{ .I }}{{ if not .IsLast }}, {{ end }}{{ end }}
 {{- end }}
 
+{{- define "kvTypeRange" -}}
+{{ range . }}K{{ .I }}, V{{ .I }}{{ if not .IsLast }}, {{ end }}{{ end }}
+{{- end }}
+
 {{- define "maptypedef" -}}
-Map{{ . }}[{{ template "typerange" add 1 . | numsTo }} any]
+{{ .BaseName }}{{ .Index }}[{{ template "typerange" add 1 .Index | numsTo }} any]
+{{- end -}}
+
+{{- define "kvMapTypeDef" -}}
+KV{{ .BaseName }}{{ .Index }}[{{ template "kvTypeRange" add 1 .Index | numsTo }} any]
 {{- end -}}
 
 {{- define "maptype" -}}
-Map{{ . }}[{{ template "typerange" add 1 . | numsTo }}]
+{{ .BaseName }}{{ .Index }}[{{ template "typerange" add 1 .Index | numsTo }}]
+{{- end -}}
+
+{{- define "kvMapType" -}}
+KV{{ .BaseName }}{{ .Index }}[{{ template "kvTypeRange" add 1 .Index | numsTo }}]
 {{- end -}}
 
 {{- define "prevmaptype" -}}
-{{ if eq . 1 }}Seq[V1]{{ else }}{{ template "maptype" add . -1 }}{{ end }}
+{{ if eq .Index 1 }}Seq[V1]{{ else }}{{ template "maptype" add .Index -1 | subTmplArgs .BaseName }}{{ end }}
+{{- end -}}
+
+{{- define "prevKVMapType" -}}
+{{ if eq .Index 1 }}Seq2[K1, V1]{{ else }}{{ template "kvMapType" add .Index -1 | subTmplArgs .BaseName }}{{ end }}
 {{- end -}}
 
 {{- define "prevmapresult" -}}
-{{ if eq . 1 }}Seq[V2]{{ else }}Map{{ add . -1 }}[{{ template "typerange" add . 1 | numsTo | skip 1 }}]{{ end }}
+{{ if eq .Index 1 }}Seq[V2]{{ else }}{{ .BaseName }}{{ add .Index -1 }}[{{ template "typerange" add .Index 1 | numsTo | skip 1 }}]{{ end }}
+{{- end -}}
+
+{{- define "prevKVMapResult" -}}
+{{ if eq .Index 1 }}Seq2[K2, V2]{{ else }}KV{{ .BaseName }}{{ add .Index -1 }}[{{ template "kvTypeRange" add .Index 1 | numsTo | skip 1 }}]{{ end }}
 {{- end -}}
 
 {{- define "seqderef" -}}
@@ -45,14 +65,41 @@ func (s {{ template "maptype" . }}) TakeWhile(test yielder[V1]) {{ template "map
 }
 {{- end -}}
 
+{{- define "seq2deref" -}}
+// See [Seq2.Filter].
+func (s {{ template "kvMapType" . }}) Filter(filter yielder2[K1, V1]) {{ template "kvMapType" . }} {
+	return {{ template "kvMapType" . }}(Seq2[K1, V1](s).Filter(filter))
+}
+
+// See [Seq2.Skip].
+func (s {{ template "kvMapType" . }}) Skip(toSkip int) {{ template "kvMapType" . }} {
+	return {{ template "kvMapType" . }}(Seq2[K1, V1](s).Skip(toSkip))
+}
+
+// See [Seq2.SkipWhile].
+func (s {{ template "kvMapType" . }}) SkipWhile(test yielder2[K1, V1]) {{ template "kvMapType" . }} {
+	return {{ template "kvMapType" . }}(Seq2[K1, V1](s).SkipWhile(test))
+}
+
+// See [Seq2.Take].
+func (s {{ template "kvMapType" . }}) Take(toTake int) {{ template "kvMapType" . }} {
+	return {{ template "kvMapType" . }}(Seq2[K1, V1](s).Take(toTake))
+}
+
+// See [Seq2.TakeWhile].
+func (s {{ template "kvMapType" . }}) TakeWhile(test yielder2[K1, V1]) {{ template "kvMapType" . }} {
+	return {{ template "kvMapType" . }}(Seq2[K1, V1](s).TakeWhile(test))
+}
+{{- end -}}
+
 package {{ .package }}
 
 {{ range numsTo .levels -}}
-// A Map{{ .I }} is a wrapper around [Seq] that provides methods to map to {{ .I }} additional type{{ if gt .I 1 }}s{{ end }}.
-type {{ template "maptypedef" .I }} {{ template "prevmaptype" .I }}
+{{ with subTmplArgs "Mapper" .I }}
+type {{ template "maptypedef" . }} {{ template "prevmaptype" . }}
 
 // Map transforms the elements within the iterator using the provided mapper function.
-func (s {{ template "maptype" .I }}) Map(mapper func(V1) V2) {{ template "prevmapresult" .I }} {
+func (s {{ template "maptype" . }}) Map(mapper func(V1) V2) {{ template "prevmapresult" . }} {
 	return func(yield yielder[V2]) {
 		for v := range s {
 			if !yield(mapper(v)) {
@@ -62,7 +109,7 @@ func (s {{ template "maptype" .I }}) Map(mapper func(V1) V2) {{ template "prevma
 	}
 }
 
-func (s {{ template "maptype" .I }}) Expand(toElements func(V1) Seq[V2]) {{ template "prevmapresult" .I }} {
+func (s {{ template "maptype" . }}) Expand(toElements func(V1) Seq[V2]) {{ template "prevmapresult" . }} {
 	return func(yield yielder[V2]) {
 		for v := range s {
 			for e := range toElements(v) {
@@ -74,5 +121,21 @@ func (s {{ template "maptype" .I }}) Expand(toElements func(V1) Seq[V2]) {{ temp
 	}
 }
 
-{{ template "seqderef" .I }}
+{{ template "seqderef" . }}
+
+type {{ template "kvMapTypeDef" . }} {{ template "prevKVMapType" . }}
+
+// Map transforms the keys and values within the iterator using the provided mapper function.
+func (s {{ template "kvMapType" . }}) Map(mapper func(K1, V1) (K2, V2)) {{ template "prevKVMapResult" . }} {
+	return func(yield yielder2[K2, V2]) {
+		for k, v := range s {
+			if !yield(mapper(k, v)) {
+				break
+			}
+		}
+	}
+}
+
+{{ template "seq2deref" . }}
+{{ end }}
 {{ end }}

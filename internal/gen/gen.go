@@ -22,6 +22,11 @@ type countLoopVal struct {
 	IsLast  bool
 }
 
+type subTmplArgs struct {
+	Index int
+	BaseName string
+}
+
 func main() {
 	output := os.Args[1]
 	template := template.Must(template.New("map.go.tmpl").Funcs(template.FuncMap{
@@ -53,6 +58,12 @@ func main() {
 						break
 					}
 				}
+			}
+		},
+		"subTmplArgs": func(baseName string, index int) subTmplArgs {
+			return subTmplArgs{
+				Index: index,
+				BaseName: baseName,
 			}
 		},
 	}).ParseGlob("./internal/gen/*.go.tmpl"))
