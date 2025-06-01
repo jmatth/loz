@@ -45,7 +45,7 @@ func (o OrdSeq[V]) Take(toTake int) OrdSeq[V] {
 func (o OrdSeq[V]) TakeWhile(test yielder[V]) OrdSeq[V] {
 	return OrdSeq[V](Seq[V](o).TakeWhile(test))
 }
-func (o OrdSeq[V]) Indexed() Seq2[int, V] {
+func (o OrdSeq[V]) Indexed() KVSeq[int, V] {
 	return Seq[V](o).Indexed()
 }
 func (o OrdSeq[V]) Expand(toElements mapper[V, Seq[V]]) OrdSeq[V] {

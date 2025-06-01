@@ -45,7 +45,7 @@ func (n NumSeq[V]) Take(toTake int) NumSeq[V] {
 func (n NumSeq[V]) TakeWhile(test yielder[V]) NumSeq[V] {
 	return NumSeq[V](Seq[V](n).TakeWhile(test))
 }
-func (n NumSeq[V]) Indexed() Seq2[int, V] {
+func (n NumSeq[V]) Indexed() KVSeq[int, V] {
 	return Seq[V](n).Indexed()
 }
 func (n NumSeq[V]) Expand(toElements mapper[V, Seq[V]]) NumSeq[V] {

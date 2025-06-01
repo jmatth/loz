@@ -10,11 +10,11 @@ import (
 	"github.com/jmatth/loz"
 )
 
-func toMap[K comparable, V any](seq loz.Seq2[K, V]) map[K]V {
+func toMap[K comparable, V any](seq loz.KVSeq[K, V]) map[K]V {
 	return maps.Collect(iter.Seq2[K, V](seq))
 }
 
-func ExampleSeq2_Keys() {
+func ExampleKVSeq_Keys() {
 	keys := loz.IterMap(map[int]string{1: "one", 2: "two", 3: "three"}).
 		Keys().
 		CollectSlice()
@@ -23,7 +23,7 @@ func ExampleSeq2_Keys() {
 	// Output: [1 2 3]
 }
 
-func ExampleSeq2_Values() {
+func ExampleKVSeq_Values() {
 	vals := loz.IterMap(map[int]string{1: "one", 2: "two", 3: "three"}).
 		Values().
 		CollectSlice()
@@ -32,7 +32,7 @@ func ExampleSeq2_Values() {
 	// Output: [one three two]
 }
 
-func iterKVPairs[K, V any](kvs ...any) loz.Seq2[K, V] {
+func iterKVPairs[K, V any](kvs ...any) loz.KVSeq[K, V] {
 	return func(yield func(K, V) bool) {
 		for i := 0; i < len(kvs); i += 2 {
 			if !yield(kvs[i].(K), kvs[i+1].(V)) {
@@ -42,14 +42,14 @@ func iterKVPairs[K, V any](kvs ...any) loz.Seq2[K, V] {
 	}
 }
 
-// func ExampleCompKSeq2_CollectMap() {
-// 	result := CompKSeq2[int, string](iterKVPairs[int, string](1, "one", 2, "two", 3, "three")).
+// func ExampleCompKKVSeq_CollectMap() {
+// 	result := CompKKVSeq[int, string](iterKVPairs[int, string](1, "one", 2, "two", 3, "three")).
 // 		CollectMap()
 // 	fmt.Printf("%v", result)
 // 	// Output: map[1:one 2:two 3:three]
 // }
 
-func ExampleSeq2_ForEach() {
+func ExampleKVSeq_ForEach() {
 	iterKVPairs[int, string](1, "one", 2, "two", 3, "three").
 		ForEach(func(k int, v string) {
 			fmt.Printf("%v: %v\n", k, v)
@@ -59,7 +59,7 @@ func ExampleSeq2_ForEach() {
 	// 3: three
 }
 
-func ExampleSeq2_Map() {
+func ExampleKVSeq_Map() {
 	seq := iterKVPairs[int, string](1, "one", 2, "two", 3, "three").
 		Map(func(k int, v string) (int, string) {
 			return k * 2, v + "+" + v
@@ -69,7 +69,7 @@ func ExampleSeq2_Map() {
 	// Output: map[2:one+one 4:two+two 6:three+three]
 }
 
-func ExampleSeq2_Take() {
+func ExampleKVSeq_Take() {
 	seq := loz.IterSlice([]string{"zero", "one", "two", "three", "four"}).
 		Indexed().
 		Take(2)
@@ -78,7 +78,7 @@ func ExampleSeq2_Take() {
 	// Output: map[0:zero 1:one]
 }
 
-func ExampleSeq2_TakeWhile() {
+func ExampleKVSeq_TakeWhile() {
 	seq := loz.IterSlice([]string{"zero", "one", "two", "three", "four"}).
 		Indexed().
 		TakeWhile(func(k int, v string) bool {
@@ -89,7 +89,7 @@ func ExampleSeq2_TakeWhile() {
 	// Output: map[0:zero 1:one 2:two]
 }
 
-func ExampleSeq2_Skip() {
+func ExampleKVSeq_Skip() {
 	seq := loz.IterSlice([]string{"zero", "one", "two", "three", "four"}).
 		Indexed().
 		Skip(3)
@@ -98,7 +98,7 @@ func ExampleSeq2_Skip() {
 	// Output: map[3:three 4:four]
 }
 
-func ExampleSeq2_SkipWhile() {
+func ExampleKVSeq_SkipWhile() {
 	seq := loz.IterSlice([]string{"zero", "one", "two", "three", "four"}).
 		Indexed().
 		SkipWhile(func(k int, v string) bool {
@@ -109,7 +109,7 @@ func ExampleSeq2_SkipWhile() {
 	// Output: map[3:three 4:four]
 }
 
-func ExampleSeq2_Filter() {
+func ExampleKVSeq_Filter() {
 	seq := loz.IterSlice([]string{"zero", "one", "two", "three", "four"}).
 		Indexed().
 		Filter(func(k int, v string) bool {
@@ -120,7 +120,7 @@ func ExampleSeq2_Filter() {
 	// Output: map[1:one 2:two 3:three]
 }
 
-func ExampleSeq2_Any() {
+func ExampleKVSeq_Any() {
 	seq := loz.IterMap(map[string]string{
 		"greeting": "Hello there!",
 		"response": "General Kenobi!",
@@ -136,7 +136,7 @@ func ExampleSeq2_Any() {
 	// Output: true, false
 }
 
-func ExampleSeq2_None() {
+func ExampleKVSeq_None() {
 	seq := loz.IterMap(map[string]string{
 		"greeting": "Hello there!",
 		"response": "General Kenobi!",
@@ -153,7 +153,7 @@ func ExampleSeq2_None() {
 	// Output: false, true
 }
 
-func ExampleSeq2_Every() {
+func ExampleKVSeq_Every() {
 	seq := loz.IterMap(map[string]string{
 		"greeting": "Hello there!",
 		"response": "General Kenobi!",
@@ -170,7 +170,7 @@ func ExampleSeq2_Every() {
 	// Output: false, true
 }
 
-func ExampleSeq2_First() {
+func ExampleKVSeq_First() {
 	k, v, err := loz.IterMap(map[int]bool{}).First()
 	fmt.Printf("%v, %v, %v\n", k, v, err == nil)
 	k, v, err = iterKVPairs[int, bool](1, true, 2, false, 3, true).First()
@@ -179,7 +179,7 @@ func ExampleSeq2_First() {
 	// 1, true, true
 }
 
-func ExampleSeq2_Last() {
+func ExampleKVSeq_Last() {
 	k, v, err := loz.IterMap(map[int]bool{}).Last()
 	fmt.Printf("%v, %v, %v\n", k, v, err != nil)
 	k, v, err = iterKVPairs[int, bool](1, true, 2, false, 3, true).Last()
@@ -188,7 +188,7 @@ func ExampleSeq2_Last() {
 	// 3, true, <nil>
 }
 
-func ExampleSeq2_Fold() {
+func ExampleKVSeq_Fold() {
 	addKMultV := func(k1, v1, k2, v2 int) (int, int) {
 		return k1 + k2, v1 * v2
 	}
@@ -200,7 +200,7 @@ func ExampleSeq2_Fold() {
 	// 3, 16
 }
 
-func ExampleSeq2_Reduce() {
+func ExampleKVSeq_Reduce() {
 	addKMultV := func(k1, v1, k2, v2 int) (int, int) {
 		return k1 + k2, v1 * v2
 	}

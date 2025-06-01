@@ -228,7 +228,7 @@ func (s Seq[V]) TakeWhile(test yielder[V]) Seq[V] {
 	}
 }
 
-func (s Seq[V]) Indexed() Seq2[int, V] {
+func (s Seq[V]) Indexed() KVSeq[int, V] {
 	return func(yield yielder2[int, V]) {
 		var i int
 		for v := range s {

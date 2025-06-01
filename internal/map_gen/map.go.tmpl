@@ -19,7 +19,7 @@ KV{{ .BaseName }}{{ .Index }}[{{ template "kvTypeRange" add 1 .Index | numsTo }}
 {{- end -}}
 
 {{- define "prevKVMapType" -}}
-{{ if eq .Index 1 }}Seq2[K1, V1]{{ else }}{{ template "kvMapType" add .Index -1 | subTmplArgs .BaseName }}{{ end }}
+{{ if eq .Index 1 }}KVSeq[K1, V1]{{ else }}{{ template "kvMapType" add .Index -1 | subTmplArgs .BaseName }}{{ end }}
 {{- end -}}
 
 {{- define "prevmapresult" -}}
@@ -27,7 +27,7 @@ KV{{ .BaseName }}{{ .Index }}[{{ template "kvTypeRange" add 1 .Index | numsTo }}
 {{- end -}}
 
 {{- define "prevKVMapResult" -}}
-{{ if eq .Index 1 }}Seq2[K2, V2]{{ else }}KV{{ .BaseName }}{{ add .Index -1 }}[{{ template "kvTypeRange" add .Index 1 | numsTo | skip 1 }}]{{ end }}
+{{ if eq .Index 1 }}KVSeq[K2, V2]{{ else }}KV{{ .BaseName }}{{ add .Index -1 }}[{{ template "kvTypeRange" add .Index 1 | numsTo | skip 1 }}]{{ end }}
 {{- end -}}
 
 {{- define "seqderef" -}}
@@ -62,29 +62,29 @@ func IterMapMap{{ .Index }}[{{ template "kvTypeRangeComp" add 1 .Index | numsTo 
 	return {{ template "kvMapType" . }}(IterMap(m))
 }
 
-// See [Seq2.Filter].
+// See [KVSeq.Filter].
 func (s {{ template "kvMapType" . }}) Filter(filter yielder2[K1, V1]) {{ template "kvMapType" . }} {
-	return {{ template "kvMapType" . }}(Seq2[K1, V1](s).Filter(filter))
+	return {{ template "kvMapType" . }}(KVSeq[K1, V1](s).Filter(filter))
 }
 
-// See [Seq2.Skip].
+// See [KVSeq.Skip].
 func (s {{ template "kvMapType" . }}) Skip(toSkip int) {{ template "kvMapType" . }} {
-	return {{ template "kvMapType" . }}(Seq2[K1, V1](s).Skip(toSkip))
+	return {{ template "kvMapType" . }}(KVSeq[K1, V1](s).Skip(toSkip))
 }
 
-// See [Seq2.SkipWhile].
+// See [KVSeq.SkipWhile].
 func (s {{ template "kvMapType" . }}) SkipWhile(test yielder2[K1, V1]) {{ template "kvMapType" . }} {
-	return {{ template "kvMapType" . }}(Seq2[K1, V1](s).SkipWhile(test))
+	return {{ template "kvMapType" . }}(KVSeq[K1, V1](s).SkipWhile(test))
 }
 
-// See [Seq2.Take].
+// See [KVSeq.Take].
 func (s {{ template "kvMapType" . }}) Take(toTake int) {{ template "kvMapType" . }} {
-	return {{ template "kvMapType" . }}(Seq2[K1, V1](s).Take(toTake))
+	return {{ template "kvMapType" . }}(KVSeq[K1, V1](s).Take(toTake))
 }
 
-// See [Seq2.TakeWhile].
+// See [KVSeq.TakeWhile].
 func (s {{ template "kvMapType" . }}) TakeWhile(test yielder2[K1, V1]) {{ template "kvMapType" . }} {
-	return {{ template "kvMapType" . }}(Seq2[K1, V1](s).TakeWhile(test))
+	return {{ template "kvMapType" . }}(KVSeq[K1, V1](s).TakeWhile(test))
 }
 {{- end -}}
 
