@@ -14,5 +14,10 @@ jobs:
 
     - uses: jdx/mise-action@v2.0.2
 
+    - name: golangci-lint
+      uses: golangci/golangci-lint-action@v8
+      with:
+        version: v2.3
+
     - name: Test
       run: go test -v ./...

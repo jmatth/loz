@@ -233,7 +233,7 @@ type packageSkipper struct {
 	writer  io.Writer
 }
 
-var packageMatcher = regexp.MustCompile("^package \\w+")
+var packageMatcher = regexp.MustCompile(`^package \w+`)
 
 func (s packageSkipper) Write(b []byte) (int, error) {
 	if s.skipped {
