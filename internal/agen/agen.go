@@ -94,7 +94,7 @@ func main() {
 	if *appendPtr {
 		fileFlags |= os.O_APPEND
 	} else {
-		fileFlags |= os.O_TRUNC|os.O_CREATE
+		fileFlags |= os.O_TRUNC | os.O_CREATE
 	}
 	outFileDisk, err = os.OpenFile(outPath, fileFlags, 0o644)
 	if err != nil {

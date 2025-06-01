@@ -47,12 +47,12 @@ func TestKVMapper1(t *testing.T) {
 
 func ExampleMapper1_Fold() {
 	result := loz.Mapper1[int, string](loz.RangeFrom(1, 6)).
-	Fold("", func(acc string, n int) string {
-		if acc == "" {
-			return fmt.Sprintf("%d", n)
-		}
-		return fmt.Sprintf("%s, %d", acc, n)
-	})
+		Fold("", func(acc string, n int) string {
+			if acc == "" {
+				return fmt.Sprintf("%d", n)
+			}
+			return fmt.Sprintf("%s, %d", acc, n)
+		})
 	fmt.Printf("%v", result)
 	// Output: 1, 2, 3, 4, 5
 }
