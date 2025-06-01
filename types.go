@@ -4,6 +4,7 @@ type yielder[V any] = func(V) bool
 type processor[V any] = func(V)
 type mapper[V, O any] = func(V) O
 type reducer[V, O any] = func(O, V) O
+
 // Switch back to this when the go team fixes their compiler.
 // https://github.com/golang/go/issues/63285
 // type expander[V, O any] = func(V) Seq[O]

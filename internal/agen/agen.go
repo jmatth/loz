@@ -97,7 +97,7 @@ func main() {
 			panic(err)
 		}
 	} else {
-		outFileDisk, err = os.OpenFile(outPath, os.O_APPEND | os.O_CREATE | os.O_WRONLY, 0o644)
+		outFileDisk, err = os.OpenFile(outPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
 		if err != nil {
 			panic(err)
 		}
@@ -230,10 +230,11 @@ func paramToCode(param funcParam) Code {
 type packageSkipper struct {
 	skipped bool
 	builder strings.Builder
-	writer io.Writer
+	writer  io.Writer
 }
 
 var packageMatcher = regexp.MustCompile("^package \\w+")
+
 func (s packageSkipper) Write(b []byte) (int, error) {
 	if s.skipped {
 		return s.writer.Write(b)

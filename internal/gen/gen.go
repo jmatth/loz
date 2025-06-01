@@ -23,7 +23,7 @@ type countLoopVal struct {
 }
 
 type subTmplArgs struct {
-	Index int
+	Index    int
 	BaseName string
 	TypeTmpl string
 }
@@ -63,7 +63,7 @@ func main() {
 		},
 		"subTmplArgs": func(baseName string, index int) subTmplArgs {
 			return subTmplArgs{
-				Index: index,
+				Index:    index,
 				BaseName: baseName,
 				TypeTmpl: "kvMapType",
 			}

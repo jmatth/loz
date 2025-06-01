@@ -15,7 +15,7 @@ run = [
 
 [tasks.format]
 description = "Apply code formatting"
-run = "go fmt ."
+run = "golangci-lint fmt ."
 
 [tasks.get]
 description = "Fetch dependencies"
