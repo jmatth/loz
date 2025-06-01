@@ -68,7 +68,7 @@ func main() {
 				TypeTmpl: "kvMapType",
 			}
 		},
-	}).ParseGlob("./internal/gen/*.go.tmpl"))
+	}).ParseGlob("./internal/map_gen/*.go.tmpl"))
 
 	outFile, err := os.Create(fmt.Sprintf("%v.go", output))
 	panicIfErr(err)

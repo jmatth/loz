@@ -1,4 +1,4 @@
-//go:generate go run ./internal/gen/gen.go map.g
+//go:generate go run ./internal/map_gen/map_gen.go map.g
 package loz
 
 // Fold is identical to [Seq.Fold] except that the type of the result can
