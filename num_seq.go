@@ -8,12 +8,16 @@ import (
 	"golang.org/x/exp/constraints"
 )
 
+// NumSeq is a [Seq] where the elements are numbers.
 type number interface {
 	constraints.Integer | constraints.Float
 }
 
 type NumSeq[V number] Seq[V]
 
+// Range returns an iterator containing integers from 0 (inclusive) to the
+// provided value (exclusive). If a value <= 0 is provided then an empty
+// iterator is returned.
 func Range(to int) NumSeq[int] {
 	return func(yield func(int) bool) {
 		for i := range to {
@@ -24,6 +28,8 @@ func Range(to int) NumSeq[int] {
 	}
 }
 
+// Range returns an iterator containing integers from from (inclusive) to to
+// (exclusive). If to <= from then an empty iterator is returned.
 func RangeFrom(from, to int) NumSeq[int] {
 	return func(yield func(int) bool) {
 		for i := from; i < to; i++ {
@@ -34,6 +40,10 @@ func RangeFrom(from, to int) NumSeq[int] {
 	}
 }
 
+// RangeInterval returns an iterator of numbers from from (inclusive) to to
+// (exclusive), moving in steps of interval. If interval is zero or would create
+// an infinite sequence given the values of from and to, then an empty iterator
+// is returned.
 func RangeInterval[V number](from, to, interval V) NumSeq[V] {
 	return func(yield func(V) bool) {
 		if interval == 0 || (to > from && interval <= 0) || (to < from && interval >= 0) {

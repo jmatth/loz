@@ -5,4 +5,5 @@ linters.enable = [
   "unconvert",
   "whitespace",
   "predeclared",
+  "govet",
 ]

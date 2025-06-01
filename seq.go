@@ -19,8 +19,8 @@ func (e SeqError) Error() string {
 	return "unknown iteration error"
 }
 
-// Seq is an alias to [iter.Seq] that provides additional methods for filtering
-// and transforming the elements.
+// Seq is an alias to [iter.Seq] that provides additional methods for filtering,
+// transforming, and collecting the elements.
 type Seq[V any] iter.Seq[V]
 
 // IterSlice creates a Seq over the contents of a slice.
@@ -86,8 +86,8 @@ func (s Seq[V]) Fold(initial V, combine reducer[V, V]) V {
 	return initial
 }
 
-// First consumes the iterator and returns its first element.
-// If the iterator is empty a zero value will be returned with an error.
+// First consumes the iterator and returns its first element. If the iterator
+// is empty a zero value will be returned with an error.
 func (s Seq[V]) First() (V, error) {
 	var result V
 	isEmpty := true
