@@ -10,7 +10,7 @@ import (
 func ExampleSeq_TakeWhile() {
 	result := IterSlice([]int{2, 4, 5, 6, 8}).
 		TakeWhile(func(n int) bool { return n%2 == 0 }).
-		ToSlice()
+		CollectSlice()
 	fmt.Printf("%v", result)
 	// Output: [2 4]
 }
@@ -18,7 +18,7 @@ func ExampleSeq_TakeWhile() {
 func ExampleSeq_SkipWhile() {
 	result := IterSlice([]int{2, 4, 5, 6, 8}).
 		SkipWhile(func(n int) bool { return n%2 == 0 }).
-		ToSlice()
+		CollectSlice()
 	fmt.Printf("%v", result)
 	// Output: [5 6 8]
 }
@@ -28,28 +28,28 @@ func ExampleSeq_Filter() {
 		Filter(
 			func(b bool) bool {
 				return !b
-			}).ToSlice()
+			}).CollectSlice()
 	fmt.Printf("%v", filteredSlice)
 	// Output: [false false]
 }
 
 func ExampleSeq_Skip() {
 	nums := []int{1, 2, 3, 4, 5, 6, 7, 8, 9}
-	skipped := IterSlice(nums).Skip(3).ToSlice()
+	skipped := IterSlice(nums).Skip(3).CollectSlice()
 	fmt.Printf("%v", skipped)
 	// Output: [4 5 6 7 8 9]
 }
 
 func ExampleSeq_Take() {
 	nums := []int{1, 2, 3, 4, 5, 6, 7, 8, 9}
-	took := IterSlice(nums).Take(3).ToSlice()
+	took := IterSlice(nums).Take(3).CollectSlice()
 	fmt.Printf("%v", took)
 	// Output: [1 2 3]
 }
 
 func ExampleSeq_Map() {
 	nums := []int{1, 2, 3}
-	doubled := IterSlice(nums).Map(func(n int) int { return n * 2 }).ToSlice()
+	doubled := IterSlice(nums).Map(func(n int) int { return n * 2 }).CollectSlice()
 	fmt.Printf("%v", doubled)
 	// Output: [2 4 6]
 }
@@ -111,7 +111,7 @@ func ExampleSeq_Expand() {
 	}
 
 	nums := []int{1, 2, 3, 0, 5}
-	expanded := IterSlice(nums).Expand(expander).ToSlice()
+	expanded := IterSlice(nums).Expand(expander).CollectSlice()
 	fmt.Printf("%v", expanded)
 	// Output: [1 1 2 1 2 3 1 2 3 4 5]
 }
@@ -165,21 +165,24 @@ func ExampleSeq_ForEach() {
 
 func TestSkipAll(t *testing.T) {
 	nums := []int{1, 2, 3, 4, 5, 6, 7, 8, 9}
-	skipped := IterSlice(nums).Skip(100).ToSlice()
+	skipped := IterSlice(nums).Skip(100).CollectSlice()
 	assert.Empty(t, skipped)
 }
 
 func TestSkipAndTake(t *testing.T) {
 	nums := []int{1, 2, 3, 4, 5, 6, 7, 8, 9}
-	took := IterSlice(nums).Skip(3).Take(3).ToSlice()
+	took := IterSlice(nums).Skip(3).Take(3).CollectSlice()
 	assert.Equal(t, []int{4, 5, 6}, took)
 }
 
 func TestRepeatCalls(t *testing.T) {
 	nums := []int{1, 2, 3, 4, 5, 6, 7, 8, 9}
 	baseSeq := IterSlice(nums).Skip(3)
-	took := baseSeq.Take(3).ToSlice()
-	skipped := baseSeq.Skip(3).ToSlice()
+	took := baseSeq.Take(3).CollectSlice()
+	skipped := baseSeq.Skip(3).CollectSlice()
 	assert.Equal(t, []int{4, 5, 6}, took)
 	assert.Equal(t, []int{7, 8, 9}, skipped)
+}
+
+func TestTMP(t *testing.T) {
 }

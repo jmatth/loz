@@ -12,7 +12,7 @@ func TestMap(t *testing.T) {
 	nums := []int{1, 2, 3, 4, 5}
 	mapper := Mapper1[int, string](IterSlice(nums))
 	mapped := mapper.Map(func(n int) string { return fmt.Sprintf("%v", n) })
-	assert.Equal(t, []string{"1", "2", "3", "4", "5"}, Seq[string](mapped).ToSlice())
+	assert.Equal(t, []string{"1", "2", "3", "4", "5"}, Seq[string](mapped).CollectSlice())
 }
 
 func TestMultiMap(t *testing.T) {
@@ -22,11 +22,11 @@ func TestMultiMap(t *testing.T) {
 		Map(func(s string) byte { return s[0] }).
 		Map(func(b byte) int { return int(b - 0x30) }).
 		Map(func(n int) float64 { return float64(n) * 11 / 10 }).
-		ToSlice()
+		CollectSlice()
 	assert.Equal(t, []float64{1.1, 2.2, 3.3, 4.4, 5.5}, mapped)
 }
 
-func TestKVMap1(t *testing.T) {
+func TestKVMapper1(t *testing.T) {
 	m := map[int]string{
 		1: "one",
 		2: "two",
@@ -40,6 +40,6 @@ func TestKVMap1(t *testing.T) {
 		Map(func(k int, v string) (string, byte) {
 			return fmt.Sprintf("%v", k), v[0]
 		})
-	assert.ElementsMatch(t, iterator.Keys().ToSlice(), []string{"1", "2", "3", "4", "5"})
-	assert.ElementsMatch(t, iterator.Values().ToSlice(), []byte{'o', 't', 't', 'f', 'f'})
+	assert.ElementsMatch(t, iterator.Keys().CollectSlice(), []string{"1", "2", "3", "4", "5"})
+	assert.ElementsMatch(t, iterator.Values().CollectSlice(), []byte{'o', 't', 't', 'f', 'f'})
 }

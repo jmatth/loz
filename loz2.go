@@ -1,22 +1,15 @@
 package loz
 
 import (
-	"errors"
 	"iter"
 	"maps"
 )
-
-type yielder2[K, V any] = func(K, V) bool
 
 type Seq2[K, V any] iter.Seq2[K, V]
 
 // IterMap creates a Seq over the key/value pairs of a map.
 func IterMap[K comparable, V any](input map[K]V) Seq2[K, V] {
 	return Seq2[K, V](maps.All(input))
-}
-
-func ToMap[K comparable, V any](seq Seq2[K, V]) map[K]V {
-	return maps.Collect(iter.Seq2[K, V](seq))
 }
 
 // ToKeys converts a Seq2[K, V] to a Seq[K], continuing the iteration with only the keys.
@@ -57,8 +50,6 @@ func (s Seq2[K, V]) Map(mapper func(K, V) (K, V)) Seq2[K, V] {
 	}
 }
 
-type reducer2[K, V any] = func(K, V, K, V) (K, V)
-
 func (s Seq2[K, V]) Reduce(combine reducer2[K, V]) (K, V, error) {
 	var keyResult K
 	var valResult V
@@ -73,7 +64,7 @@ func (s Seq2[K, V]) Reduce(combine reducer2[K, V]) (K, V, error) {
 		keyResult, valResult = combine(keyResult, valResult, k, v)
 	}
 	if isFirst {
-		return keyResult, valResult, errors.New("Reduce called on empty Seq2")
+		return keyResult, valResult, EmptySeqErr
 	}
 	return keyResult, valResult, nil
 }
@@ -94,7 +85,7 @@ func (s Seq2[K, V]) First() (K, V, error) {
 		break
 	}
 	if isEmpty {
-		return key, val, errors.New("First called on empty Seq2")
+		return key, val, EmptySeqErr
 	}
 	return key, val, nil
 }
@@ -109,7 +100,7 @@ func (s Seq2[K, V]) Last() (K, V, error) {
 		}
 	}
 	if isEmpty {
-		return key, val, errors.New("Last called on empty Seq2")
+		return key, val, EmptySeqErr
 	}
 	return key, val, nil
 }

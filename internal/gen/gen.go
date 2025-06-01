@@ -25,6 +25,7 @@ type countLoopVal struct {
 type subTmplArgs struct {
 	Index int
 	BaseName string
+	TypeTmpl string
 }
 
 func main() {
@@ -64,6 +65,7 @@ func main() {
 			return subTmplArgs{
 				Index: index,
 				BaseName: baseName,
+				TypeTmpl: "kvMapType",
 			}
 		},
 	}).ParseGlob("./internal/gen/*.go.tmpl"))

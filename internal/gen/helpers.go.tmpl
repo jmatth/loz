@@ -1,0 +1,11 @@
+{{- define "typerange" -}}
+{{ range . }}V{{ .I }}{{ if not .IsLast }}, {{ end }}{{ end }}
+{{- end }}
+
+{{- define "kvTypeRange" -}}
+{{ range . }}K{{ .I }}, V{{ .I }}{{ if not .IsLast }}, {{ end }}{{ end }}
+{{- end }}
+
+{{- define "kvTypeRangeComp" -}}
+{{ range . }}K{{ .I }}{{ if .IsFirst }} comparable{{ end }}, V{{ .I }}{{ if not .IsLast }}, {{ end }}{{ end }}
+{{- end }}

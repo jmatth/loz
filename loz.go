@@ -1,14 +1,26 @@
 package loz
 
 import (
-	"errors"
 	"iter"
 	"slices"
 )
 
-type yielder[V any] = func(V) bool
+type SeqError int
 
-// Seq is an alias to [iter.Seq] that provides additional methods for filtering and transforming the elements.
+const (
+	EmptySeqErr SeqError = iota
+)
+
+func (e SeqError) Error() string {
+	switch e {
+	case EmptySeqErr:
+		return "empty iterator"
+	}
+	return "unknown iteration error"
+}
+
+// Seq is an alias to [iter.Seq] that provides additional methods for filtering
+// and transforming the elements.
 type Seq[V any] iter.Seq[V]
 
 // IterSlice creates a Seq over the contents of a slice.
@@ -16,22 +28,26 @@ func IterSlice[V any](slice []V) Seq[V] {
 	return Seq[V](slices.Values(slice))
 }
 
-// ToSlice collects all the elements within the iterator into a slice by calling [slices.Collect].
-func (s Seq[V]) ToSlice() []V {
+// CollectSlice collects all the elements within the iterator into a slice by
+// calling [slices.Collect].
+func (s Seq[V]) CollectSlice() []V {
 	return slices.Collect(iter.Seq[V](s))
 }
 
-// ForEach consumes the iterator and calls the provided function with each of the elements.
-func (s Seq[V]) ForEach(process func(V)) {
+// ForEach consumes the iterator and calls the provided function with each of
+// the elements.
+func (s Seq[V]) ForEach(process processor[V]) {
 	for v := range s {
 		process(v)
 	}
 }
 
-// Map transforms the elements within the iterator using the provided mapper function.
-// Due to limitations of the Go type system, the mapped value must be the same type as the input.
-// To perform mapping operations that change type, see [Map1], [Map2], etc.
-func (s Seq[V]) Map(mapper func(V) V) Seq[V] {
+
+// Map transforms the elements within the iterator using the provided mapper
+// function. Due to limitations of the Go type system, the mapped value must be
+// the same type as the input. To perform mapping operations that change type,
+// see [Mapper1], [Mapper2], etc.
+func (s Seq[V]) Map(mapper mapper[V, V]) Seq[V] {
 	return func(yield yielder[V]) {
 		for v := range s {
 			if !yield(mapper(v)) {
@@ -41,10 +57,9 @@ func (s Seq[V]) Map(mapper func(V) V) Seq[V] {
 	}
 }
 
-type reducer[V, O any] = func(O, V) O
-
-// Reduce reduces the iterator to a single value by iteratively combining its elements using the provided function.
-// If the iterator is empty a zero value will be returned along with an error.
+// Reduce reduces the iterator to a single value by iteratively combining its
+// elements using the provided function. If the iterator is empty a zero value
+// will be returned along with an error.
 func (s Seq[V]) Reduce(combine reducer[V, V]) (V, error) {
 	var result V
 	isFirst := true
@@ -57,13 +72,14 @@ func (s Seq[V]) Reduce(combine reducer[V, V]) (V, error) {
 		result = combine(result, v)
 	}
 	if isFirst {
-		return result, errors.New("Reduce called on empty Seq")
+		return result, EmptySeqErr
 	}
 	return result, nil
 }
 
-// Fold reduces the iterator to a single value by iteratively combining its elements with an initial value using the provided function.
-// If the iterator is empty the initial value will be returned unmodified.
+// Fold reduces the iterator to a single value by iteratively combining its
+// elements with an initial value using the provided function. If the iterator
+// is empty the initial value will be returned unmodified.
 func (s Seq[V]) Fold(initial V, combine reducer[V, V]) V {
 	for v := range s {
 		initial = combine(initial, v)
@@ -81,7 +97,7 @@ func (s Seq[V]) First() (V, error) {
 		break
 	}
 	if isEmpty {
-		return result, errors.New("First called on empty Seq")
+		return result, EmptySeqErr
 	}
 	return result, nil
 }
@@ -97,13 +113,13 @@ func (s Seq[V]) Last() (V, error) {
 		}
 	}
 	if isEmpty {
-		return result, errors.New("Last called on empty Seq")
+		return result, EmptySeqErr
 	}
 	return result, nil
 }
 
-// Any returns true if test returns true for at least one element in the iterator, and false otherwise.
-// Returns false for an empty iterator.
+// Any returns true if test returns true for at least one element in the
+// iterator, and false otherwise. Returns false for an empty iterator.
 func (s Seq[V]) Any(test yielder[V]) bool {
 	for v := range s {
 		if test(v) {
@@ -113,8 +129,8 @@ func (s Seq[V]) Any(test yielder[V]) bool {
 	return false
 }
 
-// Every returns true if test returns false for every element of the iterator, and false otherwise.
-// Returns true for an empty iterator.
+// Every returns true if test returns false for every element of the iterator,
+// and false otherwise. Returns true for an empty iterator.
 func (s Seq[V]) None(test yielder[V]) bool {
 	for v := range s {
 		if test(v) {
@@ -124,8 +140,8 @@ func (s Seq[V]) None(test yielder[V]) bool {
 	return true
 }
 
-// Every returns true if test returns true for every element of the iterator, and false otherwise.
-// Returns true for an empty iterator.
+// Every returns true if test returns true for every element of the iterator,
+// and false otherwise. Returns true for an empty iterator.
 func (s Seq[V]) Every(test yielder[V]) bool {
 	for v := range s {
 		if !test(v) {
@@ -135,7 +151,8 @@ func (s Seq[V]) Every(test yielder[V]) bool {
 	return true
 }
 
-// Filter filters the iterator to only include only elements for which filter returns true.
+// Filter filters the iterator to only include only elements for which filter
+// returns true.
 func (s Seq[V]) Filter(filter yielder[V]) Seq[V] {
 	return func(yield yielder[V]) {
 		for v := range s {
@@ -148,8 +165,9 @@ func (s Seq[V]) Filter(filter yielder[V]) Seq[V] {
 	}
 }
 
-// Skip skips the first toSkip elements of the iterator.
-// If toSkip is greater than or equal to the number of elements in the iterator the result will be an empty iterator.
+// Skip skips the first toSkip elements of the iterator. If toSkip is greater
+// than or equal to the number of elements in the iterator the result will be
+// an empty iterator.
 func (s Seq[V]) Skip(toSkip int) Seq[V] {
 	return func(yield yielder[V]) {
 		var skipped int
@@ -199,7 +217,8 @@ func (s Seq[V]) Take(toTake int) Seq[V] {
 	}
 }
 
-// TakeWhile restricts the iterator to the leading elements for which test returns true.
+// TakeWhile restricts the iterator to the leading elements for which test
+// returns true.
 func (s Seq[V]) TakeWhile(test yielder[V]) Seq[V] {
 	return func(yield yielder[V]) {
 		for v := range s {
@@ -222,12 +241,13 @@ func (s Seq[V]) Indexed() Seq2[int, V] {
 	}
 }
 
-func (s Seq[V]) Expand(toElements func(V) Seq[V]) Seq[V] {
+func (s Seq[V]) Expand(toElements mapper[V, Seq[V]]) Seq[V] {
 	return func(yield yielder[V]) {
+		outer:
 		for v := range s {
 			for e := range toElements(v) {
 				if !yield(e) {
-					break
+					break outer
 				}
 			}
 		}

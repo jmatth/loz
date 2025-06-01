@@ -8,10 +8,14 @@ import (
 	"strings"
 )
 
+func toMap[K comparable, V any](seq Seq2[K, V]) map[K]V {
+	return maps.Collect(iter.Seq2[K, V](seq))
+}
+
 func ExampleSeq2_Keys() {
 	keys := IterMap(map[int]string{1: "one", 2: "two", 3: "three"}).
 		Keys().
-		ToSlice()
+		CollectSlice()
 	slices.Sort(keys)
 	fmt.Printf("%v", keys)
 	// Output: [1 2 3]
@@ -20,7 +24,7 @@ func ExampleSeq2_Keys() {
 func ExampleSeq2_Values() {
 	vals := IterMap(map[int]string{1: "one", 2: "two", 3: "three"}).
 		Values().
-		ToSlice()
+		CollectSlice()
 	slices.Sort(vals)
 	fmt.Printf("%v", vals)
 	// Output: [one three two]
@@ -35,6 +39,13 @@ func iterKVPairs[K, V any](kvs ...any) Seq2[K, V] {
 		}
 	}
 }
+
+// func ExampleCompKSeq2_CollectMap() {
+// 	result := CompKSeq2[int, string](iterKVPairs[int, string](1, "one", 2, "two", 3, "three")).
+// 		CollectMap()
+// 	fmt.Printf("%v", result)
+// 	// Output: map[1:one 2:two 3:three]
+// }
 
 func ExampleSeq2_ForEach() {
 	iterKVPairs[int, string](1, "one", 2, "two", 3, "three").
@@ -60,7 +71,7 @@ func ExampleSeq2_Take() {
 	seq := IterSlice([]string{"zero", "one", "two", "three", "four"}).
 		Indexed().
 		Take(2)
-	result := ToMap(seq)
+	result := toMap(seq)
 	fmt.Printf("%v", result)
 	// Output: map[0:zero 1:one]
 }
@@ -71,7 +82,7 @@ func ExampleSeq2_TakeWhile() {
 		TakeWhile(func(k int, v string) bool {
 			return k < 3
 		})
-	result := ToMap(seq)
+	result := toMap(seq)
 	fmt.Printf("%v", result)
 	// Output: map[0:zero 1:one 2:two]
 }
@@ -80,7 +91,7 @@ func ExampleSeq2_Skip() {
 	seq := IterSlice([]string{"zero", "one", "two", "three", "four"}).
 		Indexed().
 		Skip(3)
-	result := ToMap(seq)
+	result := toMap(seq)
 	fmt.Printf("%v", result)
 	// Output: map[3:three 4:four]
 }
@@ -91,7 +102,7 @@ func ExampleSeq2_SkipWhile() {
 		SkipWhile(func(k int, v string) bool {
 			return k < 3
 		})
-	result := ToMap(seq)
+	result := toMap(seq)
 	fmt.Printf("%v", result)
 	// Output: map[3:three 4:four]
 }
@@ -102,7 +113,7 @@ func ExampleSeq2_Filter() {
 		Filter(func(k int, v string) bool {
 			return k%2 != 0 || len(v) == 3
 		})
-	result := ToMap(seq)
+	result := toMap(seq)
 	fmt.Printf("%v", result)
 	// Output: map[1:one 2:two 3:three]
 }
