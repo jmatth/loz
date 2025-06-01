@@ -51,3 +51,10 @@ func (n NumSeq[V]) Indexed() Seq2[int, V] {
 func (n NumSeq[V]) Expand(toElements mapper[V, Seq[V]]) NumSeq[V] {
 	return NumSeq[V](Seq[V](n).Expand(toElements))
 }
+
+func (n NumSeq[V]) Max() (V, error) {
+	return OrdSeq[V](n).Max()
+}
+func (n NumSeq[V]) Min() (V, error) {
+	return OrdSeq[V](n).Min()
+}

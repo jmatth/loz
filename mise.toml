@@ -2,15 +2,15 @@
 go = "1.24.3"
 
 [tasks.clean-generated]
-run = "rm -f *_generated*.go"
+run = "rm -f *.g.go"
 
 [tasks.generate]
 description = "Run go code generators"
 depends = ['clean-generated']
 run = [
-  "go generate ./map.go",
-  "go generate ./loz_ordered.go",
-  "go generate ./loz_num.go",
+  "go generate ./mapper.go",
+  "go generate ./ord_seq.go",
+  "go generate ./num_seq.go",
 ]
 
 [tasks.format]

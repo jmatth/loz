@@ -1,5 +1,5 @@
-//go:generate go run ./internal/agen/agen.go loz Seq NumSeq loz_num_generated1.go
-//go:generate go run ./internal/agen/agen.go loz_ordered OrdSeq NumSeq loz_num_generated2.go
+//go:generate go run ./internal/agen/agen.go seq Seq NumSeq num_seq.g.go
+//go:generate go run ./internal/agen/agen.go --a ord_seq OrdSeq NumSeq num_seq.g.go
 package loz
 
 import (

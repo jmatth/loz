@@ -1,11 +1,14 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"go/ast"
 	"go/parser"
 	"go/token"
+	"io"
 	"os"
+	"regexp"
 	"strings"
 
 	. "github.com/dave/jennifer/jen" //nolint: staticcheck
@@ -13,10 +16,13 @@ import (
 )
 
 func main() {
-	inPath := os.Args[1]
-	inType := os.Args[2]
-	outType := os.Args[3]
-	outPath := os.Args[4]
+	appendPtr := flag.Bool("a", false, "append to file instead of overwriting")
+	flag.Parse()
+	append := *appendPtr
+	inPath := flag.Arg(0)
+	inType := flag.Arg(1)
+	outType := flag.Arg(2)
+	outPath := flag.Arg(3)
 
 	fset := token.NewFileSet()
 	file, err := parser.ParseFile(fset, inPath+".go", nil, parser.ParseComments)
@@ -41,7 +47,7 @@ func main() {
 				t.Index.(*ast.Ident).Name,
 			}
 			recvTypedef = typeDef{
-				name: outType,
+				name:       outType,
 				typeParams: types,
 			}
 		case *ast.IndexListExpr:
@@ -54,7 +60,7 @@ func main() {
 				}).
 				CollectSlice()
 			recvTypedef = typeDef{
-				name: outType,
+				name:       outType,
 				typeParams: types,
 			}
 		default:
@@ -84,11 +90,29 @@ func main() {
 		return true
 	})
 
-	outFileDisk, err := os.Create(outPath)
+	var outFileDisk *os.File
+	if !append {
+		outFileDisk, err = os.Create(outPath)
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		outFileDisk, err = os.OpenFile(outPath, os.O_APPEND | os.O_CREATE | os.O_WRONLY, 0o644)
+		if err != nil {
+			panic(err)
+		}
+	}
+	var outWriter io.Writer = outFileDisk
+	if append {
+		outWriter = packageSkipper{
+			writer: outFileDisk,
+		}
+	}
+	err = outFile.Render(outWriter)
 	if err != nil {
 		panic(err)
 	}
-	_, err = outFileDisk.WriteString(outFile.GoString())
+	err = outFileDisk.Close()
 	if err != nil {
 		panic(err)
 	}
@@ -201,4 +225,34 @@ func paramToCode(param funcParam) Code {
 				g.Id(pt)
 			}
 		})
+}
+
+type packageSkipper struct {
+	skipped bool
+	builder strings.Builder
+	writer io.Writer
+}
+
+var packageMatcher = regexp.MustCompile("^package \\w+")
+func (s packageSkipper) Write(b []byte) (int, error) {
+	if s.skipped {
+		return s.writer.Write(b)
+	}
+	written, err := s.builder.Write(b)
+	if err != nil {
+		return written, err
+	}
+	stringSoFar := s.builder.String()
+	matchIndexes := packageMatcher.FindStringIndex(stringSoFar)
+	if matchIndexes == nil {
+		return written, err
+	}
+	substrIndex := matchIndexes[1] + 1
+	if substrIndex >= len(stringSoFar) {
+		return written, nil
+	}
+	_, err = s.writer.Write([]byte(stringSoFar[substrIndex:]))
+	s.builder.Reset()
+	s.skipped = true
+	return written, err
 }

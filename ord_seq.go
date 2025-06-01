@@ -1,4 +1,4 @@
-//go:generate go run ./internal/agen/agen.go loz Seq OrdSeq loz_ordered_generated.go
+//go:generate go run ./internal/agen/agen.go seq Seq OrdSeq ord_seq.g.go
 package loz
 
 import (

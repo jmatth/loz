@@ -1,4 +1,4 @@
-//go:generate go run ./internal/gen/gen.go map_generated
+//go:generate go run ./internal/gen/gen.go map.g
 package loz
 
 // Mapper1.Fold is identical to [Seq.Fold] except that the type of the result can
