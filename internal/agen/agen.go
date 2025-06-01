@@ -18,7 +18,6 @@ import (
 func main() {
 	appendPtr := flag.Bool("a", false, "append to file instead of overwriting")
 	flag.Parse()
-	append := *appendPtr
 	inPath := flag.Arg(0)
 	inType := flag.Arg(1)
 	outType := flag.Arg(2)
@@ -91,19 +90,18 @@ func main() {
 	})
 
 	var outFileDisk *os.File
-	if !append {
-		outFileDisk, err = os.Create(outPath)
-		if err != nil {
-			panic(err)
-		}
+	fileFlags := os.O_WRONLY
+	if *appendPtr {
+		fileFlags |= os.O_APPEND
 	} else {
-		outFileDisk, err = os.OpenFile(outPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
-		if err != nil {
-			panic(err)
-		}
+		fileFlags |= os.O_TRUNC|os.O_CREATE
+	}
+	outFileDisk, err = os.OpenFile(outPath, fileFlags, 0o644)
+	if err != nil {
+		panic(err)
 	}
 	var outWriter io.Writer = outFileDisk
-	if append {
+	if *appendPtr {
 		outWriter = packageSkipper{
 			writer: outFileDisk,
 		}

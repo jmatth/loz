@@ -10,28 +10,28 @@ import (
 
 func ExampleOrdSeq_Max() {
 	iter := loz.OrdSeq[int](loz.IterSlice([]int{3, 2, 5, -3, 0}))
-	max, err := iter.Max()
-	fmt.Printf("%v, %v", max, err)
+	maxVal, err := iter.Max()
+	fmt.Printf("%v, %v", maxVal, err)
 	// Output: 5, <nil>
 }
 
 func TestOrdSeqMaxEmpty(t *testing.T) {
 	iter := loz.OrdSeq[int](loz.IterSlice([]int{}))
-	max, err := iter.Max()
+	maxVal, err := iter.Max()
 	assert.ErrorIs(t, err, loz.EmptySeqErr)
-	assert.Equal(t, 0, max)
+	assert.Equal(t, 0, maxVal)
 }
 
 func ExampleOrdSeq_Min() {
 	iter := loz.OrdSeq[int](loz.IterSlice([]int{3, 2, 5, -3, 0}))
-	min, err := iter.Min()
-	fmt.Printf("%v, %v", min, err)
+	minVal, err := iter.Min()
+	fmt.Printf("%v, %v", minVal, err)
 	// Output: -3, <nil>
 }
 
 func TestOrdSeqMinEmpty(t *testing.T) {
 	iter := loz.OrdSeq[int](loz.IterSlice([]int{}))
-	max, err := iter.Min()
+	maxVal, err := iter.Min()
 	assert.ErrorIs(t, err, loz.EmptySeqErr)
-	assert.Equal(t, 0, max)
+	assert.Equal(t, 0, maxVal)
 }
