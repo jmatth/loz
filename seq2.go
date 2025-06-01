@@ -49,7 +49,7 @@ func (s Seq2[K, V]) ForEach(process func(K, V)) {
 // Map transforms the key/value pairs within the iterator using the provided
 // mapper function. Due to limitations of the Go type system, the mapped keys
 // and values must be the same types as the input. To perform mapping
-// operations that change types, see [KVMapper1], [KVMapper2], etc.
+// operations that change types, see [KVMap1], [KVMap2], etc.
 func (s Seq2[K, V]) Map(mapper func(K, V) (K, V)) Seq2[K, V] {
 	return func(yield yielder2[K, V]) {
 		for k, v := range s {

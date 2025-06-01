@@ -53,7 +53,7 @@ func main() {
 			if recvTypeName := t.X.(*ast.Ident).Name; recvTypeName != inType {
 				return true
 			}
-			types := loz.IterSliceMap1[ast.Expr, string](t.Indices).
+			types := loz.Map1[ast.Expr, string](loz.IterSlice(t.Indices)).
 				Map(func(e ast.Expr) string {
 					return e.(*ast.Ident).Name
 				}).
@@ -70,7 +70,7 @@ func main() {
 
 		var returnTypes []funcParam
 		if results := funcDecl.Type.Results; results != nil {
-			returnTypes = loz.IterSliceMap1[*ast.Field, funcParam](funcDecl.Type.Results.List).
+			returnTypes = loz.Map1[*ast.Field, funcParam](loz.IterSlice(funcDecl.Type.Results.List)).
 				Map(fieldToFuncParam).
 				CollectSlice()
 			if len(returnTypes) == 1 && returnTypes[0].typeDef.name == inType {
@@ -80,7 +80,7 @@ func main() {
 
 		paramTypes := funcDecl.Type.Params.List
 
-		pt := loz.IterSliceMap1[*ast.Field, funcParam](paramTypes).
+		pt := loz.Map1[*ast.Field, funcParam](loz.IterSlice(paramTypes)).
 			Map(fieldToFuncParam).
 			CollectSlice()
 
@@ -129,7 +129,7 @@ func fieldToFuncParam(f *ast.Field) funcParam {
 		td.typeParams = []string{t.Index.(*ast.Ident).Name}
 	case *ast.IndexListExpr:
 		td.name = t.X.(*ast.Ident).Name
-		td.typeParams = loz.IterSliceMap1[ast.Expr, string](t.Indices).
+		td.typeParams = loz.Map1[ast.Expr, string](loz.IterSlice(t.Indices)).
 			Map(func(e ast.Expr) string {
 				switch t := e.(type) {
 				case *ast.Ident:
@@ -169,20 +169,20 @@ type funcParam struct {
 }
 
 func (t typeDef) paramsAsCode() []Code {
-	return loz.IterSliceMap1[string, Code](t.typeParams).
+	return loz.Map1[string, Code](loz.IterSlice(t.typeParams)).
 		Map(func(s string) Code { return Id(s) }).
 		CollectSlice()
 }
 
 func genWrapper(f *File, name string, recvType typeDef, originalType string, params []funcParam, returnTypes []funcParam) {
 	recvId := Id(strings.ToLower(string(recvType.name[0])))
-	generatedParams := loz.IterSliceMap1[funcParam, Code](params).
+	generatedParams := loz.Map1[funcParam, Code](loz.IterSlice(params)).
 		Map(paramToCode).
 		CollectSlice()
-	innerParams := loz.IterSliceMap1[funcParam, Code](params).
+	innerParams := loz.Map1[funcParam, Code](loz.IterSlice(params)).
 		Map(func(p funcParam) Code { return Id(p.name) }).
 		CollectSlice()
-	generatedReturnTypes := loz.IterSliceMap1[funcParam, Code](returnTypes).
+	generatedReturnTypes := loz.Map1[funcParam, Code](loz.IterSlice(returnTypes)).
 		Map(func(p funcParam) Code {
 			if p.typeDef.isArr {
 				return Index().Id(p.name).Id(p.typeDef.name).Types(p.typeDef.paramsAsCode()...)

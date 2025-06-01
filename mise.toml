@@ -8,7 +8,7 @@ run = "rm -f *.g.go"
 description = "Run go code generators"
 depends = ['clean-generated']
 run = [
-  "go generate ./mapper.go",
+  "go generate ./map.go",
   "go generate ./ord_seq.go",
   "go generate ./num_seq.go",
 ]

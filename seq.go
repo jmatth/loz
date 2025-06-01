@@ -45,7 +45,7 @@ func (s Seq[V]) ForEach(process processor[V]) {
 // Map transforms the elements within the iterator using the provided mapper
 // function. Due to limitations of the Go type system, the mapped value must be
 // the same type as the input. To perform mapping operations that change type,
-// see [Mapper1], [Mapper2], etc.
+// see [Map1], [Map2], etc.
 func (s Seq[V]) Map(mapper mapper[V, V]) Seq[V] {
 	return func(yield yielder[V]) {
 		for v := range s {

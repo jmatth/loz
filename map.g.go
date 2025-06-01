@@ -1,9 +1,9 @@
 package loz
 
-type Mapper1[V1, V2 any] Seq[V1]
+type Map1[V1, V2 any] Seq[V1]
 
 // Map transforms the elements within the iterator using the provided mapper function.
-func (s Mapper1[V1, V2]) Map(mapper mapper[V1, V2]) Seq[V2] {
+func (s Map1[V1, V2]) Map(mapper mapper[V1, V2]) Seq[V2] {
 	return func(yield yielder[V2]) {
 		for v := range s {
 			if !yield(mapper(v)) {
@@ -13,7 +13,7 @@ func (s Mapper1[V1, V2]) Map(mapper mapper[V1, V2]) Seq[V2] {
 	}
 }
 
-func (s Mapper1[V1, V2]) Expand(toElements mapper[V1, Seq[V2]]) Seq[V2] {
+func (s Map1[V1, V2]) Expand(toElements mapper[V1, Seq[V2]]) Seq[V2] {
 	return func(yield yielder[V2]) {
 		for v := range s {
 			for e := range toElements(v) {
@@ -25,39 +25,35 @@ func (s Mapper1[V1, V2]) Expand(toElements mapper[V1, Seq[V2]]) Seq[V2] {
 	}
 }
 
-func IterSliceMap1[V1, V2 any](slice []V1) Mapper1[V1, V2] {
-	return Mapper1[V1, V2](IterSlice(slice))
-}
-
 // See [Seq.Filter].
-func (s Mapper1[V1, V2]) Filter(filter yielder[V1]) Mapper1[V1, V2] {
-	return Mapper1[V1, V2](Seq[V1](s).Filter(filter))
+func (s Map1[V1, V2]) Filter(filter yielder[V1]) Map1[V1, V2] {
+	return Map1[V1, V2](Seq[V1](s).Filter(filter))
 }
 
 // See [Seq.Skip].
-func (s Mapper1[V1, V2]) Skip(toSkip int) Mapper1[V1, V2] {
-	return Mapper1[V1, V2](Seq[V1](s).Skip(toSkip))
+func (s Map1[V1, V2]) Skip(toSkip int) Map1[V1, V2] {
+	return Map1[V1, V2](Seq[V1](s).Skip(toSkip))
 }
 
 // See [Seq.SkipWhile].
-func (s Mapper1[V1, V2]) SkipWhile(test yielder[V1]) Mapper1[V1, V2] {
-	return Mapper1[V1, V2](Seq[V1](s).SkipWhile(test))
+func (s Map1[V1, V2]) SkipWhile(test yielder[V1]) Map1[V1, V2] {
+	return Map1[V1, V2](Seq[V1](s).SkipWhile(test))
 }
 
 // See [Seq.Take].
-func (s Mapper1[V1, V2]) Take(toTake int) Mapper1[V1, V2] {
-	return Mapper1[V1, V2](Seq[V1](s).Take(toTake))
+func (s Map1[V1, V2]) Take(toTake int) Map1[V1, V2] {
+	return Map1[V1, V2](Seq[V1](s).Take(toTake))
 }
 
 // See [Seq.TakeWhile].
-func (s Mapper1[V1, V2]) TakeWhile(test yielder[V1]) Mapper1[V1, V2] {
-	return Mapper1[V1, V2](Seq[V1](s).TakeWhile(test))
+func (s Map1[V1, V2]) TakeWhile(test yielder[V1]) Map1[V1, V2] {
+	return Map1[V1, V2](Seq[V1](s).TakeWhile(test))
 }
 
-type KVMapper1[K1, V1, K2, V2 any] Seq2[K1, V1]
+type KVMap1[K1, V1, K2, V2 any] Seq2[K1, V1]
 
 // Map transforms the keys and values within the iterator using the provided mapper function.
-func (s KVMapper1[K1, V1, K2, V2]) Map(mapper mapper2[K1, V1, K2, V2]) Seq2[K2, V2] {
+func (s KVMap1[K1, V1, K2, V2]) Map(mapper mapper2[K1, V1, K2, V2]) Seq2[K2, V2] {
 	return func(yield yielder2[K2, V2]) {
 		for k, v := range s {
 			if !yield(mapper(k, v)) {
@@ -67,39 +63,39 @@ func (s KVMapper1[K1, V1, K2, V2]) Map(mapper mapper2[K1, V1, K2, V2]) Seq2[K2, 
 	}
 }
 
-func IterMapMap1[K1 comparable, V1, K2, V2 any](m map[K1]V1) KVMapper1[K1, V1, K2, V2] {
-	return KVMapper1[K1, V1, K2, V2](IterMap(m))
+func IterMapMap1[K1 comparable, V1, K2, V2 any](m map[K1]V1) KVMap1[K1, V1, K2, V2] {
+	return KVMap1[K1, V1, K2, V2](IterMap(m))
 }
 
 // See [Seq2.Filter].
-func (s KVMapper1[K1, V1, K2, V2]) Filter(filter yielder2[K1, V1]) KVMapper1[K1, V1, K2, V2] {
-	return KVMapper1[K1, V1, K2, V2](Seq2[K1, V1](s).Filter(filter))
+func (s KVMap1[K1, V1, K2, V2]) Filter(filter yielder2[K1, V1]) KVMap1[K1, V1, K2, V2] {
+	return KVMap1[K1, V1, K2, V2](Seq2[K1, V1](s).Filter(filter))
 }
 
 // See [Seq2.Skip].
-func (s KVMapper1[K1, V1, K2, V2]) Skip(toSkip int) KVMapper1[K1, V1, K2, V2] {
-	return KVMapper1[K1, V1, K2, V2](Seq2[K1, V1](s).Skip(toSkip))
+func (s KVMap1[K1, V1, K2, V2]) Skip(toSkip int) KVMap1[K1, V1, K2, V2] {
+	return KVMap1[K1, V1, K2, V2](Seq2[K1, V1](s).Skip(toSkip))
 }
 
 // See [Seq2.SkipWhile].
-func (s KVMapper1[K1, V1, K2, V2]) SkipWhile(test yielder2[K1, V1]) KVMapper1[K1, V1, K2, V2] {
-	return KVMapper1[K1, V1, K2, V2](Seq2[K1, V1](s).SkipWhile(test))
+func (s KVMap1[K1, V1, K2, V2]) SkipWhile(test yielder2[K1, V1]) KVMap1[K1, V1, K2, V2] {
+	return KVMap1[K1, V1, K2, V2](Seq2[K1, V1](s).SkipWhile(test))
 }
 
 // See [Seq2.Take].
-func (s KVMapper1[K1, V1, K2, V2]) Take(toTake int) KVMapper1[K1, V1, K2, V2] {
-	return KVMapper1[K1, V1, K2, V2](Seq2[K1, V1](s).Take(toTake))
+func (s KVMap1[K1, V1, K2, V2]) Take(toTake int) KVMap1[K1, V1, K2, V2] {
+	return KVMap1[K1, V1, K2, V2](Seq2[K1, V1](s).Take(toTake))
 }
 
 // See [Seq2.TakeWhile].
-func (s KVMapper1[K1, V1, K2, V2]) TakeWhile(test yielder2[K1, V1]) KVMapper1[K1, V1, K2, V2] {
-	return KVMapper1[K1, V1, K2, V2](Seq2[K1, V1](s).TakeWhile(test))
+func (s KVMap1[K1, V1, K2, V2]) TakeWhile(test yielder2[K1, V1]) KVMap1[K1, V1, K2, V2] {
+	return KVMap1[K1, V1, K2, V2](Seq2[K1, V1](s).TakeWhile(test))
 }
 
-type Mapper2[V1, V2, V3 any] Mapper1[V1, V2]
+type Map2[V1, V2, V3 any] Map1[V1, V2]
 
 // Map transforms the elements within the iterator using the provided mapper function.
-func (s Mapper2[V1, V2, V3]) Map(mapper mapper[V1, V2]) Mapper1[V2, V3] {
+func (s Map2[V1, V2, V3]) Map(mapper mapper[V1, V2]) Map1[V2, V3] {
 	return func(yield yielder[V2]) {
 		for v := range s {
 			if !yield(mapper(v)) {
@@ -109,7 +105,7 @@ func (s Mapper2[V1, V2, V3]) Map(mapper mapper[V1, V2]) Mapper1[V2, V3] {
 	}
 }
 
-func (s Mapper2[V1, V2, V3]) Expand(toElements mapper[V1, Seq[V2]]) Mapper1[V2, V3] {
+func (s Map2[V1, V2, V3]) Expand(toElements mapper[V1, Seq[V2]]) Map1[V2, V3] {
 	return func(yield yielder[V2]) {
 		for v := range s {
 			for e := range toElements(v) {
@@ -121,39 +117,35 @@ func (s Mapper2[V1, V2, V3]) Expand(toElements mapper[V1, Seq[V2]]) Mapper1[V2, 
 	}
 }
 
-func IterSliceMap2[V1, V2, V3 any](slice []V1) Mapper2[V1, V2, V3] {
-	return Mapper2[V1, V2, V3](IterSlice(slice))
-}
-
 // See [Seq.Filter].
-func (s Mapper2[V1, V2, V3]) Filter(filter yielder[V1]) Mapper2[V1, V2, V3] {
-	return Mapper2[V1, V2, V3](Seq[V1](s).Filter(filter))
+func (s Map2[V1, V2, V3]) Filter(filter yielder[V1]) Map2[V1, V2, V3] {
+	return Map2[V1, V2, V3](Seq[V1](s).Filter(filter))
 }
 
 // See [Seq.Skip].
-func (s Mapper2[V1, V2, V3]) Skip(toSkip int) Mapper2[V1, V2, V3] {
-	return Mapper2[V1, V2, V3](Seq[V1](s).Skip(toSkip))
+func (s Map2[V1, V2, V3]) Skip(toSkip int) Map2[V1, V2, V3] {
+	return Map2[V1, V2, V3](Seq[V1](s).Skip(toSkip))
 }
 
 // See [Seq.SkipWhile].
-func (s Mapper2[V1, V2, V3]) SkipWhile(test yielder[V1]) Mapper2[V1, V2, V3] {
-	return Mapper2[V1, V2, V3](Seq[V1](s).SkipWhile(test))
+func (s Map2[V1, V2, V3]) SkipWhile(test yielder[V1]) Map2[V1, V2, V3] {
+	return Map2[V1, V2, V3](Seq[V1](s).SkipWhile(test))
 }
 
 // See [Seq.Take].
-func (s Mapper2[V1, V2, V3]) Take(toTake int) Mapper2[V1, V2, V3] {
-	return Mapper2[V1, V2, V3](Seq[V1](s).Take(toTake))
+func (s Map2[V1, V2, V3]) Take(toTake int) Map2[V1, V2, V3] {
+	return Map2[V1, V2, V3](Seq[V1](s).Take(toTake))
 }
 
 // See [Seq.TakeWhile].
-func (s Mapper2[V1, V2, V3]) TakeWhile(test yielder[V1]) Mapper2[V1, V2, V3] {
-	return Mapper2[V1, V2, V3](Seq[V1](s).TakeWhile(test))
+func (s Map2[V1, V2, V3]) TakeWhile(test yielder[V1]) Map2[V1, V2, V3] {
+	return Map2[V1, V2, V3](Seq[V1](s).TakeWhile(test))
 }
 
-type KVMapper2[K1, V1, K2, V2, K3, V3 any] KVMapper1[K1, V1, K2, V2]
+type KVMap2[K1, V1, K2, V2, K3, V3 any] KVMap1[K1, V1, K2, V2]
 
 // Map transforms the keys and values within the iterator using the provided mapper function.
-func (s KVMapper2[K1, V1, K2, V2, K3, V3]) Map(mapper mapper2[K1, V1, K2, V2]) KVMapper1[K2, V2, K3, V3] {
+func (s KVMap2[K1, V1, K2, V2, K3, V3]) Map(mapper mapper2[K1, V1, K2, V2]) KVMap1[K2, V2, K3, V3] {
 	return func(yield yielder2[K2, V2]) {
 		for k, v := range s {
 			if !yield(mapper(k, v)) {
@@ -163,39 +155,39 @@ func (s KVMapper2[K1, V1, K2, V2, K3, V3]) Map(mapper mapper2[K1, V1, K2, V2]) K
 	}
 }
 
-func IterMapMap2[K1 comparable, V1, K2, V2, K3, V3 any](m map[K1]V1) KVMapper2[K1, V1, K2, V2, K3, V3] {
-	return KVMapper2[K1, V1, K2, V2, K3, V3](IterMap(m))
+func IterMapMap2[K1 comparable, V1, K2, V2, K3, V3 any](m map[K1]V1) KVMap2[K1, V1, K2, V2, K3, V3] {
+	return KVMap2[K1, V1, K2, V2, K3, V3](IterMap(m))
 }
 
 // See [Seq2.Filter].
-func (s KVMapper2[K1, V1, K2, V2, K3, V3]) Filter(filter yielder2[K1, V1]) KVMapper2[K1, V1, K2, V2, K3, V3] {
-	return KVMapper2[K1, V1, K2, V2, K3, V3](Seq2[K1, V1](s).Filter(filter))
+func (s KVMap2[K1, V1, K2, V2, K3, V3]) Filter(filter yielder2[K1, V1]) KVMap2[K1, V1, K2, V2, K3, V3] {
+	return KVMap2[K1, V1, K2, V2, K3, V3](Seq2[K1, V1](s).Filter(filter))
 }
 
 // See [Seq2.Skip].
-func (s KVMapper2[K1, V1, K2, V2, K3, V3]) Skip(toSkip int) KVMapper2[K1, V1, K2, V2, K3, V3] {
-	return KVMapper2[K1, V1, K2, V2, K3, V3](Seq2[K1, V1](s).Skip(toSkip))
+func (s KVMap2[K1, V1, K2, V2, K3, V3]) Skip(toSkip int) KVMap2[K1, V1, K2, V2, K3, V3] {
+	return KVMap2[K1, V1, K2, V2, K3, V3](Seq2[K1, V1](s).Skip(toSkip))
 }
 
 // See [Seq2.SkipWhile].
-func (s KVMapper2[K1, V1, K2, V2, K3, V3]) SkipWhile(test yielder2[K1, V1]) KVMapper2[K1, V1, K2, V2, K3, V3] {
-	return KVMapper2[K1, V1, K2, V2, K3, V3](Seq2[K1, V1](s).SkipWhile(test))
+func (s KVMap2[K1, V1, K2, V2, K3, V3]) SkipWhile(test yielder2[K1, V1]) KVMap2[K1, V1, K2, V2, K3, V3] {
+	return KVMap2[K1, V1, K2, V2, K3, V3](Seq2[K1, V1](s).SkipWhile(test))
 }
 
 // See [Seq2.Take].
-func (s KVMapper2[K1, V1, K2, V2, K3, V3]) Take(toTake int) KVMapper2[K1, V1, K2, V2, K3, V3] {
-	return KVMapper2[K1, V1, K2, V2, K3, V3](Seq2[K1, V1](s).Take(toTake))
+func (s KVMap2[K1, V1, K2, V2, K3, V3]) Take(toTake int) KVMap2[K1, V1, K2, V2, K3, V3] {
+	return KVMap2[K1, V1, K2, V2, K3, V3](Seq2[K1, V1](s).Take(toTake))
 }
 
 // See [Seq2.TakeWhile].
-func (s KVMapper2[K1, V1, K2, V2, K3, V3]) TakeWhile(test yielder2[K1, V1]) KVMapper2[K1, V1, K2, V2, K3, V3] {
-	return KVMapper2[K1, V1, K2, V2, K3, V3](Seq2[K1, V1](s).TakeWhile(test))
+func (s KVMap2[K1, V1, K2, V2, K3, V3]) TakeWhile(test yielder2[K1, V1]) KVMap2[K1, V1, K2, V2, K3, V3] {
+	return KVMap2[K1, V1, K2, V2, K3, V3](Seq2[K1, V1](s).TakeWhile(test))
 }
 
-type Mapper3[V1, V2, V3, V4 any] Mapper2[V1, V2, V3]
+type Map3[V1, V2, V3, V4 any] Map2[V1, V2, V3]
 
 // Map transforms the elements within the iterator using the provided mapper function.
-func (s Mapper3[V1, V2, V3, V4]) Map(mapper mapper[V1, V2]) Mapper2[V2, V3, V4] {
+func (s Map3[V1, V2, V3, V4]) Map(mapper mapper[V1, V2]) Map2[V2, V3, V4] {
 	return func(yield yielder[V2]) {
 		for v := range s {
 			if !yield(mapper(v)) {
@@ -205,7 +197,7 @@ func (s Mapper3[V1, V2, V3, V4]) Map(mapper mapper[V1, V2]) Mapper2[V2, V3, V4] 
 	}
 }
 
-func (s Mapper3[V1, V2, V3, V4]) Expand(toElements mapper[V1, Seq[V2]]) Mapper2[V2, V3, V4] {
+func (s Map3[V1, V2, V3, V4]) Expand(toElements mapper[V1, Seq[V2]]) Map2[V2, V3, V4] {
 	return func(yield yielder[V2]) {
 		for v := range s {
 			for e := range toElements(v) {
@@ -217,39 +209,35 @@ func (s Mapper3[V1, V2, V3, V4]) Expand(toElements mapper[V1, Seq[V2]]) Mapper2[
 	}
 }
 
-func IterSliceMap3[V1, V2, V3, V4 any](slice []V1) Mapper3[V1, V2, V3, V4] {
-	return Mapper3[V1, V2, V3, V4](IterSlice(slice))
-}
-
 // See [Seq.Filter].
-func (s Mapper3[V1, V2, V3, V4]) Filter(filter yielder[V1]) Mapper3[V1, V2, V3, V4] {
-	return Mapper3[V1, V2, V3, V4](Seq[V1](s).Filter(filter))
+func (s Map3[V1, V2, V3, V4]) Filter(filter yielder[V1]) Map3[V1, V2, V3, V4] {
+	return Map3[V1, V2, V3, V4](Seq[V1](s).Filter(filter))
 }
 
 // See [Seq.Skip].
-func (s Mapper3[V1, V2, V3, V4]) Skip(toSkip int) Mapper3[V1, V2, V3, V4] {
-	return Mapper3[V1, V2, V3, V4](Seq[V1](s).Skip(toSkip))
+func (s Map3[V1, V2, V3, V4]) Skip(toSkip int) Map3[V1, V2, V3, V4] {
+	return Map3[V1, V2, V3, V4](Seq[V1](s).Skip(toSkip))
 }
 
 // See [Seq.SkipWhile].
-func (s Mapper3[V1, V2, V3, V4]) SkipWhile(test yielder[V1]) Mapper3[V1, V2, V3, V4] {
-	return Mapper3[V1, V2, V3, V4](Seq[V1](s).SkipWhile(test))
+func (s Map3[V1, V2, V3, V4]) SkipWhile(test yielder[V1]) Map3[V1, V2, V3, V4] {
+	return Map3[V1, V2, V3, V4](Seq[V1](s).SkipWhile(test))
 }
 
 // See [Seq.Take].
-func (s Mapper3[V1, V2, V3, V4]) Take(toTake int) Mapper3[V1, V2, V3, V4] {
-	return Mapper3[V1, V2, V3, V4](Seq[V1](s).Take(toTake))
+func (s Map3[V1, V2, V3, V4]) Take(toTake int) Map3[V1, V2, V3, V4] {
+	return Map3[V1, V2, V3, V4](Seq[V1](s).Take(toTake))
 }
 
 // See [Seq.TakeWhile].
-func (s Mapper3[V1, V2, V3, V4]) TakeWhile(test yielder[V1]) Mapper3[V1, V2, V3, V4] {
-	return Mapper3[V1, V2, V3, V4](Seq[V1](s).TakeWhile(test))
+func (s Map3[V1, V2, V3, V4]) TakeWhile(test yielder[V1]) Map3[V1, V2, V3, V4] {
+	return Map3[V1, V2, V3, V4](Seq[V1](s).TakeWhile(test))
 }
 
-type KVMapper3[K1, V1, K2, V2, K3, V3, K4, V4 any] KVMapper2[K1, V1, K2, V2, K3, V3]
+type KVMap3[K1, V1, K2, V2, K3, V3, K4, V4 any] KVMap2[K1, V1, K2, V2, K3, V3]
 
 // Map transforms the keys and values within the iterator using the provided mapper function.
-func (s KVMapper3[K1, V1, K2, V2, K3, V3, K4, V4]) Map(mapper mapper2[K1, V1, K2, V2]) KVMapper2[K2, V2, K3, V3, K4, V4] {
+func (s KVMap3[K1, V1, K2, V2, K3, V3, K4, V4]) Map(mapper mapper2[K1, V1, K2, V2]) KVMap2[K2, V2, K3, V3, K4, V4] {
 	return func(yield yielder2[K2, V2]) {
 		for k, v := range s {
 			if !yield(mapper(k, v)) {
@@ -259,39 +247,39 @@ func (s KVMapper3[K1, V1, K2, V2, K3, V3, K4, V4]) Map(mapper mapper2[K1, V1, K2
 	}
 }
 
-func IterMapMap3[K1 comparable, V1, K2, V2, K3, V3, K4, V4 any](m map[K1]V1) KVMapper3[K1, V1, K2, V2, K3, V3, K4, V4] {
-	return KVMapper3[K1, V1, K2, V2, K3, V3, K4, V4](IterMap(m))
+func IterMapMap3[K1 comparable, V1, K2, V2, K3, V3, K4, V4 any](m map[K1]V1) KVMap3[K1, V1, K2, V2, K3, V3, K4, V4] {
+	return KVMap3[K1, V1, K2, V2, K3, V3, K4, V4](IterMap(m))
 }
 
 // See [Seq2.Filter].
-func (s KVMapper3[K1, V1, K2, V2, K3, V3, K4, V4]) Filter(filter yielder2[K1, V1]) KVMapper3[K1, V1, K2, V2, K3, V3, K4, V4] {
-	return KVMapper3[K1, V1, K2, V2, K3, V3, K4, V4](Seq2[K1, V1](s).Filter(filter))
+func (s KVMap3[K1, V1, K2, V2, K3, V3, K4, V4]) Filter(filter yielder2[K1, V1]) KVMap3[K1, V1, K2, V2, K3, V3, K4, V4] {
+	return KVMap3[K1, V1, K2, V2, K3, V3, K4, V4](Seq2[K1, V1](s).Filter(filter))
 }
 
 // See [Seq2.Skip].
-func (s KVMapper3[K1, V1, K2, V2, K3, V3, K4, V4]) Skip(toSkip int) KVMapper3[K1, V1, K2, V2, K3, V3, K4, V4] {
-	return KVMapper3[K1, V1, K2, V2, K3, V3, K4, V4](Seq2[K1, V1](s).Skip(toSkip))
+func (s KVMap3[K1, V1, K2, V2, K3, V3, K4, V4]) Skip(toSkip int) KVMap3[K1, V1, K2, V2, K3, V3, K4, V4] {
+	return KVMap3[K1, V1, K2, V2, K3, V3, K4, V4](Seq2[K1, V1](s).Skip(toSkip))
 }
 
 // See [Seq2.SkipWhile].
-func (s KVMapper3[K1, V1, K2, V2, K3, V3, K4, V4]) SkipWhile(test yielder2[K1, V1]) KVMapper3[K1, V1, K2, V2, K3, V3, K4, V4] {
-	return KVMapper3[K1, V1, K2, V2, K3, V3, K4, V4](Seq2[K1, V1](s).SkipWhile(test))
+func (s KVMap3[K1, V1, K2, V2, K3, V3, K4, V4]) SkipWhile(test yielder2[K1, V1]) KVMap3[K1, V1, K2, V2, K3, V3, K4, V4] {
+	return KVMap3[K1, V1, K2, V2, K3, V3, K4, V4](Seq2[K1, V1](s).SkipWhile(test))
 }
 
 // See [Seq2.Take].
-func (s KVMapper3[K1, V1, K2, V2, K3, V3, K4, V4]) Take(toTake int) KVMapper3[K1, V1, K2, V2, K3, V3, K4, V4] {
-	return KVMapper3[K1, V1, K2, V2, K3, V3, K4, V4](Seq2[K1, V1](s).Take(toTake))
+func (s KVMap3[K1, V1, K2, V2, K3, V3, K4, V4]) Take(toTake int) KVMap3[K1, V1, K2, V2, K3, V3, K4, V4] {
+	return KVMap3[K1, V1, K2, V2, K3, V3, K4, V4](Seq2[K1, V1](s).Take(toTake))
 }
 
 // See [Seq2.TakeWhile].
-func (s KVMapper3[K1, V1, K2, V2, K3, V3, K4, V4]) TakeWhile(test yielder2[K1, V1]) KVMapper3[K1, V1, K2, V2, K3, V3, K4, V4] {
-	return KVMapper3[K1, V1, K2, V2, K3, V3, K4, V4](Seq2[K1, V1](s).TakeWhile(test))
+func (s KVMap3[K1, V1, K2, V2, K3, V3, K4, V4]) TakeWhile(test yielder2[K1, V1]) KVMap3[K1, V1, K2, V2, K3, V3, K4, V4] {
+	return KVMap3[K1, V1, K2, V2, K3, V3, K4, V4](Seq2[K1, V1](s).TakeWhile(test))
 }
 
-type Mapper4[V1, V2, V3, V4, V5 any] Mapper3[V1, V2, V3, V4]
+type Map4[V1, V2, V3, V4, V5 any] Map3[V1, V2, V3, V4]
 
 // Map transforms the elements within the iterator using the provided mapper function.
-func (s Mapper4[V1, V2, V3, V4, V5]) Map(mapper mapper[V1, V2]) Mapper3[V2, V3, V4, V5] {
+func (s Map4[V1, V2, V3, V4, V5]) Map(mapper mapper[V1, V2]) Map3[V2, V3, V4, V5] {
 	return func(yield yielder[V2]) {
 		for v := range s {
 			if !yield(mapper(v)) {
@@ -301,7 +289,7 @@ func (s Mapper4[V1, V2, V3, V4, V5]) Map(mapper mapper[V1, V2]) Mapper3[V2, V3, 
 	}
 }
 
-func (s Mapper4[V1, V2, V3, V4, V5]) Expand(toElements mapper[V1, Seq[V2]]) Mapper3[V2, V3, V4, V5] {
+func (s Map4[V1, V2, V3, V4, V5]) Expand(toElements mapper[V1, Seq[V2]]) Map3[V2, V3, V4, V5] {
 	return func(yield yielder[V2]) {
 		for v := range s {
 			for e := range toElements(v) {
@@ -313,39 +301,35 @@ func (s Mapper4[V1, V2, V3, V4, V5]) Expand(toElements mapper[V1, Seq[V2]]) Mapp
 	}
 }
 
-func IterSliceMap4[V1, V2, V3, V4, V5 any](slice []V1) Mapper4[V1, V2, V3, V4, V5] {
-	return Mapper4[V1, V2, V3, V4, V5](IterSlice(slice))
-}
-
 // See [Seq.Filter].
-func (s Mapper4[V1, V2, V3, V4, V5]) Filter(filter yielder[V1]) Mapper4[V1, V2, V3, V4, V5] {
-	return Mapper4[V1, V2, V3, V4, V5](Seq[V1](s).Filter(filter))
+func (s Map4[V1, V2, V3, V4, V5]) Filter(filter yielder[V1]) Map4[V1, V2, V3, V4, V5] {
+	return Map4[V1, V2, V3, V4, V5](Seq[V1](s).Filter(filter))
 }
 
 // See [Seq.Skip].
-func (s Mapper4[V1, V2, V3, V4, V5]) Skip(toSkip int) Mapper4[V1, V2, V3, V4, V5] {
-	return Mapper4[V1, V2, V3, V4, V5](Seq[V1](s).Skip(toSkip))
+func (s Map4[V1, V2, V3, V4, V5]) Skip(toSkip int) Map4[V1, V2, V3, V4, V5] {
+	return Map4[V1, V2, V3, V4, V5](Seq[V1](s).Skip(toSkip))
 }
 
 // See [Seq.SkipWhile].
-func (s Mapper4[V1, V2, V3, V4, V5]) SkipWhile(test yielder[V1]) Mapper4[V1, V2, V3, V4, V5] {
-	return Mapper4[V1, V2, V3, V4, V5](Seq[V1](s).SkipWhile(test))
+func (s Map4[V1, V2, V3, V4, V5]) SkipWhile(test yielder[V1]) Map4[V1, V2, V3, V4, V5] {
+	return Map4[V1, V2, V3, V4, V5](Seq[V1](s).SkipWhile(test))
 }
 
 // See [Seq.Take].
-func (s Mapper4[V1, V2, V3, V4, V5]) Take(toTake int) Mapper4[V1, V2, V3, V4, V5] {
-	return Mapper4[V1, V2, V3, V4, V5](Seq[V1](s).Take(toTake))
+func (s Map4[V1, V2, V3, V4, V5]) Take(toTake int) Map4[V1, V2, V3, V4, V5] {
+	return Map4[V1, V2, V3, V4, V5](Seq[V1](s).Take(toTake))
 }
 
 // See [Seq.TakeWhile].
-func (s Mapper4[V1, V2, V3, V4, V5]) TakeWhile(test yielder[V1]) Mapper4[V1, V2, V3, V4, V5] {
-	return Mapper4[V1, V2, V3, V4, V5](Seq[V1](s).TakeWhile(test))
+func (s Map4[V1, V2, V3, V4, V5]) TakeWhile(test yielder[V1]) Map4[V1, V2, V3, V4, V5] {
+	return Map4[V1, V2, V3, V4, V5](Seq[V1](s).TakeWhile(test))
 }
 
-type KVMapper4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5 any] KVMapper3[K1, V1, K2, V2, K3, V3, K4, V4]
+type KVMap4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5 any] KVMap3[K1, V1, K2, V2, K3, V3, K4, V4]
 
 // Map transforms the keys and values within the iterator using the provided mapper function.
-func (s KVMapper4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5]) Map(mapper mapper2[K1, V1, K2, V2]) KVMapper3[K2, V2, K3, V3, K4, V4, K5, V5] {
+func (s KVMap4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5]) Map(mapper mapper2[K1, V1, K2, V2]) KVMap3[K2, V2, K3, V3, K4, V4, K5, V5] {
 	return func(yield yielder2[K2, V2]) {
 		for k, v := range s {
 			if !yield(mapper(k, v)) {
@@ -355,39 +339,39 @@ func (s KVMapper4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5]) Map(mapper mapper2[K1
 	}
 }
 
-func IterMapMap4[K1 comparable, V1, K2, V2, K3, V3, K4, V4, K5, V5 any](m map[K1]V1) KVMapper4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5] {
-	return KVMapper4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5](IterMap(m))
+func IterMapMap4[K1 comparable, V1, K2, V2, K3, V3, K4, V4, K5, V5 any](m map[K1]V1) KVMap4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5] {
+	return KVMap4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5](IterMap(m))
 }
 
 // See [Seq2.Filter].
-func (s KVMapper4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5]) Filter(filter yielder2[K1, V1]) KVMapper4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5] {
-	return KVMapper4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5](Seq2[K1, V1](s).Filter(filter))
+func (s KVMap4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5]) Filter(filter yielder2[K1, V1]) KVMap4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5] {
+	return KVMap4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5](Seq2[K1, V1](s).Filter(filter))
 }
 
 // See [Seq2.Skip].
-func (s KVMapper4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5]) Skip(toSkip int) KVMapper4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5] {
-	return KVMapper4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5](Seq2[K1, V1](s).Skip(toSkip))
+func (s KVMap4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5]) Skip(toSkip int) KVMap4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5] {
+	return KVMap4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5](Seq2[K1, V1](s).Skip(toSkip))
 }
 
 // See [Seq2.SkipWhile].
-func (s KVMapper4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5]) SkipWhile(test yielder2[K1, V1]) KVMapper4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5] {
-	return KVMapper4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5](Seq2[K1, V1](s).SkipWhile(test))
+func (s KVMap4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5]) SkipWhile(test yielder2[K1, V1]) KVMap4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5] {
+	return KVMap4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5](Seq2[K1, V1](s).SkipWhile(test))
 }
 
 // See [Seq2.Take].
-func (s KVMapper4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5]) Take(toTake int) KVMapper4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5] {
-	return KVMapper4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5](Seq2[K1, V1](s).Take(toTake))
+func (s KVMap4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5]) Take(toTake int) KVMap4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5] {
+	return KVMap4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5](Seq2[K1, V1](s).Take(toTake))
 }
 
 // See [Seq2.TakeWhile].
-func (s KVMapper4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5]) TakeWhile(test yielder2[K1, V1]) KVMapper4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5] {
-	return KVMapper4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5](Seq2[K1, V1](s).TakeWhile(test))
+func (s KVMap4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5]) TakeWhile(test yielder2[K1, V1]) KVMap4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5] {
+	return KVMap4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5](Seq2[K1, V1](s).TakeWhile(test))
 }
 
-type Mapper5[V1, V2, V3, V4, V5, V6 any] Mapper4[V1, V2, V3, V4, V5]
+type Map5[V1, V2, V3, V4, V5, V6 any] Map4[V1, V2, V3, V4, V5]
 
 // Map transforms the elements within the iterator using the provided mapper function.
-func (s Mapper5[V1, V2, V3, V4, V5, V6]) Map(mapper mapper[V1, V2]) Mapper4[V2, V3, V4, V5, V6] {
+func (s Map5[V1, V2, V3, V4, V5, V6]) Map(mapper mapper[V1, V2]) Map4[V2, V3, V4, V5, V6] {
 	return func(yield yielder[V2]) {
 		for v := range s {
 			if !yield(mapper(v)) {
@@ -397,7 +381,7 @@ func (s Mapper5[V1, V2, V3, V4, V5, V6]) Map(mapper mapper[V1, V2]) Mapper4[V2, 
 	}
 }
 
-func (s Mapper5[V1, V2, V3, V4, V5, V6]) Expand(toElements mapper[V1, Seq[V2]]) Mapper4[V2, V3, V4, V5, V6] {
+func (s Map5[V1, V2, V3, V4, V5, V6]) Expand(toElements mapper[V1, Seq[V2]]) Map4[V2, V3, V4, V5, V6] {
 	return func(yield yielder[V2]) {
 		for v := range s {
 			for e := range toElements(v) {
@@ -409,39 +393,35 @@ func (s Mapper5[V1, V2, V3, V4, V5, V6]) Expand(toElements mapper[V1, Seq[V2]]) 
 	}
 }
 
-func IterSliceMap5[V1, V2, V3, V4, V5, V6 any](slice []V1) Mapper5[V1, V2, V3, V4, V5, V6] {
-	return Mapper5[V1, V2, V3, V4, V5, V6](IterSlice(slice))
-}
-
 // See [Seq.Filter].
-func (s Mapper5[V1, V2, V3, V4, V5, V6]) Filter(filter yielder[V1]) Mapper5[V1, V2, V3, V4, V5, V6] {
-	return Mapper5[V1, V2, V3, V4, V5, V6](Seq[V1](s).Filter(filter))
+func (s Map5[V1, V2, V3, V4, V5, V6]) Filter(filter yielder[V1]) Map5[V1, V2, V3, V4, V5, V6] {
+	return Map5[V1, V2, V3, V4, V5, V6](Seq[V1](s).Filter(filter))
 }
 
 // See [Seq.Skip].
-func (s Mapper5[V1, V2, V3, V4, V5, V6]) Skip(toSkip int) Mapper5[V1, V2, V3, V4, V5, V6] {
-	return Mapper5[V1, V2, V3, V4, V5, V6](Seq[V1](s).Skip(toSkip))
+func (s Map5[V1, V2, V3, V4, V5, V6]) Skip(toSkip int) Map5[V1, V2, V3, V4, V5, V6] {
+	return Map5[V1, V2, V3, V4, V5, V6](Seq[V1](s).Skip(toSkip))
 }
 
 // See [Seq.SkipWhile].
-func (s Mapper5[V1, V2, V3, V4, V5, V6]) SkipWhile(test yielder[V1]) Mapper5[V1, V2, V3, V4, V5, V6] {
-	return Mapper5[V1, V2, V3, V4, V5, V6](Seq[V1](s).SkipWhile(test))
+func (s Map5[V1, V2, V3, V4, V5, V6]) SkipWhile(test yielder[V1]) Map5[V1, V2, V3, V4, V5, V6] {
+	return Map5[V1, V2, V3, V4, V5, V6](Seq[V1](s).SkipWhile(test))
 }
 
 // See [Seq.Take].
-func (s Mapper5[V1, V2, V3, V4, V5, V6]) Take(toTake int) Mapper5[V1, V2, V3, V4, V5, V6] {
-	return Mapper5[V1, V2, V3, V4, V5, V6](Seq[V1](s).Take(toTake))
+func (s Map5[V1, V2, V3, V4, V5, V6]) Take(toTake int) Map5[V1, V2, V3, V4, V5, V6] {
+	return Map5[V1, V2, V3, V4, V5, V6](Seq[V1](s).Take(toTake))
 }
 
 // See [Seq.TakeWhile].
-func (s Mapper5[V1, V2, V3, V4, V5, V6]) TakeWhile(test yielder[V1]) Mapper5[V1, V2, V3, V4, V5, V6] {
-	return Mapper5[V1, V2, V3, V4, V5, V6](Seq[V1](s).TakeWhile(test))
+func (s Map5[V1, V2, V3, V4, V5, V6]) TakeWhile(test yielder[V1]) Map5[V1, V2, V3, V4, V5, V6] {
+	return Map5[V1, V2, V3, V4, V5, V6](Seq[V1](s).TakeWhile(test))
 }
 
-type KVMapper5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6 any] KVMapper4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5]
+type KVMap5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6 any] KVMap4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5]
 
 // Map transforms the keys and values within the iterator using the provided mapper function.
-func (s KVMapper5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6]) Map(mapper mapper2[K1, V1, K2, V2]) KVMapper4[K2, V2, K3, V3, K4, V4, K5, V5, K6, V6] {
+func (s KVMap5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6]) Map(mapper mapper2[K1, V1, K2, V2]) KVMap4[K2, V2, K3, V3, K4, V4, K5, V5, K6, V6] {
 	return func(yield yielder2[K2, V2]) {
 		for k, v := range s {
 			if !yield(mapper(k, v)) {
@@ -451,39 +431,39 @@ func (s KVMapper5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6]) Map(mapper ma
 	}
 }
 
-func IterMapMap5[K1 comparable, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6 any](m map[K1]V1) KVMapper5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6] {
-	return KVMapper5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6](IterMap(m))
+func IterMapMap5[K1 comparable, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6 any](m map[K1]V1) KVMap5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6] {
+	return KVMap5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6](IterMap(m))
 }
 
 // See [Seq2.Filter].
-func (s KVMapper5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6]) Filter(filter yielder2[K1, V1]) KVMapper5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6] {
-	return KVMapper5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6](Seq2[K1, V1](s).Filter(filter))
+func (s KVMap5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6]) Filter(filter yielder2[K1, V1]) KVMap5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6] {
+	return KVMap5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6](Seq2[K1, V1](s).Filter(filter))
 }
 
 // See [Seq2.Skip].
-func (s KVMapper5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6]) Skip(toSkip int) KVMapper5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6] {
-	return KVMapper5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6](Seq2[K1, V1](s).Skip(toSkip))
+func (s KVMap5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6]) Skip(toSkip int) KVMap5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6] {
+	return KVMap5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6](Seq2[K1, V1](s).Skip(toSkip))
 }
 
 // See [Seq2.SkipWhile].
-func (s KVMapper5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6]) SkipWhile(test yielder2[K1, V1]) KVMapper5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6] {
-	return KVMapper5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6](Seq2[K1, V1](s).SkipWhile(test))
+func (s KVMap5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6]) SkipWhile(test yielder2[K1, V1]) KVMap5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6] {
+	return KVMap5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6](Seq2[K1, V1](s).SkipWhile(test))
 }
 
 // See [Seq2.Take].
-func (s KVMapper5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6]) Take(toTake int) KVMapper5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6] {
-	return KVMapper5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6](Seq2[K1, V1](s).Take(toTake))
+func (s KVMap5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6]) Take(toTake int) KVMap5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6] {
+	return KVMap5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6](Seq2[K1, V1](s).Take(toTake))
 }
 
 // See [Seq2.TakeWhile].
-func (s KVMapper5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6]) TakeWhile(test yielder2[K1, V1]) KVMapper5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6] {
-	return KVMapper5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6](Seq2[K1, V1](s).TakeWhile(test))
+func (s KVMap5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6]) TakeWhile(test yielder2[K1, V1]) KVMap5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6] {
+	return KVMap5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6](Seq2[K1, V1](s).TakeWhile(test))
 }
 
-type Mapper6[V1, V2, V3, V4, V5, V6, V7 any] Mapper5[V1, V2, V3, V4, V5, V6]
+type Map6[V1, V2, V3, V4, V5, V6, V7 any] Map5[V1, V2, V3, V4, V5, V6]
 
 // Map transforms the elements within the iterator using the provided mapper function.
-func (s Mapper6[V1, V2, V3, V4, V5, V6, V7]) Map(mapper mapper[V1, V2]) Mapper5[V2, V3, V4, V5, V6, V7] {
+func (s Map6[V1, V2, V3, V4, V5, V6, V7]) Map(mapper mapper[V1, V2]) Map5[V2, V3, V4, V5, V6, V7] {
 	return func(yield yielder[V2]) {
 		for v := range s {
 			if !yield(mapper(v)) {
@@ -493,7 +473,7 @@ func (s Mapper6[V1, V2, V3, V4, V5, V6, V7]) Map(mapper mapper[V1, V2]) Mapper5[
 	}
 }
 
-func (s Mapper6[V1, V2, V3, V4, V5, V6, V7]) Expand(toElements mapper[V1, Seq[V2]]) Mapper5[V2, V3, V4, V5, V6, V7] {
+func (s Map6[V1, V2, V3, V4, V5, V6, V7]) Expand(toElements mapper[V1, Seq[V2]]) Map5[V2, V3, V4, V5, V6, V7] {
 	return func(yield yielder[V2]) {
 		for v := range s {
 			for e := range toElements(v) {
@@ -505,39 +485,35 @@ func (s Mapper6[V1, V2, V3, V4, V5, V6, V7]) Expand(toElements mapper[V1, Seq[V2
 	}
 }
 
-func IterSliceMap6[V1, V2, V3, V4, V5, V6, V7 any](slice []V1) Mapper6[V1, V2, V3, V4, V5, V6, V7] {
-	return Mapper6[V1, V2, V3, V4, V5, V6, V7](IterSlice(slice))
-}
-
 // See [Seq.Filter].
-func (s Mapper6[V1, V2, V3, V4, V5, V6, V7]) Filter(filter yielder[V1]) Mapper6[V1, V2, V3, V4, V5, V6, V7] {
-	return Mapper6[V1, V2, V3, V4, V5, V6, V7](Seq[V1](s).Filter(filter))
+func (s Map6[V1, V2, V3, V4, V5, V6, V7]) Filter(filter yielder[V1]) Map6[V1, V2, V3, V4, V5, V6, V7] {
+	return Map6[V1, V2, V3, V4, V5, V6, V7](Seq[V1](s).Filter(filter))
 }
 
 // See [Seq.Skip].
-func (s Mapper6[V1, V2, V3, V4, V5, V6, V7]) Skip(toSkip int) Mapper6[V1, V2, V3, V4, V5, V6, V7] {
-	return Mapper6[V1, V2, V3, V4, V5, V6, V7](Seq[V1](s).Skip(toSkip))
+func (s Map6[V1, V2, V3, V4, V5, V6, V7]) Skip(toSkip int) Map6[V1, V2, V3, V4, V5, V6, V7] {
+	return Map6[V1, V2, V3, V4, V5, V6, V7](Seq[V1](s).Skip(toSkip))
 }
 
 // See [Seq.SkipWhile].
-func (s Mapper6[V1, V2, V3, V4, V5, V6, V7]) SkipWhile(test yielder[V1]) Mapper6[V1, V2, V3, V4, V5, V6, V7] {
-	return Mapper6[V1, V2, V3, V4, V5, V6, V7](Seq[V1](s).SkipWhile(test))
+func (s Map6[V1, V2, V3, V4, V5, V6, V7]) SkipWhile(test yielder[V1]) Map6[V1, V2, V3, V4, V5, V6, V7] {
+	return Map6[V1, V2, V3, V4, V5, V6, V7](Seq[V1](s).SkipWhile(test))
 }
 
 // See [Seq.Take].
-func (s Mapper6[V1, V2, V3, V4, V5, V6, V7]) Take(toTake int) Mapper6[V1, V2, V3, V4, V5, V6, V7] {
-	return Mapper6[V1, V2, V3, V4, V5, V6, V7](Seq[V1](s).Take(toTake))
+func (s Map6[V1, V2, V3, V4, V5, V6, V7]) Take(toTake int) Map6[V1, V2, V3, V4, V5, V6, V7] {
+	return Map6[V1, V2, V3, V4, V5, V6, V7](Seq[V1](s).Take(toTake))
 }
 
 // See [Seq.TakeWhile].
-func (s Mapper6[V1, V2, V3, V4, V5, V6, V7]) TakeWhile(test yielder[V1]) Mapper6[V1, V2, V3, V4, V5, V6, V7] {
-	return Mapper6[V1, V2, V3, V4, V5, V6, V7](Seq[V1](s).TakeWhile(test))
+func (s Map6[V1, V2, V3, V4, V5, V6, V7]) TakeWhile(test yielder[V1]) Map6[V1, V2, V3, V4, V5, V6, V7] {
+	return Map6[V1, V2, V3, V4, V5, V6, V7](Seq[V1](s).TakeWhile(test))
 }
 
-type KVMapper6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7 any] KVMapper5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6]
+type KVMap6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7 any] KVMap5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6]
 
 // Map transforms the keys and values within the iterator using the provided mapper function.
-func (s KVMapper6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7]) Map(mapper mapper2[K1, V1, K2, V2]) KVMapper5[K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7] {
+func (s KVMap6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7]) Map(mapper mapper2[K1, V1, K2, V2]) KVMap5[K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7] {
 	return func(yield yielder2[K2, V2]) {
 		for k, v := range s {
 			if !yield(mapper(k, v)) {
@@ -547,39 +523,39 @@ func (s KVMapper6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7]) Map(m
 	}
 }
 
-func IterMapMap6[K1 comparable, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7 any](m map[K1]V1) KVMapper6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7] {
-	return KVMapper6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7](IterMap(m))
+func IterMapMap6[K1 comparable, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7 any](m map[K1]V1) KVMap6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7] {
+	return KVMap6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7](IterMap(m))
 }
 
 // See [Seq2.Filter].
-func (s KVMapper6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7]) Filter(filter yielder2[K1, V1]) KVMapper6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7] {
-	return KVMapper6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7](Seq2[K1, V1](s).Filter(filter))
+func (s KVMap6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7]) Filter(filter yielder2[K1, V1]) KVMap6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7] {
+	return KVMap6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7](Seq2[K1, V1](s).Filter(filter))
 }
 
 // See [Seq2.Skip].
-func (s KVMapper6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7]) Skip(toSkip int) KVMapper6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7] {
-	return KVMapper6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7](Seq2[K1, V1](s).Skip(toSkip))
+func (s KVMap6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7]) Skip(toSkip int) KVMap6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7] {
+	return KVMap6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7](Seq2[K1, V1](s).Skip(toSkip))
 }
 
 // See [Seq2.SkipWhile].
-func (s KVMapper6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7]) SkipWhile(test yielder2[K1, V1]) KVMapper6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7] {
-	return KVMapper6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7](Seq2[K1, V1](s).SkipWhile(test))
+func (s KVMap6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7]) SkipWhile(test yielder2[K1, V1]) KVMap6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7] {
+	return KVMap6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7](Seq2[K1, V1](s).SkipWhile(test))
 }
 
 // See [Seq2.Take].
-func (s KVMapper6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7]) Take(toTake int) KVMapper6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7] {
-	return KVMapper6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7](Seq2[K1, V1](s).Take(toTake))
+func (s KVMap6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7]) Take(toTake int) KVMap6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7] {
+	return KVMap6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7](Seq2[K1, V1](s).Take(toTake))
 }
 
 // See [Seq2.TakeWhile].
-func (s KVMapper6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7]) TakeWhile(test yielder2[K1, V1]) KVMapper6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7] {
-	return KVMapper6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7](Seq2[K1, V1](s).TakeWhile(test))
+func (s KVMap6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7]) TakeWhile(test yielder2[K1, V1]) KVMap6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7] {
+	return KVMap6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7](Seq2[K1, V1](s).TakeWhile(test))
 }
 
-type Mapper7[V1, V2, V3, V4, V5, V6, V7, V8 any] Mapper6[V1, V2, V3, V4, V5, V6, V7]
+type Map7[V1, V2, V3, V4, V5, V6, V7, V8 any] Map6[V1, V2, V3, V4, V5, V6, V7]
 
 // Map transforms the elements within the iterator using the provided mapper function.
-func (s Mapper7[V1, V2, V3, V4, V5, V6, V7, V8]) Map(mapper mapper[V1, V2]) Mapper6[V2, V3, V4, V5, V6, V7, V8] {
+func (s Map7[V1, V2, V3, V4, V5, V6, V7, V8]) Map(mapper mapper[V1, V2]) Map6[V2, V3, V4, V5, V6, V7, V8] {
 	return func(yield yielder[V2]) {
 		for v := range s {
 			if !yield(mapper(v)) {
@@ -589,7 +565,7 @@ func (s Mapper7[V1, V2, V3, V4, V5, V6, V7, V8]) Map(mapper mapper[V1, V2]) Mapp
 	}
 }
 
-func (s Mapper7[V1, V2, V3, V4, V5, V6, V7, V8]) Expand(toElements mapper[V1, Seq[V2]]) Mapper6[V2, V3, V4, V5, V6, V7, V8] {
+func (s Map7[V1, V2, V3, V4, V5, V6, V7, V8]) Expand(toElements mapper[V1, Seq[V2]]) Map6[V2, V3, V4, V5, V6, V7, V8] {
 	return func(yield yielder[V2]) {
 		for v := range s {
 			for e := range toElements(v) {
@@ -601,39 +577,35 @@ func (s Mapper7[V1, V2, V3, V4, V5, V6, V7, V8]) Expand(toElements mapper[V1, Se
 	}
 }
 
-func IterSliceMap7[V1, V2, V3, V4, V5, V6, V7, V8 any](slice []V1) Mapper7[V1, V2, V3, V4, V5, V6, V7, V8] {
-	return Mapper7[V1, V2, V3, V4, V5, V6, V7, V8](IterSlice(slice))
-}
-
 // See [Seq.Filter].
-func (s Mapper7[V1, V2, V3, V4, V5, V6, V7, V8]) Filter(filter yielder[V1]) Mapper7[V1, V2, V3, V4, V5, V6, V7, V8] {
-	return Mapper7[V1, V2, V3, V4, V5, V6, V7, V8](Seq[V1](s).Filter(filter))
+func (s Map7[V1, V2, V3, V4, V5, V6, V7, V8]) Filter(filter yielder[V1]) Map7[V1, V2, V3, V4, V5, V6, V7, V8] {
+	return Map7[V1, V2, V3, V4, V5, V6, V7, V8](Seq[V1](s).Filter(filter))
 }
 
 // See [Seq.Skip].
-func (s Mapper7[V1, V2, V3, V4, V5, V6, V7, V8]) Skip(toSkip int) Mapper7[V1, V2, V3, V4, V5, V6, V7, V8] {
-	return Mapper7[V1, V2, V3, V4, V5, V6, V7, V8](Seq[V1](s).Skip(toSkip))
+func (s Map7[V1, V2, V3, V4, V5, V6, V7, V8]) Skip(toSkip int) Map7[V1, V2, V3, V4, V5, V6, V7, V8] {
+	return Map7[V1, V2, V3, V4, V5, V6, V7, V8](Seq[V1](s).Skip(toSkip))
 }
 
 // See [Seq.SkipWhile].
-func (s Mapper7[V1, V2, V3, V4, V5, V6, V7, V8]) SkipWhile(test yielder[V1]) Mapper7[V1, V2, V3, V4, V5, V6, V7, V8] {
-	return Mapper7[V1, V2, V3, V4, V5, V6, V7, V8](Seq[V1](s).SkipWhile(test))
+func (s Map7[V1, V2, V3, V4, V5, V6, V7, V8]) SkipWhile(test yielder[V1]) Map7[V1, V2, V3, V4, V5, V6, V7, V8] {
+	return Map7[V1, V2, V3, V4, V5, V6, V7, V8](Seq[V1](s).SkipWhile(test))
 }
 
 // See [Seq.Take].
-func (s Mapper7[V1, V2, V3, V4, V5, V6, V7, V8]) Take(toTake int) Mapper7[V1, V2, V3, V4, V5, V6, V7, V8] {
-	return Mapper7[V1, V2, V3, V4, V5, V6, V7, V8](Seq[V1](s).Take(toTake))
+func (s Map7[V1, V2, V3, V4, V5, V6, V7, V8]) Take(toTake int) Map7[V1, V2, V3, V4, V5, V6, V7, V8] {
+	return Map7[V1, V2, V3, V4, V5, V6, V7, V8](Seq[V1](s).Take(toTake))
 }
 
 // See [Seq.TakeWhile].
-func (s Mapper7[V1, V2, V3, V4, V5, V6, V7, V8]) TakeWhile(test yielder[V1]) Mapper7[V1, V2, V3, V4, V5, V6, V7, V8] {
-	return Mapper7[V1, V2, V3, V4, V5, V6, V7, V8](Seq[V1](s).TakeWhile(test))
+func (s Map7[V1, V2, V3, V4, V5, V6, V7, V8]) TakeWhile(test yielder[V1]) Map7[V1, V2, V3, V4, V5, V6, V7, V8] {
+	return Map7[V1, V2, V3, V4, V5, V6, V7, V8](Seq[V1](s).TakeWhile(test))
 }
 
-type KVMapper7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8 any] KVMapper6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7]
+type KVMap7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8 any] KVMap6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7]
 
 // Map transforms the keys and values within the iterator using the provided mapper function.
-func (s KVMapper7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8]) Map(mapper mapper2[K1, V1, K2, V2]) KVMapper6[K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8] {
+func (s KVMap7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8]) Map(mapper mapper2[K1, V1, K2, V2]) KVMap6[K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8] {
 	return func(yield yielder2[K2, V2]) {
 		for k, v := range s {
 			if !yield(mapper(k, v)) {
@@ -643,39 +615,39 @@ func (s KVMapper7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8
 	}
 }
 
-func IterMapMap7[K1 comparable, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8 any](m map[K1]V1) KVMapper7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8] {
-	return KVMapper7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8](IterMap(m))
+func IterMapMap7[K1 comparable, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8 any](m map[K1]V1) KVMap7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8] {
+	return KVMap7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8](IterMap(m))
 }
 
 // See [Seq2.Filter].
-func (s KVMapper7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8]) Filter(filter yielder2[K1, V1]) KVMapper7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8] {
-	return KVMapper7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8](Seq2[K1, V1](s).Filter(filter))
+func (s KVMap7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8]) Filter(filter yielder2[K1, V1]) KVMap7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8] {
+	return KVMap7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8](Seq2[K1, V1](s).Filter(filter))
 }
 
 // See [Seq2.Skip].
-func (s KVMapper7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8]) Skip(toSkip int) KVMapper7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8] {
-	return KVMapper7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8](Seq2[K1, V1](s).Skip(toSkip))
+func (s KVMap7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8]) Skip(toSkip int) KVMap7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8] {
+	return KVMap7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8](Seq2[K1, V1](s).Skip(toSkip))
 }
 
 // See [Seq2.SkipWhile].
-func (s KVMapper7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8]) SkipWhile(test yielder2[K1, V1]) KVMapper7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8] {
-	return KVMapper7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8](Seq2[K1, V1](s).SkipWhile(test))
+func (s KVMap7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8]) SkipWhile(test yielder2[K1, V1]) KVMap7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8] {
+	return KVMap7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8](Seq2[K1, V1](s).SkipWhile(test))
 }
 
 // See [Seq2.Take].
-func (s KVMapper7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8]) Take(toTake int) KVMapper7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8] {
-	return KVMapper7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8](Seq2[K1, V1](s).Take(toTake))
+func (s KVMap7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8]) Take(toTake int) KVMap7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8] {
+	return KVMap7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8](Seq2[K1, V1](s).Take(toTake))
 }
 
 // See [Seq2.TakeWhile].
-func (s KVMapper7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8]) TakeWhile(test yielder2[K1, V1]) KVMapper7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8] {
-	return KVMapper7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8](Seq2[K1, V1](s).TakeWhile(test))
+func (s KVMap7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8]) TakeWhile(test yielder2[K1, V1]) KVMap7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8] {
+	return KVMap7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8](Seq2[K1, V1](s).TakeWhile(test))
 }
 
-type Mapper8[V1, V2, V3, V4, V5, V6, V7, V8, V9 any] Mapper7[V1, V2, V3, V4, V5, V6, V7, V8]
+type Map8[V1, V2, V3, V4, V5, V6, V7, V8, V9 any] Map7[V1, V2, V3, V4, V5, V6, V7, V8]
 
 // Map transforms the elements within the iterator using the provided mapper function.
-func (s Mapper8[V1, V2, V3, V4, V5, V6, V7, V8, V9]) Map(mapper mapper[V1, V2]) Mapper7[V2, V3, V4, V5, V6, V7, V8, V9] {
+func (s Map8[V1, V2, V3, V4, V5, V6, V7, V8, V9]) Map(mapper mapper[V1, V2]) Map7[V2, V3, V4, V5, V6, V7, V8, V9] {
 	return func(yield yielder[V2]) {
 		for v := range s {
 			if !yield(mapper(v)) {
@@ -685,7 +657,7 @@ func (s Mapper8[V1, V2, V3, V4, V5, V6, V7, V8, V9]) Map(mapper mapper[V1, V2]) 
 	}
 }
 
-func (s Mapper8[V1, V2, V3, V4, V5, V6, V7, V8, V9]) Expand(toElements mapper[V1, Seq[V2]]) Mapper7[V2, V3, V4, V5, V6, V7, V8, V9] {
+func (s Map8[V1, V2, V3, V4, V5, V6, V7, V8, V9]) Expand(toElements mapper[V1, Seq[V2]]) Map7[V2, V3, V4, V5, V6, V7, V8, V9] {
 	return func(yield yielder[V2]) {
 		for v := range s {
 			for e := range toElements(v) {
@@ -697,39 +669,35 @@ func (s Mapper8[V1, V2, V3, V4, V5, V6, V7, V8, V9]) Expand(toElements mapper[V1
 	}
 }
 
-func IterSliceMap8[V1, V2, V3, V4, V5, V6, V7, V8, V9 any](slice []V1) Mapper8[V1, V2, V3, V4, V5, V6, V7, V8, V9] {
-	return Mapper8[V1, V2, V3, V4, V5, V6, V7, V8, V9](IterSlice(slice))
-}
-
 // See [Seq.Filter].
-func (s Mapper8[V1, V2, V3, V4, V5, V6, V7, V8, V9]) Filter(filter yielder[V1]) Mapper8[V1, V2, V3, V4, V5, V6, V7, V8, V9] {
-	return Mapper8[V1, V2, V3, V4, V5, V6, V7, V8, V9](Seq[V1](s).Filter(filter))
+func (s Map8[V1, V2, V3, V4, V5, V6, V7, V8, V9]) Filter(filter yielder[V1]) Map8[V1, V2, V3, V4, V5, V6, V7, V8, V9] {
+	return Map8[V1, V2, V3, V4, V5, V6, V7, V8, V9](Seq[V1](s).Filter(filter))
 }
 
 // See [Seq.Skip].
-func (s Mapper8[V1, V2, V3, V4, V5, V6, V7, V8, V9]) Skip(toSkip int) Mapper8[V1, V2, V3, V4, V5, V6, V7, V8, V9] {
-	return Mapper8[V1, V2, V3, V4, V5, V6, V7, V8, V9](Seq[V1](s).Skip(toSkip))
+func (s Map8[V1, V2, V3, V4, V5, V6, V7, V8, V9]) Skip(toSkip int) Map8[V1, V2, V3, V4, V5, V6, V7, V8, V9] {
+	return Map8[V1, V2, V3, V4, V5, V6, V7, V8, V9](Seq[V1](s).Skip(toSkip))
 }
 
 // See [Seq.SkipWhile].
-func (s Mapper8[V1, V2, V3, V4, V5, V6, V7, V8, V9]) SkipWhile(test yielder[V1]) Mapper8[V1, V2, V3, V4, V5, V6, V7, V8, V9] {
-	return Mapper8[V1, V2, V3, V4, V5, V6, V7, V8, V9](Seq[V1](s).SkipWhile(test))
+func (s Map8[V1, V2, V3, V4, V5, V6, V7, V8, V9]) SkipWhile(test yielder[V1]) Map8[V1, V2, V3, V4, V5, V6, V7, V8, V9] {
+	return Map8[V1, V2, V3, V4, V5, V6, V7, V8, V9](Seq[V1](s).SkipWhile(test))
 }
 
 // See [Seq.Take].
-func (s Mapper8[V1, V2, V3, V4, V5, V6, V7, V8, V9]) Take(toTake int) Mapper8[V1, V2, V3, V4, V5, V6, V7, V8, V9] {
-	return Mapper8[V1, V2, V3, V4, V5, V6, V7, V8, V9](Seq[V1](s).Take(toTake))
+func (s Map8[V1, V2, V3, V4, V5, V6, V7, V8, V9]) Take(toTake int) Map8[V1, V2, V3, V4, V5, V6, V7, V8, V9] {
+	return Map8[V1, V2, V3, V4, V5, V6, V7, V8, V9](Seq[V1](s).Take(toTake))
 }
 
 // See [Seq.TakeWhile].
-func (s Mapper8[V1, V2, V3, V4, V5, V6, V7, V8, V9]) TakeWhile(test yielder[V1]) Mapper8[V1, V2, V3, V4, V5, V6, V7, V8, V9] {
-	return Mapper8[V1, V2, V3, V4, V5, V6, V7, V8, V9](Seq[V1](s).TakeWhile(test))
+func (s Map8[V1, V2, V3, V4, V5, V6, V7, V8, V9]) TakeWhile(test yielder[V1]) Map8[V1, V2, V3, V4, V5, V6, V7, V8, V9] {
+	return Map8[V1, V2, V3, V4, V5, V6, V7, V8, V9](Seq[V1](s).TakeWhile(test))
 }
 
-type KVMapper8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9 any] KVMapper7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8]
+type KVMap8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9 any] KVMap7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8]
 
 // Map transforms the keys and values within the iterator using the provided mapper function.
-func (s KVMapper8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9]) Map(mapper mapper2[K1, V1, K2, V2]) KVMapper7[K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9] {
+func (s KVMap8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9]) Map(mapper mapper2[K1, V1, K2, V2]) KVMap7[K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9] {
 	return func(yield yielder2[K2, V2]) {
 		for k, v := range s {
 			if !yield(mapper(k, v)) {
@@ -739,39 +707,39 @@ func (s KVMapper8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8
 	}
 }
 
-func IterMapMap8[K1 comparable, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9 any](m map[K1]V1) KVMapper8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9] {
-	return KVMapper8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9](IterMap(m))
+func IterMapMap8[K1 comparable, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9 any](m map[K1]V1) KVMap8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9] {
+	return KVMap8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9](IterMap(m))
 }
 
 // See [Seq2.Filter].
-func (s KVMapper8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9]) Filter(filter yielder2[K1, V1]) KVMapper8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9] {
-	return KVMapper8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9](Seq2[K1, V1](s).Filter(filter))
+func (s KVMap8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9]) Filter(filter yielder2[K1, V1]) KVMap8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9] {
+	return KVMap8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9](Seq2[K1, V1](s).Filter(filter))
 }
 
 // See [Seq2.Skip].
-func (s KVMapper8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9]) Skip(toSkip int) KVMapper8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9] {
-	return KVMapper8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9](Seq2[K1, V1](s).Skip(toSkip))
+func (s KVMap8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9]) Skip(toSkip int) KVMap8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9] {
+	return KVMap8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9](Seq2[K1, V1](s).Skip(toSkip))
 }
 
 // See [Seq2.SkipWhile].
-func (s KVMapper8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9]) SkipWhile(test yielder2[K1, V1]) KVMapper8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9] {
-	return KVMapper8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9](Seq2[K1, V1](s).SkipWhile(test))
+func (s KVMap8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9]) SkipWhile(test yielder2[K1, V1]) KVMap8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9] {
+	return KVMap8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9](Seq2[K1, V1](s).SkipWhile(test))
 }
 
 // See [Seq2.Take].
-func (s KVMapper8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9]) Take(toTake int) KVMapper8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9] {
-	return KVMapper8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9](Seq2[K1, V1](s).Take(toTake))
+func (s KVMap8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9]) Take(toTake int) KVMap8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9] {
+	return KVMap8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9](Seq2[K1, V1](s).Take(toTake))
 }
 
 // See [Seq2.TakeWhile].
-func (s KVMapper8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9]) TakeWhile(test yielder2[K1, V1]) KVMapper8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9] {
-	return KVMapper8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9](Seq2[K1, V1](s).TakeWhile(test))
+func (s KVMap8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9]) TakeWhile(test yielder2[K1, V1]) KVMap8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9] {
+	return KVMap8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9](Seq2[K1, V1](s).TakeWhile(test))
 }
 
-type Mapper9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10 any] Mapper8[V1, V2, V3, V4, V5, V6, V7, V8, V9]
+type Map9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10 any] Map8[V1, V2, V3, V4, V5, V6, V7, V8, V9]
 
 // Map transforms the elements within the iterator using the provided mapper function.
-func (s Mapper9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10]) Map(mapper mapper[V1, V2]) Mapper8[V2, V3, V4, V5, V6, V7, V8, V9, V10] {
+func (s Map9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10]) Map(mapper mapper[V1, V2]) Map8[V2, V3, V4, V5, V6, V7, V8, V9, V10] {
 	return func(yield yielder[V2]) {
 		for v := range s {
 			if !yield(mapper(v)) {
@@ -781,7 +749,7 @@ func (s Mapper9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10]) Map(mapper mapper[V1, 
 	}
 }
 
-func (s Mapper9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10]) Expand(toElements mapper[V1, Seq[V2]]) Mapper8[V2, V3, V4, V5, V6, V7, V8, V9, V10] {
+func (s Map9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10]) Expand(toElements mapper[V1, Seq[V2]]) Map8[V2, V3, V4, V5, V6, V7, V8, V9, V10] {
 	return func(yield yielder[V2]) {
 		for v := range s {
 			for e := range toElements(v) {
@@ -793,39 +761,35 @@ func (s Mapper9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10]) Expand(toElements mapp
 	}
 }
 
-func IterSliceMap9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10 any](slice []V1) Mapper9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10] {
-	return Mapper9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10](IterSlice(slice))
-}
-
 // See [Seq.Filter].
-func (s Mapper9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10]) Filter(filter yielder[V1]) Mapper9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10] {
-	return Mapper9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10](Seq[V1](s).Filter(filter))
+func (s Map9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10]) Filter(filter yielder[V1]) Map9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10] {
+	return Map9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10](Seq[V1](s).Filter(filter))
 }
 
 // See [Seq.Skip].
-func (s Mapper9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10]) Skip(toSkip int) Mapper9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10] {
-	return Mapper9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10](Seq[V1](s).Skip(toSkip))
+func (s Map9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10]) Skip(toSkip int) Map9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10] {
+	return Map9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10](Seq[V1](s).Skip(toSkip))
 }
 
 // See [Seq.SkipWhile].
-func (s Mapper9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10]) SkipWhile(test yielder[V1]) Mapper9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10] {
-	return Mapper9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10](Seq[V1](s).SkipWhile(test))
+func (s Map9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10]) SkipWhile(test yielder[V1]) Map9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10] {
+	return Map9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10](Seq[V1](s).SkipWhile(test))
 }
 
 // See [Seq.Take].
-func (s Mapper9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10]) Take(toTake int) Mapper9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10] {
-	return Mapper9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10](Seq[V1](s).Take(toTake))
+func (s Map9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10]) Take(toTake int) Map9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10] {
+	return Map9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10](Seq[V1](s).Take(toTake))
 }
 
 // See [Seq.TakeWhile].
-func (s Mapper9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10]) TakeWhile(test yielder[V1]) Mapper9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10] {
-	return Mapper9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10](Seq[V1](s).TakeWhile(test))
+func (s Map9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10]) TakeWhile(test yielder[V1]) Map9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10] {
+	return Map9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10](Seq[V1](s).TakeWhile(test))
 }
 
-type KVMapper9[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9, K10, V10 any] KVMapper8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9]
+type KVMap9[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9, K10, V10 any] KVMap8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9]
 
 // Map transforms the keys and values within the iterator using the provided mapper function.
-func (s KVMapper9[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9, K10, V10]) Map(mapper mapper2[K1, V1, K2, V2]) KVMapper8[K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9, K10, V10] {
+func (s KVMap9[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9, K10, V10]) Map(mapper mapper2[K1, V1, K2, V2]) KVMap8[K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9, K10, V10] {
 	return func(yield yielder2[K2, V2]) {
 		for k, v := range s {
 			if !yield(mapper(k, v)) {
@@ -835,31 +799,31 @@ func (s KVMapper9[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8
 	}
 }
 
-func IterMapMap9[K1 comparable, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9, K10, V10 any](m map[K1]V1) KVMapper9[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9, K10, V10] {
-	return KVMapper9[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9, K10, V10](IterMap(m))
+func IterMapMap9[K1 comparable, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9, K10, V10 any](m map[K1]V1) KVMap9[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9, K10, V10] {
+	return KVMap9[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9, K10, V10](IterMap(m))
 }
 
 // See [Seq2.Filter].
-func (s KVMapper9[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9, K10, V10]) Filter(filter yielder2[K1, V1]) KVMapper9[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9, K10, V10] {
-	return KVMapper9[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9, K10, V10](Seq2[K1, V1](s).Filter(filter))
+func (s KVMap9[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9, K10, V10]) Filter(filter yielder2[K1, V1]) KVMap9[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9, K10, V10] {
+	return KVMap9[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9, K10, V10](Seq2[K1, V1](s).Filter(filter))
 }
 
 // See [Seq2.Skip].
-func (s KVMapper9[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9, K10, V10]) Skip(toSkip int) KVMapper9[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9, K10, V10] {
-	return KVMapper9[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9, K10, V10](Seq2[K1, V1](s).Skip(toSkip))
+func (s KVMap9[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9, K10, V10]) Skip(toSkip int) KVMap9[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9, K10, V10] {
+	return KVMap9[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9, K10, V10](Seq2[K1, V1](s).Skip(toSkip))
 }
 
 // See [Seq2.SkipWhile].
-func (s KVMapper9[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9, K10, V10]) SkipWhile(test yielder2[K1, V1]) KVMapper9[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9, K10, V10] {
-	return KVMapper9[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9, K10, V10](Seq2[K1, V1](s).SkipWhile(test))
+func (s KVMap9[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9, K10, V10]) SkipWhile(test yielder2[K1, V1]) KVMap9[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9, K10, V10] {
+	return KVMap9[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9, K10, V10](Seq2[K1, V1](s).SkipWhile(test))
 }
 
 // See [Seq2.Take].
-func (s KVMapper9[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9, K10, V10]) Take(toTake int) KVMapper9[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9, K10, V10] {
-	return KVMapper9[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9, K10, V10](Seq2[K1, V1](s).Take(toTake))
+func (s KVMap9[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9, K10, V10]) Take(toTake int) KVMap9[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9, K10, V10] {
+	return KVMap9[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9, K10, V10](Seq2[K1, V1](s).Take(toTake))
 }
 
 // See [Seq2.TakeWhile].
-func (s KVMapper9[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9, K10, V10]) TakeWhile(test yielder2[K1, V1]) KVMapper9[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9, K10, V10] {
-	return KVMapper9[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9, K10, V10](Seq2[K1, V1](s).TakeWhile(test))
+func (s KVMap9[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9, K10, V10]) TakeWhile(test yielder2[K1, V1]) KVMap9[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9, K10, V10] {
+	return KVMap9[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9, K10, V10](Seq2[K1, V1](s).TakeWhile(test))
 }

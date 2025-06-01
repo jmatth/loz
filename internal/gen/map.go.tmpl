@@ -31,10 +31,6 @@ KV{{ .BaseName }}{{ .Index }}[{{ template "kvTypeRange" add 1 .Index | numsTo }}
 {{- end -}}
 
 {{- define "seqderef" -}}
-func IterSliceMap{{ .Index }}[{{ template "typerange" add 1 .Index | numsTo }} any](slice []V1) {{ template "maptype" . }} {
-	return {{ template "maptype" . }}(IterSlice(slice))
-}
-
 // See [Seq.Filter].
 func (s {{ template "maptype" . }}) Filter(filter yielder[V1]) {{ template "maptype" . }} {
 	return {{ template "maptype" . }}(Seq[V1](s).Filter(filter))
@@ -95,7 +91,7 @@ func (s {{ template "kvMapType" . }}) TakeWhile(test yielder2[K1, V1]) {{ templa
 package {{ .package }}
 
 {{ range numsTo .levels -}}
-{{ with subTmplArgs "Mapper" .I }}
+{{ with subTmplArgs "Map" .I }}
 type {{ template "maptypedef" . }} {{ template "prevmaptype" . }}
 
 // Map transforms the elements within the iterator using the provided mapper function.

@@ -11,14 +11,14 @@ import (
 
 func TestMap(t *testing.T) {
 	nums := []int{1, 2, 3, 4, 5}
-	mapper := loz.Mapper1[int, string](loz.IterSlice(nums))
+	mapper := loz.Map1[int, string](loz.IterSlice(nums))
 	mapped := mapper.Map(func(n int) string { return fmt.Sprintf("%v", n) })
 	assert.Equal(t, []string{"1", "2", "3", "4", "5"}, mapped.CollectSlice())
 }
 
 func TestMultiMap(t *testing.T) {
 	nums := []string{"1", "200", "3", "42", "55"}
-	mapper := loz.Mapper3[string, byte, int, float64](loz.IterSlice(nums))
+	mapper := loz.Map3[string, byte, int, float64](loz.IterSlice(nums))
 	mapped := mapper.
 		Map(func(s string) byte { return s[0] }).
 		Map(func(b byte) int { return int(b - 0x30) }).
@@ -27,7 +27,7 @@ func TestMultiMap(t *testing.T) {
 	assert.Equal(t, []float64{1.1, 2.2, 3.3, 4.4, 5.5}, mapped)
 }
 
-func TestKVMapper1(t *testing.T) {
+func TestKVMap1(t *testing.T) {
 	m := map[int]string{
 		1: "one",
 		2: "two",
@@ -35,7 +35,7 @@ func TestKVMapper1(t *testing.T) {
 		4: "four",
 		5: "five",
 	}
-	iterator := loz.KVMapper1[
+	iterator := loz.KVMap1[
 		int, string,
 		string, byte](maps.All(m)).
 		Map(func(k int, v string) (string, byte) {
@@ -45,8 +45,8 @@ func TestKVMapper1(t *testing.T) {
 	assert.ElementsMatch(t, iterator.Values().CollectSlice(), []byte{'o', 't', 't', 'f', 'f'})
 }
 
-func ExampleMapper1_Fold() {
-	result := loz.Mapper1[int, string](loz.RangeFrom(1, 6)).
+func ExampleMap1_Fold() {
+	result := loz.Map1[int, string](loz.RangeFrom(1, 6)).
 		Fold("", func(acc string, n int) string {
 			if acc == "" {
 				return fmt.Sprintf("%d", n)
