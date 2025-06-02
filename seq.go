@@ -5,20 +5,6 @@ import (
 	"slices"
 )
 
-type SeqError int
-
-const (
-	EmptySeqErr SeqError = iota
-)
-
-func (e SeqError) Error() string {
-	switch e {
-	case EmptySeqErr:
-		return "empty iterator"
-	}
-	return "unknown iteration error"
-}
-
 // Seq is an alias to [iter.Seq] that provides additional methods for filtering,
 // transforming, and collecting the elements.
 type Seq[V any] iter.Seq[V]
@@ -34,12 +20,31 @@ func (s Seq[V]) CollectSlice() []V {
 	return slices.Collect(iter.Seq[V](s))
 }
 
+func (s Seq[V]) TryCollectSlice() (result []V, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = recoverSeqError(r)
+		}
+	}()
+	return s.CollectSlice(), nil
+}
+
 // ForEach consumes the iterator and calls the provided function with each of
 // the elements.
 func (s Seq[V]) ForEach(process processor[V]) {
 	for v := range s {
 		process(v)
 	}
+}
+
+func (s Seq[V]) TryForEach(process processor[V]) (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = recoverSeqError(r)
+		}
+	}()
+	s.ForEach(process)
+	return nil
 }
 
 // Map transforms the elements within the iterator using the provided mapper
@@ -59,8 +64,12 @@ func (s Seq[V]) Map(mapper mapper[V, V]) Seq[V] {
 // Reduce reduces the iterator to a single value by iteratively combining its
 // elements using the provided function. If the iterator is empty a zero value
 // will be returned along with an error.
-func (s Seq[V]) Reduce(combine reducer[V, V]) (V, error) {
-	var result V
+func (s Seq[V]) Reduce(combine reducer[V, V]) (result V, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = recoverSeqError(r)
+		}
+	}()
 	isFirst := true
 	for v := range s {
 		if isFirst {
@@ -76,6 +85,15 @@ func (s Seq[V]) Reduce(combine reducer[V, V]) (V, error) {
 	return result, nil
 }
 
+func (s Seq[V]) TryReduce(combine reducer[V, V]) (result V, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = recoverSeqError(r)
+		}
+	}()
+	return s.Reduce(combine)
+}
+
 // Fold reduces the iterator to a single value by iteratively combining its
 // elements with an initial value using the provided function. If the iterator
 // is empty the initial value will be returned unmodified.
@@ -86,10 +104,23 @@ func (s Seq[V]) Fold(initial V, combine reducer[V, V]) V {
 	return initial
 }
 
+func (s Seq[V]) TryFold(initial V, combine reducer[V, V]) (result V, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = recoverSeqError(r)
+		}
+	}()
+	return s.Fold(initial, combine), nil
+}
+
 // First consumes the iterator and returns its first element. If the iterator
 // is empty a zero value will be returned with an error.
-func (s Seq[V]) First() (V, error) {
-	var result V
+func (s Seq[V]) First() (result V, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = recoverSeqError(r)
+		}
+	}()
 	isEmpty := true
 	for result = range s {
 		isEmpty = false
@@ -103,9 +134,13 @@ func (s Seq[V]) First() (V, error) {
 
 // Last consumes the iterator and returns its last element.
 // If the iterator is empty a zero value will be returned with an error.
-func (s Seq[V]) Last() (V, error) {
+func (s Seq[V]) Last() (result V, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = recoverSeqError(r)
+		}
+	}()
 	isEmpty := true
-	var result V
 	for result = range s {
 		if isEmpty {
 			isEmpty = false
@@ -128,6 +163,15 @@ func (s Seq[V]) Any(test yielder[V]) bool {
 	return false
 }
 
+func (s Seq[V]) TryAny(test yielder[V]) (result bool, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = recoverSeqError(r)
+		}
+	}()
+	return s.Any(test), nil
+}
+
 // Every returns true if test returns false for every element of the iterator,
 // and false otherwise. Returns true for an empty iterator.
 func (s Seq[V]) None(test yielder[V]) bool {
@@ -139,6 +183,15 @@ func (s Seq[V]) None(test yielder[V]) bool {
 	return true
 }
 
+func (s Seq[V]) TryNone(test yielder[V]) (result bool, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = recoverSeqError(r)
+		}
+	}()
+	return s.None(test), err
+}
+
 // Every returns true if test returns true for every element of the iterator,
 // and false otherwise. Returns true for an empty iterator.
 func (s Seq[V]) Every(test yielder[V]) bool {
@@ -148,6 +201,15 @@ func (s Seq[V]) Every(test yielder[V]) bool {
 		}
 	}
 	return true
+}
+
+func (s Seq[V]) TryEvery(test yielder[V]) (result bool, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = recoverSeqError(r)
+		}
+	}()
+	return s.Every(test), nil
 }
 
 // Filter filters the iterator to only include only elements for which filter

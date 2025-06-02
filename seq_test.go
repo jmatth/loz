@@ -2,6 +2,7 @@ package loz_test
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/jmatth/loz"
@@ -186,4 +187,37 @@ func TestRepeatCalls(t *testing.T) {
 }
 
 func TestTMP(t *testing.T) {
+}
+
+func ExampleSeq_errorHandling() {
+	result, err := loz.Map1[string, int](loz.IterSlice([]string{"1", "foo", "3"})).
+		Map(func(s string) int {
+			num, err := strconv.Atoi(s)
+			if err != nil {
+				loz.PanicHaltIteration(err)
+			}
+			return num
+		}).TryCollectSlice()
+	fmt.Printf("%v; %v", result, err)
+	// Output: []; strconv.Atoi: parsing "foo": invalid syntax
+}
+
+func ExampleSeq_incorrectErrorHandling() {
+	defer func() {
+		r := recover()
+		if r != nil {
+			fmt.Printf("example code panicked: %v", r)
+		}
+	}()
+
+	result, err := loz.Map1[string, int](loz.IterSlice([]string{"1", "foo", "3"})).
+		Map(func(s string) int {
+			num, err := strconv.Atoi(s)
+			if err != nil {
+				panic(err)
+			}
+			return num
+		}).TryCollectSlice()
+	fmt.Printf("%v; %v", result, err)
+	// Output: example code panicked: strconv.Atoi: parsing "foo": invalid syntax
 }
