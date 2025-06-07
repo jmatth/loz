@@ -105,6 +105,20 @@ func (s {{ template "maptype" . }}) Map(mapper mapper[V1, V2]) {{ template "prev
 	}
 }
 
+func (s {{ template "maptype" . }}) FilterMap(mapper filteringMapper[V1, V2]) {{ template "prevmapresult" . }} {
+	return func(yield yielder[V2]) {
+		for v := range s {
+			mapped, err := mapper(v)
+			if err != nil {
+				continue
+			}
+			if !yield(mapped) {
+				break
+			}
+		}
+	}
+}
+
 func (s {{ template "maptype" . }}) Expand(toElements mapper[V1, Seq[V2]]) {{ template "prevmapresult" . }} {
 	return func(yield yielder[V2]) {
 		for v := range s {
@@ -126,6 +140,21 @@ func (s {{ template "kvMapType" . }}) Map(mapper mapper2[K1, V1, K2, V2]) {{ tem
 	return func(yield yielder2[K2, V2]) {
 		for k, v := range s {
 			if !yield(mapper(k, v)) {
+				break
+			}
+		}
+	}
+}
+
+// Map transforms the keys and values within the iterator using the provided mapper function.
+func (s {{ template "kvMapType" . }}) FilterMap(mapper filteringMapper2[K1, V1, K2, V2]) {{ template "prevKVMapResult" . }} {
+	return func(yield yielder2[K2, V2]) {
+		for k, v := range s {
+			mk, mv, err := mapper(k, v)
+			if err != nil {
+				continue
+			}
+			if !yield(mk, mv) {
 				break
 			}
 		}

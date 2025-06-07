@@ -62,6 +62,24 @@ func (s KVSeq[K, V]) Map(mapper func(K, V) (K, V)) KVSeq[K, V] {
 	}
 }
 
+// FilterMap is a combination of [KVSeq.Filter] and [KVSeq.Map]. If the
+// provided mapper function returns an error, then the current key/value pair
+// of the iteration will be skipped. If no error is returned, then the mapped
+// key/value pair is passed to the next iteration stage as normal.
+func (s KVSeq[K, V]) FilterMap(mapper func(K, V) (K, V, error)) KVSeq[K, V] {
+	return func(yield yielder2[K, V]) {
+		for k, v := range s {
+			mk, mv, err := mapper(k, v)
+			if err != nil {
+				continue
+			}
+			if !yield(mk, mv) {
+				break
+			}
+		}
+	}
+}
+
 // Reduce reduces the iterator to a single key/value pair by iteratively
 // combining its elements using the provided function. If the iterator is empty
 // then zero values will be returned along with an error.

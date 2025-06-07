@@ -13,6 +13,20 @@ func (s Map1[V1, V2]) Map(mapper mapper[V1, V2]) Seq[V2] {
 	}
 }
 
+func (s Map1[V1, V2]) FilterMap(mapper filteringMapper[V1, V2]) Seq[V2] {
+	return func(yield yielder[V2]) {
+		for v := range s {
+			mapped, err := mapper(v)
+			if err != nil {
+				continue
+			}
+			if !yield(mapped) {
+				break
+			}
+		}
+	}
+}
+
 func (s Map1[V1, V2]) Expand(toElements mapper[V1, Seq[V2]]) Seq[V2] {
 	return func(yield yielder[V2]) {
 		for v := range s {
@@ -63,6 +77,21 @@ func (s KVMap1[K1, V1, K2, V2]) Map(mapper mapper2[K1, V1, K2, V2]) KVSeq[K2, V2
 	}
 }
 
+// Map transforms the keys and values within the iterator using the provided mapper function.
+func (s KVMap1[K1, V1, K2, V2]) FilterMap(mapper filteringMapper2[K1, V1, K2, V2]) KVSeq[K2, V2] {
+	return func(yield yielder2[K2, V2]) {
+		for k, v := range s {
+			mk, mv, err := mapper(k, v)
+			if err != nil {
+				continue
+			}
+			if !yield(mk, mv) {
+				break
+			}
+		}
+	}
+}
+
 func IterMapMap1[K1 comparable, V1, K2, V2 any](m map[K1]V1) KVMap1[K1, V1, K2, V2] {
 	return KVMap1[K1, V1, K2, V2](IterMap(m))
 }
@@ -99,6 +128,20 @@ func (s Map2[V1, V2, V3]) Map(mapper mapper[V1, V2]) Map1[V2, V3] {
 	return func(yield yielder[V2]) {
 		for v := range s {
 			if !yield(mapper(v)) {
+				break
+			}
+		}
+	}
+}
+
+func (s Map2[V1, V2, V3]) FilterMap(mapper filteringMapper[V1, V2]) Map1[V2, V3] {
+	return func(yield yielder[V2]) {
+		for v := range s {
+			mapped, err := mapper(v)
+			if err != nil {
+				continue
+			}
+			if !yield(mapped) {
 				break
 			}
 		}
@@ -155,6 +198,21 @@ func (s KVMap2[K1, V1, K2, V2, K3, V3]) Map(mapper mapper2[K1, V1, K2, V2]) KVMa
 	}
 }
 
+// Map transforms the keys and values within the iterator using the provided mapper function.
+func (s KVMap2[K1, V1, K2, V2, K3, V3]) FilterMap(mapper filteringMapper2[K1, V1, K2, V2]) KVMap1[K2, V2, K3, V3] {
+	return func(yield yielder2[K2, V2]) {
+		for k, v := range s {
+			mk, mv, err := mapper(k, v)
+			if err != nil {
+				continue
+			}
+			if !yield(mk, mv) {
+				break
+			}
+		}
+	}
+}
+
 func IterMapMap2[K1 comparable, V1, K2, V2, K3, V3 any](m map[K1]V1) KVMap2[K1, V1, K2, V2, K3, V3] {
 	return KVMap2[K1, V1, K2, V2, K3, V3](IterMap(m))
 }
@@ -191,6 +249,20 @@ func (s Map3[V1, V2, V3, V4]) Map(mapper mapper[V1, V2]) Map2[V2, V3, V4] {
 	return func(yield yielder[V2]) {
 		for v := range s {
 			if !yield(mapper(v)) {
+				break
+			}
+		}
+	}
+}
+
+func (s Map3[V1, V2, V3, V4]) FilterMap(mapper filteringMapper[V1, V2]) Map2[V2, V3, V4] {
+	return func(yield yielder[V2]) {
+		for v := range s {
+			mapped, err := mapper(v)
+			if err != nil {
+				continue
+			}
+			if !yield(mapped) {
 				break
 			}
 		}
@@ -247,6 +319,21 @@ func (s KVMap3[K1, V1, K2, V2, K3, V3, K4, V4]) Map(mapper mapper2[K1, V1, K2, V
 	}
 }
 
+// Map transforms the keys and values within the iterator using the provided mapper function.
+func (s KVMap3[K1, V1, K2, V2, K3, V3, K4, V4]) FilterMap(mapper filteringMapper2[K1, V1, K2, V2]) KVMap2[K2, V2, K3, V3, K4, V4] {
+	return func(yield yielder2[K2, V2]) {
+		for k, v := range s {
+			mk, mv, err := mapper(k, v)
+			if err != nil {
+				continue
+			}
+			if !yield(mk, mv) {
+				break
+			}
+		}
+	}
+}
+
 func IterMapMap3[K1 comparable, V1, K2, V2, K3, V3, K4, V4 any](m map[K1]V1) KVMap3[K1, V1, K2, V2, K3, V3, K4, V4] {
 	return KVMap3[K1, V1, K2, V2, K3, V3, K4, V4](IterMap(m))
 }
@@ -283,6 +370,20 @@ func (s Map4[V1, V2, V3, V4, V5]) Map(mapper mapper[V1, V2]) Map3[V2, V3, V4, V5
 	return func(yield yielder[V2]) {
 		for v := range s {
 			if !yield(mapper(v)) {
+				break
+			}
+		}
+	}
+}
+
+func (s Map4[V1, V2, V3, V4, V5]) FilterMap(mapper filteringMapper[V1, V2]) Map3[V2, V3, V4, V5] {
+	return func(yield yielder[V2]) {
+		for v := range s {
+			mapped, err := mapper(v)
+			if err != nil {
+				continue
+			}
+			if !yield(mapped) {
 				break
 			}
 		}
@@ -339,6 +440,21 @@ func (s KVMap4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5]) Map(mapper mapper2[K1, V
 	}
 }
 
+// Map transforms the keys and values within the iterator using the provided mapper function.
+func (s KVMap4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5]) FilterMap(mapper filteringMapper2[K1, V1, K2, V2]) KVMap3[K2, V2, K3, V3, K4, V4, K5, V5] {
+	return func(yield yielder2[K2, V2]) {
+		for k, v := range s {
+			mk, mv, err := mapper(k, v)
+			if err != nil {
+				continue
+			}
+			if !yield(mk, mv) {
+				break
+			}
+		}
+	}
+}
+
 func IterMapMap4[K1 comparable, V1, K2, V2, K3, V3, K4, V4, K5, V5 any](m map[K1]V1) KVMap4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5] {
 	return KVMap4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5](IterMap(m))
 }
@@ -375,6 +491,20 @@ func (s Map5[V1, V2, V3, V4, V5, V6]) Map(mapper mapper[V1, V2]) Map4[V2, V3, V4
 	return func(yield yielder[V2]) {
 		for v := range s {
 			if !yield(mapper(v)) {
+				break
+			}
+		}
+	}
+}
+
+func (s Map5[V1, V2, V3, V4, V5, V6]) FilterMap(mapper filteringMapper[V1, V2]) Map4[V2, V3, V4, V5, V6] {
+	return func(yield yielder[V2]) {
+		for v := range s {
+			mapped, err := mapper(v)
+			if err != nil {
+				continue
+			}
+			if !yield(mapped) {
 				break
 			}
 		}
@@ -431,6 +561,21 @@ func (s KVMap5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6]) Map(mapper mappe
 	}
 }
 
+// Map transforms the keys and values within the iterator using the provided mapper function.
+func (s KVMap5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6]) FilterMap(mapper filteringMapper2[K1, V1, K2, V2]) KVMap4[K2, V2, K3, V3, K4, V4, K5, V5, K6, V6] {
+	return func(yield yielder2[K2, V2]) {
+		for k, v := range s {
+			mk, mv, err := mapper(k, v)
+			if err != nil {
+				continue
+			}
+			if !yield(mk, mv) {
+				break
+			}
+		}
+	}
+}
+
 func IterMapMap5[K1 comparable, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6 any](m map[K1]V1) KVMap5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6] {
 	return KVMap5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6](IterMap(m))
 }
@@ -467,6 +612,20 @@ func (s Map6[V1, V2, V3, V4, V5, V6, V7]) Map(mapper mapper[V1, V2]) Map5[V2, V3
 	return func(yield yielder[V2]) {
 		for v := range s {
 			if !yield(mapper(v)) {
+				break
+			}
+		}
+	}
+}
+
+func (s Map6[V1, V2, V3, V4, V5, V6, V7]) FilterMap(mapper filteringMapper[V1, V2]) Map5[V2, V3, V4, V5, V6, V7] {
+	return func(yield yielder[V2]) {
+		for v := range s {
+			mapped, err := mapper(v)
+			if err != nil {
+				continue
+			}
+			if !yield(mapped) {
 				break
 			}
 		}
@@ -523,6 +682,21 @@ func (s KVMap6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7]) Map(mapp
 	}
 }
 
+// Map transforms the keys and values within the iterator using the provided mapper function.
+func (s KVMap6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7]) FilterMap(mapper filteringMapper2[K1, V1, K2, V2]) KVMap5[K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7] {
+	return func(yield yielder2[K2, V2]) {
+		for k, v := range s {
+			mk, mv, err := mapper(k, v)
+			if err != nil {
+				continue
+			}
+			if !yield(mk, mv) {
+				break
+			}
+		}
+	}
+}
+
 func IterMapMap6[K1 comparable, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7 any](m map[K1]V1) KVMap6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7] {
 	return KVMap6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7](IterMap(m))
 }
@@ -559,6 +733,20 @@ func (s Map7[V1, V2, V3, V4, V5, V6, V7, V8]) Map(mapper mapper[V1, V2]) Map6[V2
 	return func(yield yielder[V2]) {
 		for v := range s {
 			if !yield(mapper(v)) {
+				break
+			}
+		}
+	}
+}
+
+func (s Map7[V1, V2, V3, V4, V5, V6, V7, V8]) FilterMap(mapper filteringMapper[V1, V2]) Map6[V2, V3, V4, V5, V6, V7, V8] {
+	return func(yield yielder[V2]) {
+		for v := range s {
+			mapped, err := mapper(v)
+			if err != nil {
+				continue
+			}
+			if !yield(mapped) {
 				break
 			}
 		}
@@ -615,6 +803,21 @@ func (s KVMap7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8]) 
 	}
 }
 
+// Map transforms the keys and values within the iterator using the provided mapper function.
+func (s KVMap7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8]) FilterMap(mapper filteringMapper2[K1, V1, K2, V2]) KVMap6[K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8] {
+	return func(yield yielder2[K2, V2]) {
+		for k, v := range s {
+			mk, mv, err := mapper(k, v)
+			if err != nil {
+				continue
+			}
+			if !yield(mk, mv) {
+				break
+			}
+		}
+	}
+}
+
 func IterMapMap7[K1 comparable, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8 any](m map[K1]V1) KVMap7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8] {
 	return KVMap7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8](IterMap(m))
 }
@@ -651,6 +854,20 @@ func (s Map8[V1, V2, V3, V4, V5, V6, V7, V8, V9]) Map(mapper mapper[V1, V2]) Map
 	return func(yield yielder[V2]) {
 		for v := range s {
 			if !yield(mapper(v)) {
+				break
+			}
+		}
+	}
+}
+
+func (s Map8[V1, V2, V3, V4, V5, V6, V7, V8, V9]) FilterMap(mapper filteringMapper[V1, V2]) Map7[V2, V3, V4, V5, V6, V7, V8, V9] {
+	return func(yield yielder[V2]) {
+		for v := range s {
+			mapped, err := mapper(v)
+			if err != nil {
+				continue
+			}
+			if !yield(mapped) {
 				break
 			}
 		}
@@ -707,6 +924,21 @@ func (s KVMap8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K
 	}
 }
 
+// Map transforms the keys and values within the iterator using the provided mapper function.
+func (s KVMap8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9]) FilterMap(mapper filteringMapper2[K1, V1, K2, V2]) KVMap7[K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9] {
+	return func(yield yielder2[K2, V2]) {
+		for k, v := range s {
+			mk, mv, err := mapper(k, v)
+			if err != nil {
+				continue
+			}
+			if !yield(mk, mv) {
+				break
+			}
+		}
+	}
+}
+
 func IterMapMap8[K1 comparable, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9 any](m map[K1]V1) KVMap8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9] {
 	return KVMap8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9](IterMap(m))
 }
@@ -743,6 +975,20 @@ func (s Map9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10]) Map(mapper mapper[V1, V2]
 	return func(yield yielder[V2]) {
 		for v := range s {
 			if !yield(mapper(v)) {
+				break
+			}
+		}
+	}
+}
+
+func (s Map9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10]) FilterMap(mapper filteringMapper[V1, V2]) Map8[V2, V3, V4, V5, V6, V7, V8, V9, V10] {
+	return func(yield yielder[V2]) {
+		for v := range s {
+			mapped, err := mapper(v)
+			if err != nil {
+				continue
+			}
+			if !yield(mapped) {
 				break
 			}
 		}
@@ -793,6 +1039,21 @@ func (s KVMap9[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K
 	return func(yield yielder2[K2, V2]) {
 		for k, v := range s {
 			if !yield(mapper(k, v)) {
+				break
+			}
+		}
+	}
+}
+
+// Map transforms the keys and values within the iterator using the provided mapper function.
+func (s KVMap9[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9, K10, V10]) FilterMap(mapper filteringMapper2[K1, V1, K2, V2]) KVMap8[K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9, K10, V10] {
+	return func(yield yielder2[K2, V2]) {
+		for k, v := range s {
+			mk, mv, err := mapper(k, v)
+			if err != nil {
+				continue
+			}
+			if !yield(mk, mv) {
 				break
 			}
 		}

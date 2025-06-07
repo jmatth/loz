@@ -61,6 +61,24 @@ func (s Seq[V]) Map(mapper mapper[V, V]) Seq[V] {
 	}
 }
 
+// FilterMap is a combination of [Seq.Filter] and [Seq.Map]. If the provided
+// mapper function returns an error, then the current element of the iteration
+// will be skipped. If no error is returned, then the mapped value is passed to
+// the next iteration stage as normal.
+func (s Seq[V]) FilterMap(mapper filteringMapper[V, V]) Seq[V] {
+	return func(yield yielder[V]) {
+		for v := range s {
+			mapped, err := mapper(v)
+			if err != nil {
+				continue
+			}
+			if !yield(mapped) {
+				break
+			}
+		}
+	}
+}
+
 // Reduce reduces the iterator to a single value by iteratively combining its
 // elements using the provided function. If the iterator is empty a zero value
 // will be returned along with an error.

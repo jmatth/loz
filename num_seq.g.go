@@ -15,6 +15,9 @@ func (n NumSeq[V]) TryForEach(process processor[V]) error {
 func (n NumSeq[V]) Map(mapper mapper[V, V]) NumSeq[V] {
 	return NumSeq[V](Seq[V](n).Map(mapper))
 }
+func (n NumSeq[V]) FilterMap(mapper filteringMapper[V, V]) NumSeq[V] {
+	return NumSeq[V](Seq[V](n).FilterMap(mapper))
+}
 func (n NumSeq[V]) Reduce(combine reducer[V, V]) (V, error) {
 	return Seq[V](n).Reduce(combine)
 }
