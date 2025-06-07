@@ -185,9 +185,9 @@ func genWrapper(f *File, name string, recvType typeDef, originalType string, par
 	generatedReturnTypes := loz.Map1[funcParam, Code](loz.IterSlice(returnTypes)).
 		Map(func(p funcParam) Code {
 			if p.typeDef.isArr {
-				return Index().Id(p.name).Id(p.typeDef.name).Types(p.typeDef.paramsAsCode()...)
+				return Index().Id(p.typeDef.name).Types(p.typeDef.paramsAsCode()...)
 			}
-			return Id(p.name).Id(p.typeDef.name).Types(p.typeDef.paramsAsCode()...)
+			return Id(p.typeDef.name).Types(p.typeDef.paramsAsCode()...)
 		}).
 		CollectSlice()
 

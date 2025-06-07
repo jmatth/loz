@@ -64,13 +64,9 @@ func (s Seq[V]) Map(mapper mapper[V, V]) Seq[V] {
 // Reduce reduces the iterator to a single value by iteratively combining its
 // elements using the provided function. If the iterator is empty a zero value
 // will be returned along with an error.
-func (s Seq[V]) Reduce(combine reducer[V, V]) (result V, err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			err = recoverSeqError(r)
-		}
-	}()
+func (s Seq[V]) Reduce(combine reducer[V, V]) (V, error) {
 	isFirst := true
+	var result V
 	for v := range s {
 		if isFirst {
 			result = v
@@ -115,13 +111,9 @@ func (s Seq[V]) TryFold(initial V, combine reducer[V, V]) (result V, err error) 
 
 // First consumes the iterator and returns its first element. If the iterator
 // is empty a zero value will be returned with an error.
-func (s Seq[V]) First() (result V, err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			err = recoverSeqError(r)
-		}
-	}()
+func (s Seq[V]) First() (V, error) {
 	isEmpty := true
+	var result V
 	for result = range s {
 		isEmpty = false
 		break
@@ -132,15 +124,20 @@ func (s Seq[V]) First() (result V, err error) {
 	return result, nil
 }
 
-// Last consumes the iterator and returns its last element.
-// If the iterator is empty a zero value will be returned with an error.
-func (s Seq[V]) Last() (result V, err error) {
+func (s Seq[V]) TryFirst() (result V, err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			err = recoverSeqError(r)
 		}
 	}()
+	return s.First()
+}
+
+// Last consumes the iterator and returns its last element.
+// If the iterator is empty a zero value will be returned with an error.
+func (s Seq[V]) Last() (V, error) {
 	isEmpty := true
+	var result V
 	for result = range s {
 		if isEmpty {
 			isEmpty = false
@@ -150,6 +147,15 @@ func (s Seq[V]) Last() (result V, err error) {
 		return result, EmptySeqErr
 	}
 	return result, nil
+}
+
+func (s Seq[V]) TryLast() (result V, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = recoverSeqError(r)
+		}
+	}()
+	return s.Last()
 }
 
 // Any returns true if test returns true for at least one element in the
