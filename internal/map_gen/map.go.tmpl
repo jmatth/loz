@@ -58,10 +58,6 @@ func (s {{ template "maptype" . }}) TakeWhile(test yielder[V1]) {{ template "map
 {{- end -}}
 
 {{- define "seq2deref" -}}
-func IterMapMap{{ .Index }}[{{ template "kvTypeRangeComp" add 1 .Index | numsTo }} any](m map[K1]V1) {{ template "kvMapType" . }} {
-	return {{ template "kvMapType" . }}(IterMap(m))
-}
-
 // See [KVSeq.Filter].
 func (s {{ template "kvMapType" . }}) Filter(filter yielder2[K1, V1]) {{ template "kvMapType" . }} {
 	return {{ template "kvMapType" . }}(KVSeq[K1, V1](s).Filter(filter))

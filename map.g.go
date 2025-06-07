@@ -92,10 +92,6 @@ func (s KVMap1[K1, V1, K2, V2]) FilterMap(mapper filteringMapper2[K1, V1, K2, V2
 	}
 }
 
-func IterMapMap1[K1 comparable, V1, K2, V2 any](m map[K1]V1) KVMap1[K1, V1, K2, V2] {
-	return KVMap1[K1, V1, K2, V2](IterMap(m))
-}
-
 // See [KVSeq.Filter].
 func (s KVMap1[K1, V1, K2, V2]) Filter(filter yielder2[K1, V1]) KVMap1[K1, V1, K2, V2] {
 	return KVMap1[K1, V1, K2, V2](KVSeq[K1, V1](s).Filter(filter))
@@ -211,10 +207,6 @@ func (s KVMap2[K1, V1, K2, V2, K3, V3]) FilterMap(mapper filteringMapper2[K1, V1
 			}
 		}
 	}
-}
-
-func IterMapMap2[K1 comparable, V1, K2, V2, K3, V3 any](m map[K1]V1) KVMap2[K1, V1, K2, V2, K3, V3] {
-	return KVMap2[K1, V1, K2, V2, K3, V3](IterMap(m))
 }
 
 // See [KVSeq.Filter].
@@ -334,10 +326,6 @@ func (s KVMap3[K1, V1, K2, V2, K3, V3, K4, V4]) FilterMap(mapper filteringMapper
 	}
 }
 
-func IterMapMap3[K1 comparable, V1, K2, V2, K3, V3, K4, V4 any](m map[K1]V1) KVMap3[K1, V1, K2, V2, K3, V3, K4, V4] {
-	return KVMap3[K1, V1, K2, V2, K3, V3, K4, V4](IterMap(m))
-}
-
 // See [KVSeq.Filter].
 func (s KVMap3[K1, V1, K2, V2, K3, V3, K4, V4]) Filter(filter yielder2[K1, V1]) KVMap3[K1, V1, K2, V2, K3, V3, K4, V4] {
 	return KVMap3[K1, V1, K2, V2, K3, V3, K4, V4](KVSeq[K1, V1](s).Filter(filter))
@@ -453,10 +441,6 @@ func (s KVMap4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5]) FilterMap(mapper filteri
 			}
 		}
 	}
-}
-
-func IterMapMap4[K1 comparable, V1, K2, V2, K3, V3, K4, V4, K5, V5 any](m map[K1]V1) KVMap4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5] {
-	return KVMap4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5](IterMap(m))
 }
 
 // See [KVSeq.Filter].
@@ -576,10 +560,6 @@ func (s KVMap5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6]) FilterMap(mapper
 	}
 }
 
-func IterMapMap5[K1 comparable, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6 any](m map[K1]V1) KVMap5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6] {
-	return KVMap5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6](IterMap(m))
-}
-
 // See [KVSeq.Filter].
 func (s KVMap5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6]) Filter(filter yielder2[K1, V1]) KVMap5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6] {
 	return KVMap5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6](KVSeq[K1, V1](s).Filter(filter))
@@ -695,10 +675,6 @@ func (s KVMap6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7]) FilterMa
 			}
 		}
 	}
-}
-
-func IterMapMap6[K1 comparable, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7 any](m map[K1]V1) KVMap6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7] {
-	return KVMap6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7](IterMap(m))
 }
 
 // See [KVSeq.Filter].
@@ -818,10 +794,6 @@ func (s KVMap7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8]) 
 	}
 }
 
-func IterMapMap7[K1 comparable, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8 any](m map[K1]V1) KVMap7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8] {
-	return KVMap7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8](IterMap(m))
-}
-
 // See [KVSeq.Filter].
 func (s KVMap7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8]) Filter(filter yielder2[K1, V1]) KVMap7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8] {
 	return KVMap7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8](KVSeq[K1, V1](s).Filter(filter))
@@ -939,10 +911,6 @@ func (s KVMap8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K
 	}
 }
 
-func IterMapMap8[K1 comparable, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9 any](m map[K1]V1) KVMap8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9] {
-	return KVMap8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9](IterMap(m))
-}
-
 // See [KVSeq.Filter].
 func (s KVMap8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9]) Filter(filter yielder2[K1, V1]) KVMap8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9] {
 	return KVMap8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9](KVSeq[K1, V1](s).Filter(filter))
@@ -1058,10 +1026,6 @@ func (s KVMap9[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K
 			}
 		}
 	}
-}
-
-func IterMapMap9[K1 comparable, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9, K10, V10 any](m map[K1]V1) KVMap9[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9, K10, V10] {
-	return KVMap9[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9, K10, V10](IterMap(m))
 }
 
 // See [KVSeq.Filter].
