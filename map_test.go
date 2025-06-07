@@ -3,11 +3,49 @@ package loz_test
 import (
 	"fmt"
 	"maps"
+	"reflect"
+	"slices"
+	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/jmatth/loz"
 	"github.com/stretchr/testify/assert"
 )
+
+func TestMapHasAllSeqMethods(t *testing.T) {
+	seq := loz.IterSlice([]string{})
+	m := loz.Map1[string, int](seq)
+	seqType := reflect.TypeOf(seq)
+	mapType := reflect.TypeOf(m)
+	blocked := []string{
+		"Any",
+		"TryAny",
+		"None",
+		"TryNone",
+		"Every",
+		"TryEvery",
+		"First",
+		"TryFirst",
+		"Last",
+		"TryLast",
+		"ForEach",
+		"TryForEach",
+		"CollectSlice",
+		"TryCollectSlice",
+		"Reduce",
+		"TryReduce",
+		"Indexed",
+	}
+	for i := range seqType.NumMethod() {
+		seqMethod := seqType.Method(i)
+		if slices.Contains(blocked, seqMethod.Name) {
+			continue
+		}
+		_, ok := mapType.MethodByName(seqMethod.Name)
+		assert.Truef(t, ok, "Method %s should exist on Map types", seqMethod.Name)
+	}
+}
 
 func TestMap(t *testing.T) {
 	nums := []int{1, 2, 3, 4, 5}

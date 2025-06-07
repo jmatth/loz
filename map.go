@@ -9,3 +9,12 @@ func (m Map1[T, O]) Fold(initial O, combine reducer[T, O]) O {
 	}
 	return initial
 }
+
+func (m Map1[T, O]) TryFold(initial O, combine reducer[T, O]) (result O, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = recoverSeqError(r)
+		}
+	}()
+	return m.Fold(initial, combine), nil
+}
