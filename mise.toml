@@ -29,5 +29,4 @@ description = "Run tests"
 run = "go test -v"
 
 [tasks.doc-preview]
-description = "Run godoc on localhost:6060"
-run = "godoc"
+run = "pkgsite"
