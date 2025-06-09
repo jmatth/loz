@@ -48,6 +48,14 @@ func (s KVSeq[K, V]) ForEach(process func(K, V)) {
 	}
 }
 
+// TryForEach is identical to [KVSeq.ForEach], except it will recover any panic
+// caused by [PanicHaltIteration] and return the wrapped error.
+func (s KVSeq[K, V]) TryForEach(process func(K, V)) (err error) {
+	defer recoverHaltIteration(&err)
+	s.ForEach(process)
+	return nil
+}
+
 // Map transforms the key/value pairs within the iterator using the provided
 // mapper function. Due to limitations of the Go type system, the mapped keys
 // and values must be the same types as the input. To perform mapping
@@ -102,6 +110,13 @@ func (s KVSeq[K, V]) Reduce(combine reducer2[K, V]) (K, V, error) {
 	return keyResult, valResult, nil
 }
 
+// TryReduce is identical to [KVSeq.ForReduce], except it will recover any
+// panic caused by [PanicHaltIteration] and return the wrapped error.
+func (s KVSeq[K, V]) TryReduce(combine reducer2[K, V]) (_ K, _ V, err error) {
+	defer recoverHaltIteration(&err)
+	return s.Reduce(combine)
+}
+
 // Fold reduces the iterator to a single key/value pair by iteratively
 // combining its elements with initial values using the provided function. If
 // the iterator is empty the initial values will be returned unmodified.
@@ -110,6 +125,14 @@ func (s KVSeq[K, V]) Fold(initialKey K, initialVal V, combine reducer2[K, V]) (K
 		initialKey, initialVal = combine(initialKey, initialVal, k, v)
 	}
 	return initialKey, initialVal
+}
+
+// TryFold is identical to [KVSeq.Fold], except it will recover any panic
+// caused by [PanicHaltIteration] and return the wrapped error.
+func (s KVSeq[K, V]) TryFold(initialKey K, initialVal V, combine reducer2[K, V]) (_ K, _ V, err error) {
+	defer recoverHaltIteration(&err)
+	k, v := s.Fold(initialKey, initialVal, combine)
+	return k, v, nil
 }
 
 // First consumes the iterator and returns its first key/value pair. If the
@@ -126,6 +149,13 @@ func (s KVSeq[K, V]) First() (K, V, error) {
 		return key, val, EmptySeqErr
 	}
 	return key, val, nil
+}
+
+// TryFirst is identical to [KVSeq.First], except it will recover any panic
+// caused by [PanicHaltIteration] and return the wrapped error.
+func (s KVSeq[K, V]) TryFirst() (_ K, _ V, err error) {
+	defer recoverHaltIteration(&err)
+	return s.First()
 }
 
 // Last consumes the iterator and returns its last key/value pair. If the
@@ -145,6 +175,13 @@ func (s KVSeq[K, V]) Last() (K, V, error) {
 	return key, val, nil
 }
 
+// TryLast is identical to [KVSeq.Last], except it will recover any panic
+// caused by [PanicHaltIteration] and return the wrapped error.
+func (s KVSeq[K, V]) TryLast() (_ K, _ V, err error) {
+	defer recoverHaltIteration(&err)
+	return s.Last()
+}
+
 // Any returns true if test returns true for at least one key/value pair in the
 // iterator, and false otherwise. Returns false for an empty iterator.
 func (s KVSeq[K, V]) Any(test yielder2[K, V]) bool {
@@ -154,6 +191,13 @@ func (s KVSeq[K, V]) Any(test yielder2[K, V]) bool {
 		}
 	}
 	return false
+}
+
+// TryAny is identical to [KVSeq.Any], except it will recover any panic caused
+// by [PanicHaltIteration] and return the wrapped error.
+func (s KVSeq[K, V]) TryAny(test yielder2[K, V]) (_ bool, err error) {
+	defer recoverHaltIteration(&err)
+	return s.Any(test), nil
 }
 
 // Every returns true if test returns false for every key/value pair of the
@@ -167,6 +211,12 @@ func (s KVSeq[K, V]) None(test yielder2[K, V]) bool {
 	return true
 }
 
+// TryNone is identical to [KVSeq.None], except it will recover any panic
+// caused by [PanicHaltIteration] and return the wrapped error.
+func (s KVSeq[K, V]) TryNone(test yielder2[K, V]) (_ bool, err error) {
+	return s.None(test), nil
+}
+
 // Every returns true if test returns true for every key/value pair of the
 // iterator, and false otherwise. Returns true for an empty iterator.
 func (s KVSeq[K, V]) Every(test yielder2[K, V]) bool {
@@ -176,6 +226,13 @@ func (s KVSeq[K, V]) Every(test yielder2[K, V]) bool {
 		}
 	}
 	return true
+}
+
+// TryEvery is identical to [KVSeq.Every], except it will recover any panic
+// caused by [PanicHaltIteration] and return the wrapped error.
+func (s KVSeq[K, V]) TryEvery(test yielder2[K, V]) (_ bool, err error) {
+	defer recoverHaltIteration(&err)
+	return s.Every(test), nil
 }
 
 func (s KVSeq[K, V]) Filter(filter yielder2[K, V]) KVSeq[K, V] {
