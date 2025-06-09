@@ -64,7 +64,7 @@ func (s KVSeq[K, V]) Map(mapper func(K, V) (K, V)) KVSeq[K, V] {
 	return func(yield yielder2[K, V]) {
 		for k, v := range s {
 			if !yield(mapper(k, v)) {
-				return
+				break
 			}
 		}
 	}
