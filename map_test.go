@@ -6,7 +6,6 @@ import (
 	"reflect"
 	"slices"
 	"strconv"
-	"strings"
 	"testing"
 
 	"github.com/jmatth/loz"
@@ -93,4 +92,26 @@ func ExampleMap1_Fold() {
 		})
 	fmt.Printf("%v", result)
 	// Output: 1, 2, 3, 4, 5
+}
+
+func ExampleMap1_haltOnError() {
+	nums, err := loz.Map1[string, int](loz.IterSlice([]string{"1", "two", "3"})).
+		Map(func(str string) int {
+			num, err := strconv.Atoi(str)
+			if err != nil {
+				loz.PanicHaltIteration(err)
+			}
+			return num
+		}).
+		TryCollectSlice()
+	fmt.Printf("%v; %v\n", nums, err)
+	// Output: []; strconv.Atoi: parsing "two": invalid syntax
+}
+
+func ExampleMap1_skipOnError() {
+	nums := loz.Map1[string, int](loz.IterSlice([]string{"1", "two", "3"})).
+		FilterMap(strconv.Atoi).
+		CollectSlice()
+	fmt.Printf("%v\n", nums)
+	// Output: [1 3]
 }
