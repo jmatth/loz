@@ -30,11 +30,14 @@ func (e SeqError) Error() string {
 	return "unknown iteration error"
 }
 
-func recoverSeqError(err any) error {
-	if err, ok := err.(wrappedSeqError); ok {
-		return err.wrapped
+func recoverHaltIteration(err *error) {
+	if r := recover(); r != nil {
+		if r, ok := r.(wrappedSeqError); ok {
+			*err = r.wrapped
+			return
+		}
+		panic(r)
 	}
-	panic(err)
 }
 
 // PanicHaltIteration causes any iteration to end early by wrapping the

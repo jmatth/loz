@@ -20,12 +20,10 @@ func (s Seq[V]) CollectSlice() []V {
 	return slices.Collect(iter.Seq[V](s))
 }
 
+// TryCollectSlice is identical to [Seq.CollectSlice], except it will recover
+// any panic caused by [PanicHaltIteration] and return the wrapped error.
 func (s Seq[V]) TryCollectSlice() (result []V, err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			err = recoverSeqError(r)
-		}
-	}()
+	defer recoverHaltIteration(&err)
 	return s.CollectSlice(), nil
 }
 
@@ -37,12 +35,10 @@ func (s Seq[V]) ForEach(process processor[V]) {
 	}
 }
 
+// TryForEach is identical to [Seq.ForEach], except it will recover any panic
+// caused by [PanicHaltIteration] and return the wrapped error.
 func (s Seq[V]) TryForEach(process processor[V]) (err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			err = recoverSeqError(r)
-		}
-	}()
+	defer recoverHaltIteration(&err)
 	s.ForEach(process)
 	return nil
 }
@@ -99,12 +95,10 @@ func (s Seq[V]) Reduce(combine reducer[V, V]) (V, error) {
 	return result, nil
 }
 
+// TryReduce is identical to [Seq.Reduce], except it will recover any panic
+// caused by [PanicHaltIteration] and return the wrapped error.
 func (s Seq[V]) TryReduce(combine reducer[V, V]) (result V, err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			err = recoverSeqError(r)
-		}
-	}()
+	defer recoverHaltIteration(&err)
 	return s.Reduce(combine)
 }
 
@@ -118,12 +112,10 @@ func (s Seq[V]) Fold(initial V, combine reducer[V, V]) V {
 	return initial
 }
 
+// TryFold is identical to [Seq.Fold], except it will recover any panic caused
+// by [PanicHaltIteration] and return the wrapped error.
 func (s Seq[V]) TryFold(initial V, combine reducer[V, V]) (result V, err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			err = recoverSeqError(r)
-		}
-	}()
+	defer recoverHaltIteration(&err)
 	return s.Fold(initial, combine), nil
 }
 
@@ -142,12 +134,10 @@ func (s Seq[V]) First() (V, error) {
 	return result, nil
 }
 
+// TryFirst is identical to [Seq.First], except it will recover any panic
+// caused by [PanicHaltIteration] and return the wrapped error.
 func (s Seq[V]) TryFirst() (result V, err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			err = recoverSeqError(r)
-		}
-	}()
+	defer recoverHaltIteration(&err)
 	return s.First()
 }
 
@@ -167,12 +157,10 @@ func (s Seq[V]) Last() (V, error) {
 	return result, nil
 }
 
+// TryLast is identical to [Seq.Last], except it will recover any panic caused
+// by [PanicHaltIteration] and return the wrapped error.
 func (s Seq[V]) TryLast() (result V, err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			err = recoverSeqError(r)
-		}
-	}()
+	defer recoverHaltIteration(&err)
 	return s.Last()
 }
 
@@ -187,12 +175,10 @@ func (s Seq[V]) Any(test yielder[V]) bool {
 	return false
 }
 
+// TryAny is identical to [Seq.Any], except it will recover any panic caused by
+// [PanicHaltIteration] and return the wrapped error.
 func (s Seq[V]) TryAny(test yielder[V]) (result bool, err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			err = recoverSeqError(r)
-		}
-	}()
+	defer recoverHaltIteration(&err)
 	return s.Any(test), nil
 }
 
@@ -207,12 +193,10 @@ func (s Seq[V]) None(test yielder[V]) bool {
 	return true
 }
 
+// TryNone is identical to [Seq.None], except it will recover any panic caused
+// by [PanicHaltIteration] and return the wrapped error.
 func (s Seq[V]) TryNone(test yielder[V]) (result bool, err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			err = recoverSeqError(r)
-		}
-	}()
+	defer recoverHaltIteration(&err)
 	return s.None(test), err
 }
 
@@ -227,12 +211,10 @@ func (s Seq[V]) Every(test yielder[V]) bool {
 	return true
 }
 
+// TryEvery is identical to [Seq.Every], except it will recover any panic
+// caused by [PanicHaltIteration] and return the wrapped error.
 func (s Seq[V]) TryEvery(test yielder[V]) (result bool, err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			err = recoverSeqError(r)
-		}
-	}()
+	defer recoverHaltIteration(&err)
 	return s.Every(test), nil
 }
 
