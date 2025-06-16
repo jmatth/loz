@@ -98,9 +98,7 @@ func ExampleMap1_haltOnError() {
 	nums, err := loz.Map1[string, int](loz.IterSlice([]string{"1", "two", "3"})).
 		Map(func(str string) int {
 			num, err := strconv.Atoi(str)
-			if err != nil {
 				loz.PanicHaltIteration(err)
-			}
 			return num
 		}).
 		TryCollectSlice()

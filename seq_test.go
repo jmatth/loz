@@ -193,9 +193,7 @@ func ExampleSeq_errorHandling() {
 	result, err := loz.Map1[string, int](loz.IterSlice([]string{"1", "foo", "3"})).
 		Map(func(s string) int {
 			num, err := strconv.Atoi(s)
-			if err != nil {
-				loz.PanicHaltIteration(err)
-			}
+			loz.PanicHaltIteration(err)
 			return num
 		}).TryCollectSlice()
 	fmt.Printf("%v; %v", result, err)

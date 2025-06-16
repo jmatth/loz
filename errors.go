@@ -42,10 +42,13 @@ func recoverHaltIteration(err *error) {
 
 // PanicHaltIteration causes any iteration to end early by wrapping the
 // provided error and panicking. To easily recover from this panic and return
-// the error normally, use a consuming method prefixed with "Try", such as
+// the error normally, use a terminal method prefixed with "Try", such as
 // [Seq.TryCollectSlice]. These methods automatically recover from panics
 // caused by this function and return the wrapped value as their final return
-// value.
+// value. Calling this method with nil is a noop.
 func PanicHaltIteration(err error) {
+	if err == nil {
+		return
+	}
 	panic(wrappedSeqError{wrapped: err})
 }
