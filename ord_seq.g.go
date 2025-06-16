@@ -3,6 +3,9 @@ package loz
 func (o OrdSeq[V]) CollectSlice() []V {
 	return Seq[V](o).CollectSlice()
 }
+func (o OrdSeq[V]) AppendSlice(slice *[]V) {
+	Seq[V](o).AppendSlice(slice)
+}
 func (o OrdSeq[V]) TryCollectSlice() ([]V, error) {
 	return Seq[V](o).TryCollectSlice()
 }

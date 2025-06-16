@@ -32,6 +32,7 @@ func TestMapHasAllSeqMethods(t *testing.T) {
 		"TryForEach",
 		"CollectSlice",
 		"TryCollectSlice",
+		"AppendSlice",
 		"Reduce",
 		"TryReduce",
 		"Indexed",
@@ -98,7 +99,7 @@ func ExampleMap1_haltOnError() {
 	nums, err := loz.Map1[string, int](loz.IterSlice([]string{"1", "two", "3"})).
 		Map(func(str string) int {
 			num, err := strconv.Atoi(str)
-				loz.PanicHaltIteration(err)
+			loz.PanicHaltIteration(err)
 			return num
 		}).
 		TryCollectSlice()

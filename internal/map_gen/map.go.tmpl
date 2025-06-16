@@ -93,37 +93,34 @@ type {{ template "maptypedef" . }} {{ template "prevmaptype" . }}
 // Map transforms the elements within the iterator using the provided mapper function.
 func (s {{ template "maptype" . }}) Map(mapper mapper[V1, V2]) {{ template "prevmapresult" . }} {
 	return func(yield yielder[V2]) {
-		for v := range s {
-			if !yield(mapper(v)) {
-				break
-			}
-		}
+		s(func(v V1) bool {
+			return yield(mapper(v))
+		})
 	}
 }
 
 func (s {{ template "maptype" . }}) FilterMap(mapper filteringMapper[V1, V2]) {{ template "prevmapresult" . }} {
 	return func(yield yielder[V2]) {
-		for v := range s {
+		s(func (v V1) bool {
 			mapped, err := mapper(v)
 			if err != nil {
-				continue
+				return true
 			}
-			if !yield(mapped) {
-				break
-			}
-		}
+			return yield(mapped)
+		})
 	}
 }
 
 func (s {{ template "maptype" . }}) Expand(toElements mapper[V1, Seq[V2]]) {{ template "prevmapresult" . }} {
 	return func(yield yielder[V2]) {
-		for v := range s {
+		s(func (v V1) bool {
 			for e := range toElements(v) {
 				if !yield(e) {
-					break
+					return false
 				}
 			}
-		}
+			return true
+		})
 	}
 }
 
@@ -134,26 +131,22 @@ type {{ template "kvMapTypeDef" . }} {{ template "prevKVMapType" . }}
 // Map transforms the keys and values within the iterator using the provided mapper function.
 func (s {{ template "kvMapType" . }}) Map(mapper mapper2[K1, V1, K2, V2]) {{ template "prevKVMapResult" . }} {
 	return func(yield yielder2[K2, V2]) {
-		for k, v := range s {
-			if !yield(mapper(k, v)) {
-				break
-			}
-		}
+		s(func (k K1, v V1) bool {
+			return yield(mapper(k, v))
+		})
 	}
 }
 
 // Map transforms the keys and values within the iterator using the provided mapper function.
 func (s {{ template "kvMapType" . }}) FilterMap(mapper filteringMapper2[K1, V1, K2, V2]) {{ template "prevKVMapResult" . }} {
 	return func(yield yielder2[K2, V2]) {
-		for k, v := range s {
+		s(func (k K1, v V1) bool {
 			mk, mv, err := mapper(k, v)
 			if err != nil {
-				continue
+				return true
 			}
-			if !yield(mk, mv) {
-				break
-			}
-		}
+			return yield(mk, mv)
+		})
 	}
 }
 

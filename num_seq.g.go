@@ -3,6 +3,9 @@ package loz
 func (n NumSeq[V]) CollectSlice() []V {
 	return Seq[V](n).CollectSlice()
 }
+func (n NumSeq[V]) AppendSlice(slice *[]V) {
+	Seq[V](n).AppendSlice(slice)
+}
 func (n NumSeq[V]) TryCollectSlice() ([]V, error) {
 	return Seq[V](n).TryCollectSlice()
 }

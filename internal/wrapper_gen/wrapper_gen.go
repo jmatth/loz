@@ -116,9 +116,9 @@ func main() {
 	}
 }
 
-func fieldToFuncParam(f *ast.Field) funcParam {
+func typeToTypedef(t ast.Expr) typeDef {
 	td := typeDef{}
-	switch t := f.Type.(type) {
+	switch t := t.(type) {
 	case *ast.ArrayType:
 		td.name = t.Elt.(*ast.Ident).Name
 		td.isArr = true
@@ -144,9 +144,17 @@ func fieldToFuncParam(f *ast.Field) funcParam {
 				}
 			}).
 			CollectSlice()
+	case *ast.StarExpr:
+		td = typeToTypedef(t.X)
+		td.isStar = true
 	default:
 		td.name = "TODO"
 	}
+	return td
+}
+
+func fieldToFuncParam(f *ast.Field) funcParam {
+	td := typeToTypedef(f.Type)
 	name := ""
 	if len(f.Names) > 0 {
 		name = f.Names[0].Name
@@ -161,6 +169,7 @@ type typeDef struct {
 	name       string
 	typeParams []string
 	isArr      bool
+	isStar     bool
 }
 
 type funcParam struct {
@@ -184,10 +193,14 @@ func genWrapper(f *File, name string, recvType typeDef, originalType string, par
 		CollectSlice()
 	generatedReturnTypes := loz.Map1[funcParam, Code](loz.IterSlice(returnTypes)).
 		Map(func(p funcParam) Code {
+			result := Id(p.typeDef.name).Types(p.typeDef.paramsAsCode()...)
 			if p.typeDef.isArr {
-				return Index().Id(p.typeDef.name).Types(p.typeDef.paramsAsCode()...)
+				result = Index().Add(result)
 			}
-			return Id(p.typeDef.name).Types(p.typeDef.paramsAsCode()...)
+			if p.typeDef.isStar {
+				result = Op("*").Add(result)
+			}
+			return result
 		}).
 		CollectSlice()
 
@@ -216,13 +229,20 @@ func genWrapper(f *File, name string, recvType typeDef, originalType string, par
 }
 
 func paramToCode(param funcParam) Code {
-	return Id(param.name).
+	typeResult :=
 		Id(param.typeDef.name).
-		TypesFunc(func(g *Group) {
-			for _, pt := range param.typeDef.typeParams {
-				g.Id(pt)
-			}
-		})
+			TypesFunc(func(g *Group) {
+				for _, pt := range param.typeDef.typeParams {
+					g.Id(pt)
+				}
+			})
+	if param.typeDef.isArr {
+		typeResult = Index().Add(typeResult)
+	}
+	if param.typeDef.isStar {
+		typeResult = Op("*").Add(typeResult)
+	}
+	return Id(param.name).Add(typeResult)
 }
 
 type packageSkipper struct {

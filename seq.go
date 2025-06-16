@@ -20,6 +20,10 @@ func (s Seq[V]) CollectSlice() []V {
 	return slices.Collect(iter.Seq[V](s))
 }
 
+func (s Seq[V]) AppendSlice(slice *[]V) {
+	*slice = slices.AppendSeq(*slice, iter.Seq[V](s))
+}
+
 // TryCollectSlice is identical to [Seq.CollectSlice], except it will recover
 // any panic caused by [PanicHaltIteration] and return the wrapped error.
 func (s Seq[V]) TryCollectSlice() (result []V, err error) {
@@ -30,9 +34,10 @@ func (s Seq[V]) TryCollectSlice() (result []V, err error) {
 // ForEach consumes the iterator and calls the provided function with each of
 // the elements.
 func (s Seq[V]) ForEach(process processor[V]) {
-	for v := range s {
+	s(func(v V) bool {
 		process(v)
-	}
+		return true
+	})
 }
 
 // TryForEach is identical to [Seq.ForEach], except it will recover any panic
@@ -49,11 +54,9 @@ func (s Seq[V]) TryForEach(process processor[V]) (err error) {
 // see [Map1], [Map2], etc.
 func (s Seq[V]) Map(mapper mapper[V, V]) Seq[V] {
 	return func(yield yielder[V]) {
-		for v := range s {
-			if !yield(mapper(v)) {
-				break
-			}
-		}
+		s(func(v V) bool {
+			return yield(mapper(v))
+		})
 	}
 }
 
@@ -63,15 +66,13 @@ func (s Seq[V]) Map(mapper mapper[V, V]) Seq[V] {
 // the next iteration stage as normal.
 func (s Seq[V]) FilterMap(mapper filteringMapper[V, V]) Seq[V] {
 	return func(yield yielder[V]) {
-		for v := range s {
+		s(func(v V) bool {
 			mapped, err := mapper(v)
 			if err != nil {
-				continue
+				return true
 			}
-			if !yield(mapped) {
-				break
-			}
-		}
+			return yield(mapped)
+		})
 	}
 }
 
@@ -81,14 +82,15 @@ func (s Seq[V]) FilterMap(mapper filteringMapper[V, V]) Seq[V] {
 func (s Seq[V]) Reduce(combine reducer[V, V]) (V, error) {
 	isFirst := true
 	var result V
-	for v := range s {
+	s(func(v V) bool {
 		if isFirst {
 			result = v
 			isFirst = false
-			continue
+			return true
 		}
 		result = combine(result, v)
-	}
+		return true
+	})
 	if isFirst {
 		return result, EmptySeqErr
 	}
@@ -106,9 +108,10 @@ func (s Seq[V]) TryReduce(combine reducer[V, V]) (result V, err error) {
 // elements with an initial value using the provided function. If the iterator
 // is empty the initial value will be returned unmodified.
 func (s Seq[V]) Fold(initial V, combine reducer[V, V]) V {
-	for v := range s {
+	s(func(v V) bool {
 		initial = combine(initial, v)
-	}
+		return true
+	})
 	return initial
 }
 
@@ -124,10 +127,10 @@ func (s Seq[V]) TryFold(initial V, combine reducer[V, V]) (result V, err error) 
 func (s Seq[V]) First() (V, error) {
 	isEmpty := true
 	var result V
-	for result = range s {
-		isEmpty = false
-		break
-	}
+	s(func(v V) bool {
+		result, isEmpty = v, false
+		return false
+	})
 	if isEmpty {
 		return result, EmptySeqErr
 	}
@@ -146,11 +149,13 @@ func (s Seq[V]) TryFirst() (result V, err error) {
 func (s Seq[V]) Last() (V, error) {
 	isEmpty := true
 	var result V
-	for result = range s {
+	s(func(v V) bool {
 		if isEmpty {
 			isEmpty = false
 		}
-	}
+		result = v
+		return true
+	})
 	if isEmpty {
 		return result, EmptySeqErr
 	}
@@ -167,12 +172,15 @@ func (s Seq[V]) TryLast() (result V, err error) {
 // Any returns true if test returns true for at least one element in the
 // iterator, and false otherwise. Returns false for an empty iterator.
 func (s Seq[V]) Any(test yielder[V]) bool {
-	for v := range s {
+	result := false
+	s(func(v V) bool {
 		if test(v) {
-			return true
+			result = true
+			return false
 		}
-	}
-	return false
+		return true
+	})
+	return result
 }
 
 // TryAny is identical to [Seq.Any], except it will recover any panic caused by
@@ -185,12 +193,15 @@ func (s Seq[V]) TryAny(test yielder[V]) (result bool, err error) {
 // Every returns true if test returns false for every element of the iterator,
 // and false otherwise. Returns true for an empty iterator.
 func (s Seq[V]) None(test yielder[V]) bool {
-	for v := range s {
+	result := true
+	s(func(v V) bool {
 		if test(v) {
+			result = false
 			return false
 		}
-	}
-	return true
+		return true
+	})
+	return result
 }
 
 // TryNone is identical to [Seq.None], except it will recover any panic caused
@@ -203,12 +214,15 @@ func (s Seq[V]) TryNone(test yielder[V]) (result bool, err error) {
 // Every returns true if test returns true for every element of the iterator,
 // and false otherwise. Returns true for an empty iterator.
 func (s Seq[V]) Every(test yielder[V]) bool {
-	for v := range s {
+	result := true
+	s(func(v V) bool {
 		if !test(v) {
+			result = false
 			return false
 		}
-	}
-	return true
+		return true
+	})
+	return result
 }
 
 // TryEvery is identical to [Seq.Every], except it will recover any panic
@@ -222,13 +236,12 @@ func (s Seq[V]) TryEvery(test yielder[V]) (result bool, err error) {
 // returns true.
 func (s Seq[V]) Filter(filter yielder[V]) Seq[V] {
 	return func(yield yielder[V]) {
-		for v := range s {
-			if filter(v) {
-				if !yield(v) {
-					break
-				}
+		s(func(v V) bool {
+			if !filter(v) {
+				return true
 			}
-		}
+			return yield(v)
+		})
 	}
 }
 
@@ -238,15 +251,13 @@ func (s Seq[V]) Filter(filter yielder[V]) Seq[V] {
 func (s Seq[V]) Skip(toSkip int) Seq[V] {
 	return func(yield yielder[V]) {
 		var skipped int
-		for v := range s {
+		s(func(v V) bool {
 			if skipped < toSkip {
 				skipped++
-				continue
+				return true
 			}
-			if !yield(v) {
-				break
-			}
-		}
+			return yield(v)
+		})
 	}
 }
 
@@ -254,17 +265,15 @@ func (s Seq[V]) Skip(toSkip int) Seq[V] {
 func (s Seq[V]) SkipWhile(test yielder[V]) Seq[V] {
 	return func(yield yielder[V]) {
 		skipping := true
-		for v := range s {
+		s(func(v V) bool {
 			if skipping {
 				if test(v) {
-					continue
+					return true
 				}
 				skipping = false
 			}
-			if !yield(v) {
-				break
-			}
-		}
+			return yield(v)
+		})
 	}
 }
 
@@ -272,15 +281,13 @@ func (s Seq[V]) SkipWhile(test yielder[V]) Seq[V] {
 func (s Seq[V]) Take(toTake int) Seq[V] {
 	return func(yield yielder[V]) {
 		var took int
-		for v := range s {
+		s(func(v V) bool {
 			if took >= toTake {
-				break
+				return false
 			}
 			took++
-			if !yield(v) {
-				break
-			}
-		}
+			return yield(v)
+		})
 	}
 }
 
@@ -288,35 +295,32 @@ func (s Seq[V]) Take(toTake int) Seq[V] {
 // returns true.
 func (s Seq[V]) TakeWhile(test yielder[V]) Seq[V] {
 	return func(yield yielder[V]) {
-		for v := range s {
-			if !test(v) || !yield(v) {
-				break
-			}
-		}
+		s(func(v V) bool {
+			return test(v) && yield(v)
+		})
 	}
 }
 
 func (s Seq[V]) Indexed() KVSeq[int, V] {
 	return func(yield yielder2[int, V]) {
 		var i int
-		for v := range s {
-			if !yield(i, v) {
-				break
-			}
+		s(func(v V) bool {
+			result := yield(i, v)
 			i++
-		}
+			return result
+		})
 	}
 }
 
 func (s Seq[V]) Expand(toElements mapper[V, Seq[V]]) Seq[V] {
 	return func(yield yielder[V]) {
-	outer:
-		for v := range s {
+		s(func(v V) bool {
 			for e := range toElements(v) {
 				if !yield(e) {
-					break outer
+					return false
 				}
 			}
-		}
+			return true
+		})
 	}
 }
