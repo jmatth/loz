@@ -1,6 +1,7 @@
 package loz_test
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"testing"
@@ -218,4 +219,113 @@ func ExampleSeq_incorrectErrorHandling() {
 		}).TryCollectSlice()
 	fmt.Printf("%v; %v", result, err)
 	// Output: example code panicked: strconv.Atoi: parsing "foo": invalid syntax
+}
+
+func ExampleSeq_AppendSlice() {
+	s := make([]int, 0, 5)
+	s = append(s, 1, 2)
+	loz.Seq[int](loz.RangeFrom(3, 6)).AppendSlice(&s)
+	fmt.Print(s)
+	// Output: [1 2 3 4 5]
+}
+
+func ExampleSeq_FilterMap() {
+	matching := loz.IterSlice([]int{0, 10, 2, 3, 44, 55}).
+		FilterMap(func(i int) (int, error) {
+			if i < 10 {
+				return 0, errors.New("Too small")
+			}
+			return i / 10, nil
+		}).
+		CollectSlice()
+	fmt.Print(matching)
+	// Output: [1 4 5]
+}
+
+func TestSeqTryMethods(t *testing.T) {
+	seq := loz.Seq[int](loz.Range(5))
+	haltingErr := errors.New("Testing error")
+	haltingSeq := seq.Map(func(i int) int {
+		loz.PanicHaltIteration(haltingErr)
+		return i
+	})
+	table := []struct {
+		name string
+		run  func(loz.Seq[int]) error
+	}{
+		{
+			"TryForEach",
+			func(s loz.Seq[int]) error {
+				return s.TryForEach(func(i int) {})
+			},
+		},
+		{
+			"TryReduce",
+			func(s loz.Seq[int]) error {
+				_, err := s.TryReduce(func(i1 int, i2 int) int {
+					return i1 + i2
+				})
+				return err
+			},
+		},
+		{
+			"TryFold",
+			func(s loz.Seq[int]) error {
+				_, err := s.TryFold(0, func(i1 int, i2 int) int {
+					return i1 + i2
+				})
+				return err
+			},
+		},
+		{
+			"TryFirst",
+			func(s loz.Seq[int]) error {
+				_, err := s.TryFirst()
+				return err
+			},
+		},
+		{
+			"TryLast",
+			func(s loz.Seq[int]) error {
+				_, err := s.TryLast()
+				return err
+			},
+		},
+		{
+			"TryAny",
+			func(s loz.Seq[int]) error {
+				_, err := s.TryAny(func(i int) bool {
+					return i%2 == 0
+				})
+				return err
+			},
+		},
+		{
+			"TryNone",
+			func(s loz.Seq[int]) error {
+				_, err := s.TryNone(func(i int) bool {
+					return i%2 == 0
+				})
+				return err
+			},
+		},
+		{
+			"TryEvery",
+			func(s loz.Seq[int]) error {
+				_, err := s.TryEvery(func(i int) bool {
+					return i%2 == 0
+				})
+				return err
+			},
+		},
+	}
+
+	for _, row := range table {
+		t.Run(row.name, func(t *testing.T) {
+			err := row.run(seq)
+			assert.Nil(t, err)
+			err = row.run(haltingSeq)
+			assert.Equal(t, err, haltingErr)
+		})
+	}
 }

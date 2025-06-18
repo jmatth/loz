@@ -230,7 +230,7 @@ func ExampleKVSeq_FilterMap() {
 	// Output: [1 3]
 }
 
-func TestTryMethods(t *testing.T) {
+func TestKVSeqTryMethods(t *testing.T) {
 	seq := loz.IterMap(map[int]string{1: "one", 2: "two", 3: "three"})
 	haltingErr := errors.New("Testing error")
 	haltingSeq := seq.Map(func(i int, s string) (int, string) {
