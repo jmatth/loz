@@ -1,13 +1,16 @@
 package loz_test
 
 import (
+	"errors"
 	"fmt"
 	"iter"
 	"maps"
 	"slices"
 	"strings"
+	"testing"
 
 	"github.com/jmatth/loz"
+	"github.com/stretchr/testify/assert"
 )
 
 func toMap[K comparable, V any](seq loz.KVSeq[K, V]) map[K]V {
@@ -210,4 +213,107 @@ func ExampleKVSeq_Reduce() {
 	fmt.Printf("%v, %v, %v", reducedK, reducedV, err)
 	// Output: 0, 0, true
 	// 3, 16, <nil>
+}
+
+func ExampleKVSeq_FilterMap() {
+	matching := loz.IterSlice([]int{8, 1, 5, 3}).
+		Indexed().
+		FilterMap(func(i1, i2 int) (int, int, error) {
+			if i1 != i2 {
+				return 0, 0, errors.New("Index and val not equal")
+			}
+			return i1, i2, nil
+		}).
+		Values().
+		CollectSlice()
+	fmt.Print(matching)
+	// Output: [1 3]
+}
+
+func TestTryMethods(t *testing.T) {
+	seq := loz.IterMap(map[int]string{1: "one", 2: "two", 3: "three"})
+	haltingErr := errors.New("Testing error")
+	haltingSeq := seq.Map(func(i int, s string) (int, string) {
+		loz.PanicHaltIteration(haltingErr)
+		return i, s
+	})
+	table := []struct {
+		name string
+		run  func(loz.KVSeq[int, string]) error
+	}{
+		{
+			"TryForEach",
+			func(s loz.KVSeq[int, string]) error {
+				return s.TryForEach(func(i int, s string) {})
+			},
+		},
+		{
+			"TryReduce",
+			func(s loz.KVSeq[int, string]) error {
+				_, _, err := s.TryReduce(func(i1 int, s1 string, i2 int, s2 string) (int, string) {
+					return i1 + i2, s1 + s2
+				})
+				return err
+			},
+		},
+		{
+			"TryFold",
+			func(s loz.KVSeq[int, string]) error {
+				_, _, err := s.TryFold(0, "", func(i1 int, s1 string, i2 int, s2 string) (int, string) {
+					return i1 + i2, s1 + s2
+				})
+				return err
+			},
+		},
+		{
+			"TryFirst",
+			func(s loz.KVSeq[int, string]) error {
+				_, _, err := s.TryFirst()
+				return err
+			},
+		},
+		{
+			"TryLast",
+			func(s loz.KVSeq[int, string]) error {
+				_, _, err := s.TryLast()
+				return err
+			},
+		},
+		{
+			"TryAny",
+			func(s loz.KVSeq[int, string]) error {
+				_, err := s.TryAny(func(i int, s string) bool {
+					return i%2 == 0
+				})
+				return err
+			},
+		},
+		{
+			"TryNone",
+			func(s loz.KVSeq[int, string]) error {
+				_, err := s.TryNone(func(i int, s string) bool {
+					return i%2 == 0
+				})
+				return err
+			},
+		},
+		{
+			"TryEvery",
+			func(s loz.KVSeq[int, string]) error {
+				_, err := s.TryEvery(func(i int, s string) bool {
+					return i%2 == 0
+				})
+				return err
+			},
+		},
+	}
+
+	for _, row := range table {
+		t.Run(row.name, func(t *testing.T) {
+			err := row.run(seq)
+			assert.Nil(t, err)
+			err = row.run(haltingSeq)
+			assert.Equal(t, err, haltingErr)
+		})
+	}
 }

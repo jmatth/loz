@@ -217,6 +217,7 @@ func (s KVSeq[K, V]) None(test yielder2[K, V]) bool {
 // TryNone is identical to [KVSeq.None], except it will recover any panic
 // caused by [PanicHaltIteration] and return the wrapped error.
 func (s KVSeq[K, V]) TryNone(test yielder2[K, V]) (_ bool, err error) {
+	defer recoverHaltIteration(&err)
 	return s.None(test), nil
 }
 
