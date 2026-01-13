@@ -29,7 +29,8 @@ type subTmplArgs struct {
 }
 
 func main() {
-	output := os.Args[1]
+	templateSearchPath := os.Args[1]
+	output := os.Args[2]
 	template := template.Must(template.New("map.go.tmpl").Funcs(template.FuncMap{
 		"add": func(a, b int) int {
 			return a + b
@@ -68,13 +69,13 @@ func main() {
 				TypeTmpl: "kvMapType",
 			}
 		},
-	}).ParseGlob("./internal/map_gen/*.go.tmpl"))
+	}).ParseGlob(fmt.Sprintf("%s/./internal/map_gen/*.go.tmpl", templateSearchPath)))
 
 	outFile, err := os.Create(fmt.Sprintf("%v.go", output))
 	panicIfErr(err)
 
 	err = template.Execute(outFile, map[string]any{
-		"package": "loz",
+		"package": "mapping",
 		"levels":  9,
 	})
 	panicIfErr(err)

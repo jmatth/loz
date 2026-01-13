@@ -1,8 +1,6 @@
 package loz
 
-import (
-	"fmt"
-)
+import . "github.com/jmatth/loz/internal"
 
 type SeqError int
 
@@ -10,34 +8,12 @@ const (
 	EmptySeqErr SeqError = iota
 )
 
-type wrappedSeqError struct {
-	wrapped error
-}
-
-func (e wrappedSeqError) Error() string {
-	return fmt.Sprintf("error during iteration: %v", e.wrapped)
-}
-
-func (e wrappedSeqError) Unwrap() error {
-	return e.wrapped
-}
-
 func (e SeqError) Error() string {
 	switch e {
 	case EmptySeqErr:
 		return "empty iterator"
 	}
 	return "unknown iteration error"
-}
-
-func recoverHaltIteration(err *error) {
-	if r := recover(); r != nil {
-		if r, ok := r.(wrappedSeqError); ok {
-			*err = r.wrapped
-			return
-		}
-		panic(r)
-	}
 }
 
 // PanicHaltIteration causes any iteration to end early by wrapping the
@@ -50,5 +26,5 @@ func PanicHaltIteration(err error) {
 	if err == nil {
 		return
 	}
-	panic(wrappedSeqError{wrapped: err})
+	panic(NewWrappedSeqError(err))
 }

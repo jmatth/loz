@@ -1,4 +1,4 @@
-package loz_test
+package mapping_test
 
 import (
 	"fmt"
@@ -9,12 +9,13 @@ import (
 	"testing"
 
 	"github.com/jmatth/loz"
+	lom "github.com/jmatth/loz/mapping"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestMapHasAllSeqMethods(t *testing.T) {
 	seq := loz.IterSlice([]string{})
-	m := loz.Map1[string, int](seq)
+	m := lom.Map1[string, int](seq)
 	seqType := reflect.TypeOf(seq)
 	mapType := reflect.TypeOf(m)
 	blocked := []string{
@@ -49,14 +50,14 @@ func TestMapHasAllSeqMethods(t *testing.T) {
 
 func TestMap(t *testing.T) {
 	nums := []int{1, 2, 3, 4, 5}
-	mapper := loz.Map1[int, string](loz.IterSlice(nums))
+	mapper := lom.Map1[int, string](loz.IterSlice(nums))
 	mapped := mapper.Map(func(n int) string { return fmt.Sprintf("%v", n) })
 	assert.Equal(t, []string{"1", "2", "3", "4", "5"}, mapped.CollectSlice())
 }
 
 func TestMultiMap(t *testing.T) {
 	nums := []string{"1", "200", "3", "42", "55"}
-	mapper := loz.Map3[string, byte, int, float64](loz.IterSlice(nums))
+	mapper := lom.Map3[string, byte, int, float64](loz.IterSlice(nums))
 	mapped := mapper.
 		Map(func(s string) byte { return s[0] }).
 		Map(func(b byte) int { return int(b - 0x30) }).
@@ -73,7 +74,7 @@ func TestKVMap1(t *testing.T) {
 		4: "four",
 		5: "five",
 	}
-	iterator := loz.KVMap1[
+	iterator := lom.KVMap1[
 		int, string,
 		string, byte](maps.All(m)).
 		Map(func(k int, v string) (string, byte) {
@@ -84,7 +85,9 @@ func TestKVMap1(t *testing.T) {
 }
 
 func ExampleMap1_Fold() {
-	result := loz.Map1[int, string](loz.RangeFrom(1, 6)).
+	result := lom.Map1[int, string](loz.Generate(6, func(i int) int {
+		return i + 1
+	})).
 		Fold("", func(acc string, n int) string {
 			if acc == "" {
 				return fmt.Sprintf("%d", n)
@@ -96,7 +99,7 @@ func ExampleMap1_Fold() {
 }
 
 func ExampleMap1_haltOnError() {
-	nums, err := loz.Map1[string, int](loz.IterSlice([]string{"1", "two", "3"})).
+	nums, err := lom.Map1[string, int](loz.IterSlice([]string{"1", "two", "3"})).
 		Map(func(str string) int {
 			num, err := strconv.Atoi(str)
 			loz.PanicHaltIteration(err)
@@ -108,7 +111,7 @@ func ExampleMap1_haltOnError() {
 }
 
 func ExampleMap1_skipOnError() {
-	nums := loz.Map1[string, int](loz.IterSlice([]string{"1", "two", "3"})).
+	nums := lom.Map1[string, int](loz.IterSlice([]string{"1", "two", "3"})).
 		FilterMapErr(strconv.Atoi).
 		CollectSlice()
 	fmt.Printf("%v\n", nums)

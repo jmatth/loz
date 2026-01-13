@@ -32,7 +32,7 @@ KV{{ .BaseName }}{{ .Index }}[{{ template "kvTypeRange" add 1 .Index | numsTo }}
 
 {{- define "seqderef" -}}
 // See [Seq.Filter].
-func (s {{ template "maptype" . }}) Filter(filter yielder[V1]) {{ template "maptype" . }} {
+func (s {{ template "maptype" . }}) Filter(filter Yielder[V1]) {{ template "maptype" . }} {
 	return {{ template "maptype" . }}(Seq[V1](s).Filter(filter))
 }
 
@@ -42,7 +42,7 @@ func (s {{ template "maptype" . }}) Skip(toSkip int) {{ template "maptype" . }} 
 }
 
 // See [Seq.SkipWhile].
-func (s {{ template "maptype" . }}) SkipWhile(test yielder[V1]) {{ template "maptype" . }} {
+func (s {{ template "maptype" . }}) SkipWhile(test Yielder[V1]) {{ template "maptype" . }} {
 	return {{ template "maptype" . }}(Seq[V1](s).SkipWhile(test))
 }
 
@@ -52,14 +52,14 @@ func (s {{ template "maptype" . }}) Take(toTake int) {{ template "maptype" . }} 
 }
 
 // See [Seq.TakeWhile].
-func (s {{ template "maptype" . }}) TakeWhile(test yielder[V1]) {{ template "maptype" . }} {
+func (s {{ template "maptype" . }}) TakeWhile(test Yielder[V1]) {{ template "maptype" . }} {
 	return {{ template "maptype" . }}(Seq[V1](s).TakeWhile(test))
 }
 {{- end -}}
 
 {{- define "seq2deref" -}}
 // See [KVSeq.Filter].
-func (s {{ template "kvMapType" . }}) Filter(filter yielder2[K1, V1]) {{ template "kvMapType" . }} {
+func (s {{ template "kvMapType" . }}) Filter(filter Yielder2[K1, V1]) {{ template "kvMapType" . }} {
 	return {{ template "kvMapType" . }}(KVSeq[K1, V1](s).Filter(filter))
 }
 
@@ -69,7 +69,7 @@ func (s {{ template "kvMapType" . }}) Skip(toSkip int) {{ template "kvMapType" .
 }
 
 // See [KVSeq.SkipWhile].
-func (s {{ template "kvMapType" . }}) SkipWhile(test yielder2[K1, V1]) {{ template "kvMapType" . }} {
+func (s {{ template "kvMapType" . }}) SkipWhile(test Yielder2[K1, V1]) {{ template "kvMapType" . }} {
 	return {{ template "kvMapType" . }}(KVSeq[K1, V1](s).SkipWhile(test))
 }
 
@@ -79,30 +79,35 @@ func (s {{ template "kvMapType" . }}) Take(toTake int) {{ template "kvMapType" .
 }
 
 // See [KVSeq.TakeWhile].
-func (s {{ template "kvMapType" . }}) TakeWhile(test yielder2[K1, V1]) {{ template "kvMapType" . }} {
+func (s {{ template "kvMapType" . }}) TakeWhile(test Yielder2[K1, V1]) {{ template "kvMapType" . }} {
 	return {{ template "kvMapType" . }}(KVSeq[K1, V1](s).TakeWhile(test))
 }
 {{- end -}}
 
 package {{ .package }}
 
+import (
+	. "github.com/jmatth/loz"
+	. "github.com/jmatth/loz/internal"
+)
+
 {{ range numsTo .levels -}}
 {{ with subTmplArgs "Map" .I }}
 type {{ template "maptypedef" . }} {{ template "prevmaptype" . }}
 
-// Map transforms the elements within the iterator using the provided mapper function.
-func (s {{ template "maptype" . }}) Map(mapper mapper[V1, V2]) {{ template "prevmapresult" . }} {
-	return func(yield yielder[V2]) {
+// Map transforms the elements within the iterator using the provided Mapper function.
+func (s {{ template "maptype" . }}) Map(Mapper Mapper[V1, V2]) {{ template "prevmapresult" . }} {
+	return func(yield Yielder[V2]) {
 		s(func(v V1) bool {
-			return yield(mapper(v))
+			return yield(Mapper(v))
 		})
 	}
 }
 
-func (s {{ template "maptype" . }}) FilterMap(mapper filteringMapper[V1, V2]) {{ template "prevmapresult" . }} {
-	return func(yield yielder[V2]) {
+func (s {{ template "maptype" . }}) FilterMap(Mapper FilteringMapper[V1, V2]) {{ template "prevmapresult" . }} {
+	return func(yield Yielder[V2]) {
 		s(func (v V1) bool {
-			mapped, ok := mapper(v)
+			mapped, ok := Mapper(v)
 			if !ok {
 				return true
 			}
@@ -111,10 +116,10 @@ func (s {{ template "maptype" . }}) FilterMap(mapper filteringMapper[V1, V2]) {{
 	}
 }
 
-func (s {{ template "maptype" . }}) FilterMapErr(mapper filteringMapperErr[V1, V2]) {{ template "prevmapresult" . }} {
-	return func(yield yielder[V2]) {
+func (s {{ template "maptype" . }}) FilterMapErr(Mapper FilteringMapperErr[V1, V2]) {{ template "prevmapresult" . }} {
+	return func(yield Yielder[V2]) {
 		s(func (v V1) bool {
-			mapped, err := mapper(v)
+			mapped, err := Mapper(v)
 			if err != nil {
 				return true
 			}
@@ -123,8 +128,8 @@ func (s {{ template "maptype" . }}) FilterMapErr(mapper filteringMapperErr[V1, V
 	}
 }
 
-func (s {{ template "maptype" . }}) Expand(toElements mapper[V1, Seq[V2]]) {{ template "prevmapresult" . }} {
-	return func(yield yielder[V2]) {
+func (s {{ template "maptype" . }}) Expand(toElements Mapper[V1, Seq[V2]]) {{ template "prevmapresult" . }} {
+	return func(yield Yielder[V2]) {
 		s(func (v V1) bool {
 			for e := range toElements(v) {
 				if !yield(e) {
@@ -140,20 +145,20 @@ func (s {{ template "maptype" . }}) Expand(toElements mapper[V1, Seq[V2]]) {{ te
 
 type {{ template "kvMapTypeDef" . }} {{ template "prevKVMapType" . }}
 
-// Map transforms the keys and values within the iterator using the provided mapper function.
-func (s {{ template "kvMapType" . }}) Map(mapper mapper2[K1, V1, K2, V2]) {{ template "prevKVMapResult" . }} {
-	return func(yield yielder2[K2, V2]) {
+// Map transforms the keys and values within the iterator using the provided Mapper function.
+func (s {{ template "kvMapType" . }}) Map(Mapper Mapper2[K1, V1, K2, V2]) {{ template "prevKVMapResult" . }} {
+	return func(yield Yielder2[K2, V2]) {
 		s(func (k K1, v V1) bool {
-			return yield(mapper(k, v))
+			return yield(Mapper(k, v))
 		})
 	}
 }
 
-// Map transforms the keys and values within the iterator using the provided mapper function.
-func (s {{ template "kvMapType" . }}) FilterMap(mapper filteringMapper2[K1, V1, K2, V2]) {{ template "prevKVMapResult" . }} {
-	return func(yield yielder2[K2, V2]) {
+// Map transforms the keys and values within the iterator using the provided Mapper function.
+func (s {{ template "kvMapType" . }}) FilterMap(Mapper FilteringMapper2[K1, V1, K2, V2]) {{ template "prevKVMapResult" . }} {
+	return func(yield Yielder2[K2, V2]) {
 		s(func (k K1, v V1) bool {
-			mk, mv, ok := mapper(k, v)
+			mk, mv, ok := Mapper(k, v)
 			if !ok {
 				return true
 			}
@@ -162,11 +167,11 @@ func (s {{ template "kvMapType" . }}) FilterMap(mapper filteringMapper2[K1, V1, 
 	}
 }
 
-// Map transforms the keys and values within the iterator using the provided mapper function.
-func (s {{ template "kvMapType" . }}) FilterMapErr(mapper filteringMapperErr2[K1, V1, K2, V2]) {{ template "prevKVMapResult" . }} {
-	return func(yield yielder2[K2, V2]) {
+// Map transforms the keys and values within the iterator using the provided Mapper function.
+func (s {{ template "kvMapType" . }}) FilterMapErr(Mapper FilteringMapperErr2[K1, V1, K2, V2]) {{ template "prevKVMapResult" . }} {
+	return func(yield Yielder2[K2, V2]) {
 		s(func (k K1, v V1) bool {
-			mk, mv, err := mapper(k, v)
+			mk, mv, err := Mapper(k, v)
 			if err != nil {
 				return true
 			}

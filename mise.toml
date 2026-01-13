@@ -1,5 +1,6 @@
 [tools]
 go = "1.24.3"
+golangci-lint = "2.8.0"
 
 [tasks.clean-generated]
 run = "rm -f *.g.go"
@@ -8,9 +9,7 @@ run = "rm -f *.g.go"
 description = "Run go code generators"
 depends = ['clean-generated']
 run = [
-  "go generate ./map.go",
-  "go generate ./ord_seq.go",
-  "go generate ./num_seq.go",
+  "go generate ./mapping/map.go",
 ]
 
 [tasks.format]

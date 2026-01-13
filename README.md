@@ -69,7 +69,12 @@ fmt.Println(systemUsers)
 Creating a method to apply a mapping function to all values in a collection presents an interesting challenge in Go. Go's type system does not allow methods to take generic parameters; only functions without a receiver and type definitions can have generic types. To work around this, loz relies on code generation to create a series of types: `Map1` through `Map9`, each of which takes `n+1` type parameters, where the first parameter represents the initial type of the elements in the iterator and each successive type represents the type that will be returned by the next call to `.Map()`. Here is a contrived example:
 
 ```go
-medians := loz.Map3[string, []string, []int, int](loz.IterSlice([]string{
+import (
+	"github.com/jmatth/loz"
+	lom "github.com/jmatth/loz/mapping"
+)
+
+medians := lom.Map3[string, []string, []int, int](loz.IterSlice([]string{
 	"1,2,3",
 	"100",
 	"3,5",
@@ -77,7 +82,7 @@ medians := loz.Map3[string, []string, []int, int](loz.IterSlice([]string{
 })).
 	Map(func(s string) []string { return strings.Split(s, ",") }).
 	Map(func(sl []string) []int {
-		return loz.Map1[string, int](loz.IterSlice(sl)).
+		return lom.Map1[string, int](loz.IterSlice(sl)).
 			Map(func(s string) int {
 				num, err := strconv.Atoi(s)
 				if err != nil {

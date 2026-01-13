@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/jmatth/loz"
+	lom "github.com/jmatth/loz/mapping"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -191,7 +192,7 @@ func TestTMP(t *testing.T) {
 }
 
 func ExampleSeq_errorHandling() {
-	result, err := loz.Map1[string, int](loz.IterSlice([]string{"1", "foo", "3"})).
+	result, err := lom.Map1[string, int](loz.IterSlice([]string{"1", "foo", "3"})).
 		Map(func(s string) int {
 			num, err := strconv.Atoi(s)
 			loz.PanicHaltIteration(err)
@@ -209,7 +210,7 @@ func ExampleSeq_incorrectErrorHandling() {
 		}
 	}()
 
-	result, err := loz.Map1[string, int](loz.IterSlice([]string{"1", "foo", "3"})).
+	result, err := lom.Map1[string, int](loz.IterSlice([]string{"1", "foo", "3"})).
 		Map(func(s string) int {
 			num, err := strconv.Atoi(s)
 			if err != nil {
@@ -224,7 +225,9 @@ func ExampleSeq_incorrectErrorHandling() {
 func ExampleSeq_AppendSlice() {
 	s := make([]int, 0, 5)
 	s = append(s, 1, 2)
-	loz.Seq[int](loz.RangeFrom(3, 6)).AppendSlice(&s)
+	loz.Generate(3, func(idx int) int {
+		return idx + 3
+	}).AppendSlice(&s)
 	fmt.Print(s)
 	// Output: [1 2 3 4 5]
 }
@@ -243,7 +246,9 @@ func ExampleSeq_FilterMap() {
 }
 
 func TestSeqTryMethods(t *testing.T) {
-	seq := loz.Seq[int](loz.Range(5))
+	seq := loz.Generate(5, func(idx int) int {
+		return idx
+	})
 	haltingErr := errors.New("Testing error")
 	haltingSeq := seq.Map(func(i int) int {
 		loz.PanicHaltIteration(haltingErr)
