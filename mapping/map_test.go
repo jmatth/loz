@@ -85,7 +85,7 @@ func TestKVMap1(t *testing.T) {
 }
 
 func ExampleMap1_Fold() {
-	result := lom.Map1[int, string](loz.Generate(6, func(i int) int {
+	result := lom.Map1[int, string](loz.Generate(5, func(i int) int {
 		return i + 1
 	})).
 		Fold("", func(acc string, n int) string {
