@@ -21,6 +21,9 @@ func (o OrdSeq[V]) Map(mapper mapper[V, V]) OrdSeq[V] {
 func (o OrdSeq[V]) FilterMap(mapper filteringMapper[V, V]) OrdSeq[V] {
 	return OrdSeq[V](Seq[V](o).FilterMap(mapper))
 }
+func (o OrdSeq[V]) FilterMapErr(mapper filteringMapperErr[V, V]) OrdSeq[V] {
+	return OrdSeq[V](Seq[V](o).FilterMapErr(mapper))
+}
 func (o OrdSeq[V]) Reduce(combine reducer[V, V]) (V, error) {
 	return Seq[V](o).Reduce(combine)
 }

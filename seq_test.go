@@ -231,11 +231,11 @@ func ExampleSeq_AppendSlice() {
 
 func ExampleSeq_FilterMap() {
 	matching := loz.IterSlice([]int{0, 10, 2, 3, 44, 55}).
-		FilterMap(func(i int) (int, error) {
+		FilterMap(func(i int) (int, bool) {
 			if i < 10 {
-				return 0, errors.New("Too small")
+				return 0, false
 			}
-			return i / 10, nil
+			return i / 10, true
 		}).
 		CollectSlice()
 	fmt.Print(matching)

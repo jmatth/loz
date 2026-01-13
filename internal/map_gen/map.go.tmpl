@@ -102,6 +102,18 @@ func (s {{ template "maptype" . }}) Map(mapper mapper[V1, V2]) {{ template "prev
 func (s {{ template "maptype" . }}) FilterMap(mapper filteringMapper[V1, V2]) {{ template "prevmapresult" . }} {
 	return func(yield yielder[V2]) {
 		s(func (v V1) bool {
+			mapped, ok := mapper(v)
+			if !ok {
+				return true
+			}
+			return yield(mapped)
+		})
+	}
+}
+
+func (s {{ template "maptype" . }}) FilterMapErr(mapper filteringMapperErr[V1, V2]) {{ template "prevmapresult" . }} {
+	return func(yield yielder[V2]) {
+		s(func (v V1) bool {
 			mapped, err := mapper(v)
 			if err != nil {
 				return true
@@ -139,6 +151,19 @@ func (s {{ template "kvMapType" . }}) Map(mapper mapper2[K1, V1, K2, V2]) {{ tem
 
 // Map transforms the keys and values within the iterator using the provided mapper function.
 func (s {{ template "kvMapType" . }}) FilterMap(mapper filteringMapper2[K1, V1, K2, V2]) {{ template "prevKVMapResult" . }} {
+	return func(yield yielder2[K2, V2]) {
+		s(func (k K1, v V1) bool {
+			mk, mv, ok := mapper(k, v)
+			if !ok {
+				return true
+			}
+			return yield(mk, mv)
+		})
+	}
+}
+
+// Map transforms the keys and values within the iterator using the provided mapper function.
+func (s {{ template "kvMapType" . }}) FilterMapErr(mapper filteringMapperErr2[K1, V1, K2, V2]) {{ template "prevKVMapResult" . }} {
 	return func(yield yielder2[K2, V2]) {
 		s(func (k K1, v V1) bool {
 			mk, mv, err := mapper(k, v)

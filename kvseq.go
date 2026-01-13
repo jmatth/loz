@@ -68,12 +68,28 @@ func (s KVSeq[K, V]) Map(mapper func(K, V) (K, V)) KVSeq[K, V] {
 // FilterMap is a combination of [KVSeq.Filter] and [KVSeq.Map]. If the
 // provided mapper function returns an error, then the current key/value pair
 // of the iteration will be skipped. If no error is returned, then the mapped
-// key/value pair is passed to the next iteration stage as normal.
-func (s KVSeq[K, V]) FilterMap(mapper func(K, V) (K, V, error)) KVSeq[K, V] {
+// key/value pair is passed to the next iteration stage.
+func (s KVSeq[K, V]) FilterMapErr(mapper func(K, V) (K, V, error)) KVSeq[K, V] {
 	return func(yield yielder2[K, V]) {
 		s(func(k K, v V) bool {
 			mk, mv, err := mapper(k, v)
 			if err != nil {
+				return true
+			}
+			return yield(mk, mv)
+		})
+	}
+}
+
+// FilterMap is a combination of [KVSeq.Filter] and [KVSeq.Map]. If the
+// provided mapper function returns false, then the current key/value pair of
+// the iteration will be skipped. If true is returned, then the mapped
+// key/value pair is passed to the next iteration stage.
+func (s KVSeq[K, V]) FilterMap(mapper func(K, V) (K, V, bool)) KVSeq[K, V] {
+	return func(yield yielder2[K, V]) {
+		s(func(k K, v V) bool {
+			mk, mv, ok := mapper(k, v)
+			if !ok {
 				return true
 			}
 			return yield(mk, mv)

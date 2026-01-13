@@ -61,10 +61,26 @@ func (s Seq[V]) Map(mapper mapper[V, V]) Seq[V] {
 }
 
 // FilterMap is a combination of [Seq.Filter] and [Seq.Map]. If the provided
+// mapper function returns false, then the current element of the iteration
+// will be skipped. If true is returned, then the mapped value is passed to the
+// next iteration stage.
+func (s Seq[V]) FilterMap(mapper filteringMapper[V, V]) Seq[V] {
+	return func(yield yielder[V]) {
+		s(func(v V) bool {
+			mapped, ok := mapper(v)
+			if !ok {
+				return true
+			}
+			return yield(mapped)
+		})
+	}
+}
+
+// FilterMapErr is a combination of [Seq.Filter] and [Seq.Map]. If the provided
 // mapper function returns an error, then the current element of the iteration
 // will be skipped. If no error is returned, then the mapped value is passed to
-// the next iteration stage as normal.
-func (s Seq[V]) FilterMap(mapper filteringMapper[V, V]) Seq[V] {
+// the next iteration stage.
+func (s Seq[V]) FilterMapErr(mapper filteringMapperErr[V, V]) Seq[V] {
 	return func(yield yielder[V]) {
 		s(func(v V) bool {
 			mapped, err := mapper(v)

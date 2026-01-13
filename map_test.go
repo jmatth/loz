@@ -109,7 +109,7 @@ func ExampleMap1_haltOnError() {
 
 func ExampleMap1_skipOnError() {
 	nums := loz.Map1[string, int](loz.IterSlice([]string{"1", "two", "3"})).
-		FilterMap(strconv.Atoi).
+		FilterMapErr(strconv.Atoi).
 		CollectSlice()
 	fmt.Printf("%v\n", nums)
 	// Output: [1 3]

@@ -218,11 +218,11 @@ func ExampleKVSeq_Reduce() {
 func ExampleKVSeq_FilterMap() {
 	matching := loz.IterSlice([]int{8, 1, 5, 3}).
 		Indexed().
-		FilterMap(func(i1, i2 int) (int, int, error) {
+		FilterMap(func(i1, i2 int) (int, int, bool) {
 			if i1 != i2 {
-				return 0, 0, errors.New("Index and val not equal")
+				return 0, 0, false
 			}
-			return i1, i2, nil
+			return i1, i2, true
 		}).
 		Values().
 		CollectSlice()

@@ -21,6 +21,9 @@ func (n NumSeq[V]) Map(mapper mapper[V, V]) NumSeq[V] {
 func (n NumSeq[V]) FilterMap(mapper filteringMapper[V, V]) NumSeq[V] {
 	return NumSeq[V](Seq[V](n).FilterMap(mapper))
 }
+func (n NumSeq[V]) FilterMapErr(mapper filteringMapperErr[V, V]) NumSeq[V] {
+	return NumSeq[V](Seq[V](n).FilterMapErr(mapper))
+}
 func (n NumSeq[V]) Reduce(combine reducer[V, V]) (V, error) {
 	return Seq[V](n).Reduce(combine)
 }
