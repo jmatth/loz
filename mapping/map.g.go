@@ -28,18 +28,6 @@ func (s Map1[V1, V2]) FilterMap(Mapper FilteringMapper[V1, V2]) Seq[V2] {
 	}
 }
 
-func (s Map1[V1, V2]) FilterMapErr(Mapper FilteringMapperErr[V1, V2]) Seq[V2] {
-	return func(yield Yielder[V2]) {
-		s(func(v V1) bool {
-			mapped, err := Mapper(v)
-			if err != nil {
-				return true
-			}
-			return yield(mapped)
-		})
-	}
-}
-
 func (s Map1[V1, V2]) Expand(toElements Mapper[V1, Seq[V2]]) Seq[V2] {
 	return func(yield Yielder[V2]) {
 		s(func(v V1) bool {
@@ -102,19 +90,6 @@ func (s KVMap1[K1, V1, K2, V2]) FilterMap(Mapper FilteringMapper2[K1, V1, K2, V2
 	}
 }
 
-// Map transforms the keys and values within the iterator using the provided Mapper function.
-func (s KVMap1[K1, V1, K2, V2]) FilterMapErr(Mapper FilteringMapperErr2[K1, V1, K2, V2]) KVSeq[K2, V2] {
-	return func(yield Yielder2[K2, V2]) {
-		s(func(k K1, v V1) bool {
-			mk, mv, err := Mapper(k, v)
-			if err != nil {
-				return true
-			}
-			return yield(mk, mv)
-		})
-	}
-}
-
 // See [KVSeq.Filter].
 func (s KVMap1[K1, V1, K2, V2]) Filter(filter Yielder2[K1, V1]) KVMap1[K1, V1, K2, V2] {
 	return KVMap1[K1, V1, K2, V2](KVSeq[K1, V1](s).Filter(filter))
@@ -156,18 +131,6 @@ func (s Map2[V1, V2, V3]) FilterMap(Mapper FilteringMapper[V1, V2]) Map1[V2, V3]
 		s(func(v V1) bool {
 			mapped, ok := Mapper(v)
 			if !ok {
-				return true
-			}
-			return yield(mapped)
-		})
-	}
-}
-
-func (s Map2[V1, V2, V3]) FilterMapErr(Mapper FilteringMapperErr[V1, V2]) Map1[V2, V3] {
-	return func(yield Yielder[V2]) {
-		s(func(v V1) bool {
-			mapped, err := Mapper(v)
-			if err != nil {
 				return true
 			}
 			return yield(mapped)
@@ -237,19 +200,6 @@ func (s KVMap2[K1, V1, K2, V2, K3, V3]) FilterMap(Mapper FilteringMapper2[K1, V1
 	}
 }
 
-// Map transforms the keys and values within the iterator using the provided Mapper function.
-func (s KVMap2[K1, V1, K2, V2, K3, V3]) FilterMapErr(Mapper FilteringMapperErr2[K1, V1, K2, V2]) KVMap1[K2, V2, K3, V3] {
-	return func(yield Yielder2[K2, V2]) {
-		s(func(k K1, v V1) bool {
-			mk, mv, err := Mapper(k, v)
-			if err != nil {
-				return true
-			}
-			return yield(mk, mv)
-		})
-	}
-}
-
 // See [KVSeq.Filter].
 func (s KVMap2[K1, V1, K2, V2, K3, V3]) Filter(filter Yielder2[K1, V1]) KVMap2[K1, V1, K2, V2, K3, V3] {
 	return KVMap2[K1, V1, K2, V2, K3, V3](KVSeq[K1, V1](s).Filter(filter))
@@ -291,18 +241,6 @@ func (s Map3[V1, V2, V3, V4]) FilterMap(Mapper FilteringMapper[V1, V2]) Map2[V2,
 		s(func(v V1) bool {
 			mapped, ok := Mapper(v)
 			if !ok {
-				return true
-			}
-			return yield(mapped)
-		})
-	}
-}
-
-func (s Map3[V1, V2, V3, V4]) FilterMapErr(Mapper FilteringMapperErr[V1, V2]) Map2[V2, V3, V4] {
-	return func(yield Yielder[V2]) {
-		s(func(v V1) bool {
-			mapped, err := Mapper(v)
-			if err != nil {
 				return true
 			}
 			return yield(mapped)
@@ -372,19 +310,6 @@ func (s KVMap3[K1, V1, K2, V2, K3, V3, K4, V4]) FilterMap(Mapper FilteringMapper
 	}
 }
 
-// Map transforms the keys and values within the iterator using the provided Mapper function.
-func (s KVMap3[K1, V1, K2, V2, K3, V3, K4, V4]) FilterMapErr(Mapper FilteringMapperErr2[K1, V1, K2, V2]) KVMap2[K2, V2, K3, V3, K4, V4] {
-	return func(yield Yielder2[K2, V2]) {
-		s(func(k K1, v V1) bool {
-			mk, mv, err := Mapper(k, v)
-			if err != nil {
-				return true
-			}
-			return yield(mk, mv)
-		})
-	}
-}
-
 // See [KVSeq.Filter].
 func (s KVMap3[K1, V1, K2, V2, K3, V3, K4, V4]) Filter(filter Yielder2[K1, V1]) KVMap3[K1, V1, K2, V2, K3, V3, K4, V4] {
 	return KVMap3[K1, V1, K2, V2, K3, V3, K4, V4](KVSeq[K1, V1](s).Filter(filter))
@@ -426,18 +351,6 @@ func (s Map4[V1, V2, V3, V4, V5]) FilterMap(Mapper FilteringMapper[V1, V2]) Map3
 		s(func(v V1) bool {
 			mapped, ok := Mapper(v)
 			if !ok {
-				return true
-			}
-			return yield(mapped)
-		})
-	}
-}
-
-func (s Map4[V1, V2, V3, V4, V5]) FilterMapErr(Mapper FilteringMapperErr[V1, V2]) Map3[V2, V3, V4, V5] {
-	return func(yield Yielder[V2]) {
-		s(func(v V1) bool {
-			mapped, err := Mapper(v)
-			if err != nil {
 				return true
 			}
 			return yield(mapped)
@@ -507,19 +420,6 @@ func (s KVMap4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5]) FilterMap(Mapper Filteri
 	}
 }
 
-// Map transforms the keys and values within the iterator using the provided Mapper function.
-func (s KVMap4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5]) FilterMapErr(Mapper FilteringMapperErr2[K1, V1, K2, V2]) KVMap3[K2, V2, K3, V3, K4, V4, K5, V5] {
-	return func(yield Yielder2[K2, V2]) {
-		s(func(k K1, v V1) bool {
-			mk, mv, err := Mapper(k, v)
-			if err != nil {
-				return true
-			}
-			return yield(mk, mv)
-		})
-	}
-}
-
 // See [KVSeq.Filter].
 func (s KVMap4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5]) Filter(filter Yielder2[K1, V1]) KVMap4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5] {
 	return KVMap4[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5](KVSeq[K1, V1](s).Filter(filter))
@@ -561,18 +461,6 @@ func (s Map5[V1, V2, V3, V4, V5, V6]) FilterMap(Mapper FilteringMapper[V1, V2]) 
 		s(func(v V1) bool {
 			mapped, ok := Mapper(v)
 			if !ok {
-				return true
-			}
-			return yield(mapped)
-		})
-	}
-}
-
-func (s Map5[V1, V2, V3, V4, V5, V6]) FilterMapErr(Mapper FilteringMapperErr[V1, V2]) Map4[V2, V3, V4, V5, V6] {
-	return func(yield Yielder[V2]) {
-		s(func(v V1) bool {
-			mapped, err := Mapper(v)
-			if err != nil {
 				return true
 			}
 			return yield(mapped)
@@ -642,19 +530,6 @@ func (s KVMap5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6]) FilterMap(Mapper
 	}
 }
 
-// Map transforms the keys and values within the iterator using the provided Mapper function.
-func (s KVMap5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6]) FilterMapErr(Mapper FilteringMapperErr2[K1, V1, K2, V2]) KVMap4[K2, V2, K3, V3, K4, V4, K5, V5, K6, V6] {
-	return func(yield Yielder2[K2, V2]) {
-		s(func(k K1, v V1) bool {
-			mk, mv, err := Mapper(k, v)
-			if err != nil {
-				return true
-			}
-			return yield(mk, mv)
-		})
-	}
-}
-
 // See [KVSeq.Filter].
 func (s KVMap5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6]) Filter(filter Yielder2[K1, V1]) KVMap5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6] {
 	return KVMap5[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6](KVSeq[K1, V1](s).Filter(filter))
@@ -696,18 +571,6 @@ func (s Map6[V1, V2, V3, V4, V5, V6, V7]) FilterMap(Mapper FilteringMapper[V1, V
 		s(func(v V1) bool {
 			mapped, ok := Mapper(v)
 			if !ok {
-				return true
-			}
-			return yield(mapped)
-		})
-	}
-}
-
-func (s Map6[V1, V2, V3, V4, V5, V6, V7]) FilterMapErr(Mapper FilteringMapperErr[V1, V2]) Map5[V2, V3, V4, V5, V6, V7] {
-	return func(yield Yielder[V2]) {
-		s(func(v V1) bool {
-			mapped, err := Mapper(v)
-			if err != nil {
 				return true
 			}
 			return yield(mapped)
@@ -777,19 +640,6 @@ func (s KVMap6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7]) FilterMa
 	}
 }
 
-// Map transforms the keys and values within the iterator using the provided Mapper function.
-func (s KVMap6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7]) FilterMapErr(Mapper FilteringMapperErr2[K1, V1, K2, V2]) KVMap5[K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7] {
-	return func(yield Yielder2[K2, V2]) {
-		s(func(k K1, v V1) bool {
-			mk, mv, err := Mapper(k, v)
-			if err != nil {
-				return true
-			}
-			return yield(mk, mv)
-		})
-	}
-}
-
 // See [KVSeq.Filter].
 func (s KVMap6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7]) Filter(filter Yielder2[K1, V1]) KVMap6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7] {
 	return KVMap6[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7](KVSeq[K1, V1](s).Filter(filter))
@@ -831,18 +681,6 @@ func (s Map7[V1, V2, V3, V4, V5, V6, V7, V8]) FilterMap(Mapper FilteringMapper[V
 		s(func(v V1) bool {
 			mapped, ok := Mapper(v)
 			if !ok {
-				return true
-			}
-			return yield(mapped)
-		})
-	}
-}
-
-func (s Map7[V1, V2, V3, V4, V5, V6, V7, V8]) FilterMapErr(Mapper FilteringMapperErr[V1, V2]) Map6[V2, V3, V4, V5, V6, V7, V8] {
-	return func(yield Yielder[V2]) {
-		s(func(v V1) bool {
-			mapped, err := Mapper(v)
-			if err != nil {
 				return true
 			}
 			return yield(mapped)
@@ -912,19 +750,6 @@ func (s KVMap7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8]) 
 	}
 }
 
-// Map transforms the keys and values within the iterator using the provided Mapper function.
-func (s KVMap7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8]) FilterMapErr(Mapper FilteringMapperErr2[K1, V1, K2, V2]) KVMap6[K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8] {
-	return func(yield Yielder2[K2, V2]) {
-		s(func(k K1, v V1) bool {
-			mk, mv, err := Mapper(k, v)
-			if err != nil {
-				return true
-			}
-			return yield(mk, mv)
-		})
-	}
-}
-
 // See [KVSeq.Filter].
 func (s KVMap7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8]) Filter(filter Yielder2[K1, V1]) KVMap7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8] {
 	return KVMap7[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8](KVSeq[K1, V1](s).Filter(filter))
@@ -966,18 +791,6 @@ func (s Map8[V1, V2, V3, V4, V5, V6, V7, V8, V9]) FilterMap(Mapper FilteringMapp
 		s(func(v V1) bool {
 			mapped, ok := Mapper(v)
 			if !ok {
-				return true
-			}
-			return yield(mapped)
-		})
-	}
-}
-
-func (s Map8[V1, V2, V3, V4, V5, V6, V7, V8, V9]) FilterMapErr(Mapper FilteringMapperErr[V1, V2]) Map7[V2, V3, V4, V5, V6, V7, V8, V9] {
-	return func(yield Yielder[V2]) {
-		s(func(v V1) bool {
-			mapped, err := Mapper(v)
-			if err != nil {
 				return true
 			}
 			return yield(mapped)
@@ -1047,19 +860,6 @@ func (s KVMap8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K
 	}
 }
 
-// Map transforms the keys and values within the iterator using the provided Mapper function.
-func (s KVMap8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9]) FilterMapErr(Mapper FilteringMapperErr2[K1, V1, K2, V2]) KVMap7[K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9] {
-	return func(yield Yielder2[K2, V2]) {
-		s(func(k K1, v V1) bool {
-			mk, mv, err := Mapper(k, v)
-			if err != nil {
-				return true
-			}
-			return yield(mk, mv)
-		})
-	}
-}
-
 // See [KVSeq.Filter].
 func (s KVMap8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9]) Filter(filter Yielder2[K1, V1]) KVMap8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9] {
 	return KVMap8[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9](KVSeq[K1, V1](s).Filter(filter))
@@ -1101,18 +901,6 @@ func (s Map9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10]) FilterMap(Mapper Filterin
 		s(func(v V1) bool {
 			mapped, ok := Mapper(v)
 			if !ok {
-				return true
-			}
-			return yield(mapped)
-		})
-	}
-}
-
-func (s Map9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10]) FilterMapErr(Mapper FilteringMapperErr[V1, V2]) Map8[V2, V3, V4, V5, V6, V7, V8, V9, V10] {
-	return func(yield Yielder[V2]) {
-		s(func(v V1) bool {
-			mapped, err := Mapper(v)
-			if err != nil {
 				return true
 			}
 			return yield(mapped)
@@ -1175,19 +963,6 @@ func (s KVMap9[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K
 		s(func(k K1, v V1) bool {
 			mk, mv, ok := Mapper(k, v)
 			if !ok {
-				return true
-			}
-			return yield(mk, mv)
-		})
-	}
-}
-
-// Map transforms the keys and values within the iterator using the provided Mapper function.
-func (s KVMap9[K1, V1, K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9, K10, V10]) FilterMapErr(Mapper FilteringMapperErr2[K1, V1, K2, V2]) KVMap8[K2, V2, K3, V3, K4, V4, K5, V5, K6, V6, K7, V7, K8, V8, K9, V9, K10, V10] {
-	return func(yield Yielder2[K2, V2]) {
-		s(func(k K1, v V1) bool {
-			mk, mv, err := Mapper(k, v)
-			if err != nil {
 				return true
 			}
 			return yield(mk, mv)

@@ -84,7 +84,7 @@ func TestKVMap1(t *testing.T) {
 	assert.ElementsMatch(t, iterator.Values().CollectSlice(), []byte{'o', 't', 't', 'f', 'f'})
 }
 
-func ExampleMap1_Fold() {
+func Example_fold() {
 	result := lom.Map1[int, string](loz.Generate(5, func(i int) int {
 		return i + 1
 	})).
@@ -98,7 +98,7 @@ func ExampleMap1_Fold() {
 	// Output: 1, 2, 3, 4, 5
 }
 
-func ExampleMap1_haltOnError() {
+func Example_haltOnError() {
 	nums, err := lom.Map1[string, int](loz.IterSlice([]string{"1", "two", "3"})).
 		Map(func(str string) int {
 			num, err := strconv.Atoi(str)
@@ -110,9 +110,16 @@ func ExampleMap1_haltOnError() {
 	// Output: []; strconv.Atoi: parsing "two": invalid syntax
 }
 
-func ExampleMap1_skipOnError() {
+func errToBool[I, O any](mapper func(I) (O, error)) func (I) (O, bool) {
+	return func(i I) (O, bool) {
+		result, err := mapper(i)
+		return result, err == nil
+	}
+}
+
+func Example_skipOnError() {
 	nums := lom.Map1[string, int](loz.IterSlice([]string{"1", "two", "3"})).
-		FilterMapErr(strconv.Atoi).
+		FilterMap(errToBool(strconv.Atoi)).
 		CollectSlice()
 	fmt.Printf("%v\n", nums)
 	// Output: [1 3]
