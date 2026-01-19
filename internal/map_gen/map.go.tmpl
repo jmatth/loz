@@ -31,27 +31,27 @@ KV{{ .BaseName }}{{ .Index }}[{{ template "kvTypeRange" add 1 .Index | numsTo }}
 {{- end -}}
 
 {{- define "seqderef" -}}
-// See [Seq.Filter].
+// See [loz.Seq.Filter].
 func (s {{ template "maptype" . }}) Filter(filter Yielder[V1]) {{ template "maptype" . }} {
 	return {{ template "maptype" . }}(Seq[V1](s).Filter(filter))
 }
 
-// See [Seq.Skip].
+// See [loz.Seq.Skip].
 func (s {{ template "maptype" . }}) Skip(toSkip int) {{ template "maptype" . }} {
 	return {{ template "maptype" . }}(Seq[V1](s).Skip(toSkip))
 }
 
-// See [Seq.SkipWhile].
+// See [loz.Seq.SkipWhile].
 func (s {{ template "maptype" . }}) SkipWhile(test Yielder[V1]) {{ template "maptype" . }} {
 	return {{ template "maptype" . }}(Seq[V1](s).SkipWhile(test))
 }
 
-// See [Seq.Take].
+// See [loz.Seq.Take].
 func (s {{ template "maptype" . }}) Take(toTake int) {{ template "maptype" . }} {
 	return {{ template "maptype" . }}(Seq[V1](s).Take(toTake))
 }
 
-// See [Seq.TakeWhile].
+// See [loz.Seq.TakeWhile].
 func (s {{ template "maptype" . }}) TakeWhile(test Yielder[V1]) {{ template "maptype" . }} {
 	return {{ template "maptype" . }}(Seq[V1](s).TakeWhile(test))
 }

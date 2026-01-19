@@ -41,27 +41,27 @@ func (s Map1[V1, V2]) Expand(toElements Mapper[V1, Seq[V2]]) Seq[V2] {
 	}
 }
 
-// See [Seq.Filter].
+// See [loz.Seq.Filter].
 func (s Map1[V1, V2]) Filter(filter Yielder[V1]) Map1[V1, V2] {
 	return Map1[V1, V2](Seq[V1](s).Filter(filter))
 }
 
-// See [Seq.Skip].
+// See [loz.Seq.Skip].
 func (s Map1[V1, V2]) Skip(toSkip int) Map1[V1, V2] {
 	return Map1[V1, V2](Seq[V1](s).Skip(toSkip))
 }
 
-// See [Seq.SkipWhile].
+// See [loz.Seq.SkipWhile].
 func (s Map1[V1, V2]) SkipWhile(test Yielder[V1]) Map1[V1, V2] {
 	return Map1[V1, V2](Seq[V1](s).SkipWhile(test))
 }
 
-// See [Seq.Take].
+// See [loz.Seq.Take].
 func (s Map1[V1, V2]) Take(toTake int) Map1[V1, V2] {
 	return Map1[V1, V2](Seq[V1](s).Take(toTake))
 }
 
-// See [Seq.TakeWhile].
+// See [loz.Seq.TakeWhile].
 func (s Map1[V1, V2]) TakeWhile(test Yielder[V1]) Map1[V1, V2] {
 	return Map1[V1, V2](Seq[V1](s).TakeWhile(test))
 }
@@ -151,27 +151,27 @@ func (s Map2[V1, V2, V3]) Expand(toElements Mapper[V1, Seq[V2]]) Map1[V2, V3] {
 	}
 }
 
-// See [Seq.Filter].
+// See [loz.Seq.Filter].
 func (s Map2[V1, V2, V3]) Filter(filter Yielder[V1]) Map2[V1, V2, V3] {
 	return Map2[V1, V2, V3](Seq[V1](s).Filter(filter))
 }
 
-// See [Seq.Skip].
+// See [loz.Seq.Skip].
 func (s Map2[V1, V2, V3]) Skip(toSkip int) Map2[V1, V2, V3] {
 	return Map2[V1, V2, V3](Seq[V1](s).Skip(toSkip))
 }
 
-// See [Seq.SkipWhile].
+// See [loz.Seq.SkipWhile].
 func (s Map2[V1, V2, V3]) SkipWhile(test Yielder[V1]) Map2[V1, V2, V3] {
 	return Map2[V1, V2, V3](Seq[V1](s).SkipWhile(test))
 }
 
-// See [Seq.Take].
+// See [loz.Seq.Take].
 func (s Map2[V1, V2, V3]) Take(toTake int) Map2[V1, V2, V3] {
 	return Map2[V1, V2, V3](Seq[V1](s).Take(toTake))
 }
 
-// See [Seq.TakeWhile].
+// See [loz.Seq.TakeWhile].
 func (s Map2[V1, V2, V3]) TakeWhile(test Yielder[V1]) Map2[V1, V2, V3] {
 	return Map2[V1, V2, V3](Seq[V1](s).TakeWhile(test))
 }
@@ -261,27 +261,27 @@ func (s Map3[V1, V2, V3, V4]) Expand(toElements Mapper[V1, Seq[V2]]) Map2[V2, V3
 	}
 }
 
-// See [Seq.Filter].
+// See [loz.Seq.Filter].
 func (s Map3[V1, V2, V3, V4]) Filter(filter Yielder[V1]) Map3[V1, V2, V3, V4] {
 	return Map3[V1, V2, V3, V4](Seq[V1](s).Filter(filter))
 }
 
-// See [Seq.Skip].
+// See [loz.Seq.Skip].
 func (s Map3[V1, V2, V3, V4]) Skip(toSkip int) Map3[V1, V2, V3, V4] {
 	return Map3[V1, V2, V3, V4](Seq[V1](s).Skip(toSkip))
 }
 
-// See [Seq.SkipWhile].
+// See [loz.Seq.SkipWhile].
 func (s Map3[V1, V2, V3, V4]) SkipWhile(test Yielder[V1]) Map3[V1, V2, V3, V4] {
 	return Map3[V1, V2, V3, V4](Seq[V1](s).SkipWhile(test))
 }
 
-// See [Seq.Take].
+// See [loz.Seq.Take].
 func (s Map3[V1, V2, V3, V4]) Take(toTake int) Map3[V1, V2, V3, V4] {
 	return Map3[V1, V2, V3, V4](Seq[V1](s).Take(toTake))
 }
 
-// See [Seq.TakeWhile].
+// See [loz.Seq.TakeWhile].
 func (s Map3[V1, V2, V3, V4]) TakeWhile(test Yielder[V1]) Map3[V1, V2, V3, V4] {
 	return Map3[V1, V2, V3, V4](Seq[V1](s).TakeWhile(test))
 }
@@ -371,27 +371,27 @@ func (s Map4[V1, V2, V3, V4, V5]) Expand(toElements Mapper[V1, Seq[V2]]) Map3[V2
 	}
 }
 
-// See [Seq.Filter].
+// See [loz.Seq.Filter].
 func (s Map4[V1, V2, V3, V4, V5]) Filter(filter Yielder[V1]) Map4[V1, V2, V3, V4, V5] {
 	return Map4[V1, V2, V3, V4, V5](Seq[V1](s).Filter(filter))
 }
 
-// See [Seq.Skip].
+// See [loz.Seq.Skip].
 func (s Map4[V1, V2, V3, V4, V5]) Skip(toSkip int) Map4[V1, V2, V3, V4, V5] {
 	return Map4[V1, V2, V3, V4, V5](Seq[V1](s).Skip(toSkip))
 }
 
-// See [Seq.SkipWhile].
+// See [loz.Seq.SkipWhile].
 func (s Map4[V1, V2, V3, V4, V5]) SkipWhile(test Yielder[V1]) Map4[V1, V2, V3, V4, V5] {
 	return Map4[V1, V2, V3, V4, V5](Seq[V1](s).SkipWhile(test))
 }
 
-// See [Seq.Take].
+// See [loz.Seq.Take].
 func (s Map4[V1, V2, V3, V4, V5]) Take(toTake int) Map4[V1, V2, V3, V4, V5] {
 	return Map4[V1, V2, V3, V4, V5](Seq[V1](s).Take(toTake))
 }
 
-// See [Seq.TakeWhile].
+// See [loz.Seq.TakeWhile].
 func (s Map4[V1, V2, V3, V4, V5]) TakeWhile(test Yielder[V1]) Map4[V1, V2, V3, V4, V5] {
 	return Map4[V1, V2, V3, V4, V5](Seq[V1](s).TakeWhile(test))
 }
@@ -481,27 +481,27 @@ func (s Map5[V1, V2, V3, V4, V5, V6]) Expand(toElements Mapper[V1, Seq[V2]]) Map
 	}
 }
 
-// See [Seq.Filter].
+// See [loz.Seq.Filter].
 func (s Map5[V1, V2, V3, V4, V5, V6]) Filter(filter Yielder[V1]) Map5[V1, V2, V3, V4, V5, V6] {
 	return Map5[V1, V2, V3, V4, V5, V6](Seq[V1](s).Filter(filter))
 }
 
-// See [Seq.Skip].
+// See [loz.Seq.Skip].
 func (s Map5[V1, V2, V3, V4, V5, V6]) Skip(toSkip int) Map5[V1, V2, V3, V4, V5, V6] {
 	return Map5[V1, V2, V3, V4, V5, V6](Seq[V1](s).Skip(toSkip))
 }
 
-// See [Seq.SkipWhile].
+// See [loz.Seq.SkipWhile].
 func (s Map5[V1, V2, V3, V4, V5, V6]) SkipWhile(test Yielder[V1]) Map5[V1, V2, V3, V4, V5, V6] {
 	return Map5[V1, V2, V3, V4, V5, V6](Seq[V1](s).SkipWhile(test))
 }
 
-// See [Seq.Take].
+// See [loz.Seq.Take].
 func (s Map5[V1, V2, V3, V4, V5, V6]) Take(toTake int) Map5[V1, V2, V3, V4, V5, V6] {
 	return Map5[V1, V2, V3, V4, V5, V6](Seq[V1](s).Take(toTake))
 }
 
-// See [Seq.TakeWhile].
+// See [loz.Seq.TakeWhile].
 func (s Map5[V1, V2, V3, V4, V5, V6]) TakeWhile(test Yielder[V1]) Map5[V1, V2, V3, V4, V5, V6] {
 	return Map5[V1, V2, V3, V4, V5, V6](Seq[V1](s).TakeWhile(test))
 }
@@ -591,27 +591,27 @@ func (s Map6[V1, V2, V3, V4, V5, V6, V7]) Expand(toElements Mapper[V1, Seq[V2]])
 	}
 }
 
-// See [Seq.Filter].
+// See [loz.Seq.Filter].
 func (s Map6[V1, V2, V3, V4, V5, V6, V7]) Filter(filter Yielder[V1]) Map6[V1, V2, V3, V4, V5, V6, V7] {
 	return Map6[V1, V2, V3, V4, V5, V6, V7](Seq[V1](s).Filter(filter))
 }
 
-// See [Seq.Skip].
+// See [loz.Seq.Skip].
 func (s Map6[V1, V2, V3, V4, V5, V6, V7]) Skip(toSkip int) Map6[V1, V2, V3, V4, V5, V6, V7] {
 	return Map6[V1, V2, V3, V4, V5, V6, V7](Seq[V1](s).Skip(toSkip))
 }
 
-// See [Seq.SkipWhile].
+// See [loz.Seq.SkipWhile].
 func (s Map6[V1, V2, V3, V4, V5, V6, V7]) SkipWhile(test Yielder[V1]) Map6[V1, V2, V3, V4, V5, V6, V7] {
 	return Map6[V1, V2, V3, V4, V5, V6, V7](Seq[V1](s).SkipWhile(test))
 }
 
-// See [Seq.Take].
+// See [loz.Seq.Take].
 func (s Map6[V1, V2, V3, V4, V5, V6, V7]) Take(toTake int) Map6[V1, V2, V3, V4, V5, V6, V7] {
 	return Map6[V1, V2, V3, V4, V5, V6, V7](Seq[V1](s).Take(toTake))
 }
 
-// See [Seq.TakeWhile].
+// See [loz.Seq.TakeWhile].
 func (s Map6[V1, V2, V3, V4, V5, V6, V7]) TakeWhile(test Yielder[V1]) Map6[V1, V2, V3, V4, V5, V6, V7] {
 	return Map6[V1, V2, V3, V4, V5, V6, V7](Seq[V1](s).TakeWhile(test))
 }
@@ -701,27 +701,27 @@ func (s Map7[V1, V2, V3, V4, V5, V6, V7, V8]) Expand(toElements Mapper[V1, Seq[V
 	}
 }
 
-// See [Seq.Filter].
+// See [loz.Seq.Filter].
 func (s Map7[V1, V2, V3, V4, V5, V6, V7, V8]) Filter(filter Yielder[V1]) Map7[V1, V2, V3, V4, V5, V6, V7, V8] {
 	return Map7[V1, V2, V3, V4, V5, V6, V7, V8](Seq[V1](s).Filter(filter))
 }
 
-// See [Seq.Skip].
+// See [loz.Seq.Skip].
 func (s Map7[V1, V2, V3, V4, V5, V6, V7, V8]) Skip(toSkip int) Map7[V1, V2, V3, V4, V5, V6, V7, V8] {
 	return Map7[V1, V2, V3, V4, V5, V6, V7, V8](Seq[V1](s).Skip(toSkip))
 }
 
-// See [Seq.SkipWhile].
+// See [loz.Seq.SkipWhile].
 func (s Map7[V1, V2, V3, V4, V5, V6, V7, V8]) SkipWhile(test Yielder[V1]) Map7[V1, V2, V3, V4, V5, V6, V7, V8] {
 	return Map7[V1, V2, V3, V4, V5, V6, V7, V8](Seq[V1](s).SkipWhile(test))
 }
 
-// See [Seq.Take].
+// See [loz.Seq.Take].
 func (s Map7[V1, V2, V3, V4, V5, V6, V7, V8]) Take(toTake int) Map7[V1, V2, V3, V4, V5, V6, V7, V8] {
 	return Map7[V1, V2, V3, V4, V5, V6, V7, V8](Seq[V1](s).Take(toTake))
 }
 
-// See [Seq.TakeWhile].
+// See [loz.Seq.TakeWhile].
 func (s Map7[V1, V2, V3, V4, V5, V6, V7, V8]) TakeWhile(test Yielder[V1]) Map7[V1, V2, V3, V4, V5, V6, V7, V8] {
 	return Map7[V1, V2, V3, V4, V5, V6, V7, V8](Seq[V1](s).TakeWhile(test))
 }
@@ -811,27 +811,27 @@ func (s Map8[V1, V2, V3, V4, V5, V6, V7, V8, V9]) Expand(toElements Mapper[V1, S
 	}
 }
 
-// See [Seq.Filter].
+// See [loz.Seq.Filter].
 func (s Map8[V1, V2, V3, V4, V5, V6, V7, V8, V9]) Filter(filter Yielder[V1]) Map8[V1, V2, V3, V4, V5, V6, V7, V8, V9] {
 	return Map8[V1, V2, V3, V4, V5, V6, V7, V8, V9](Seq[V1](s).Filter(filter))
 }
 
-// See [Seq.Skip].
+// See [loz.Seq.Skip].
 func (s Map8[V1, V2, V3, V4, V5, V6, V7, V8, V9]) Skip(toSkip int) Map8[V1, V2, V3, V4, V5, V6, V7, V8, V9] {
 	return Map8[V1, V2, V3, V4, V5, V6, V7, V8, V9](Seq[V1](s).Skip(toSkip))
 }
 
-// See [Seq.SkipWhile].
+// See [loz.Seq.SkipWhile].
 func (s Map8[V1, V2, V3, V4, V5, V6, V7, V8, V9]) SkipWhile(test Yielder[V1]) Map8[V1, V2, V3, V4, V5, V6, V7, V8, V9] {
 	return Map8[V1, V2, V3, V4, V5, V6, V7, V8, V9](Seq[V1](s).SkipWhile(test))
 }
 
-// See [Seq.Take].
+// See [loz.Seq.Take].
 func (s Map8[V1, V2, V3, V4, V5, V6, V7, V8, V9]) Take(toTake int) Map8[V1, V2, V3, V4, V5, V6, V7, V8, V9] {
 	return Map8[V1, V2, V3, V4, V5, V6, V7, V8, V9](Seq[V1](s).Take(toTake))
 }
 
-// See [Seq.TakeWhile].
+// See [loz.Seq.TakeWhile].
 func (s Map8[V1, V2, V3, V4, V5, V6, V7, V8, V9]) TakeWhile(test Yielder[V1]) Map8[V1, V2, V3, V4, V5, V6, V7, V8, V9] {
 	return Map8[V1, V2, V3, V4, V5, V6, V7, V8, V9](Seq[V1](s).TakeWhile(test))
 }
@@ -921,27 +921,27 @@ func (s Map9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10]) Expand(toElements Mapper[
 	}
 }
 
-// See [Seq.Filter].
+// See [loz.Seq.Filter].
 func (s Map9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10]) Filter(filter Yielder[V1]) Map9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10] {
 	return Map9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10](Seq[V1](s).Filter(filter))
 }
 
-// See [Seq.Skip].
+// See [loz.Seq.Skip].
 func (s Map9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10]) Skip(toSkip int) Map9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10] {
 	return Map9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10](Seq[V1](s).Skip(toSkip))
 }
 
-// See [Seq.SkipWhile].
+// See [loz.Seq.SkipWhile].
 func (s Map9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10]) SkipWhile(test Yielder[V1]) Map9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10] {
 	return Map9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10](Seq[V1](s).SkipWhile(test))
 }
 
-// See [Seq.Take].
+// See [loz.Seq.Take].
 func (s Map9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10]) Take(toTake int) Map9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10] {
 	return Map9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10](Seq[V1](s).Take(toTake))
 }
 
-// See [Seq.TakeWhile].
+// See [loz.Seq.TakeWhile].
 func (s Map9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10]) TakeWhile(test Yielder[V1]) Map9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10] {
 	return Map9[V1, V2, V3, V4, V5, V6, V7, V8, V9, V10](Seq[V1](s).TakeWhile(test))
 }
