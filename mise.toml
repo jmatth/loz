@@ -1,7 +1,11 @@
 [tools]
-go = "1.24.3"
-"go:golang.org/x/pkgsite/cmd/pkgsite" = "latest"
+go = "1.24"
 golangci-lint = "2.8.0"
+gotestsum = "latest"
+pkgsite = "latest"
+
+[tool_alias]
+pkgsite = "go:golang.org/x/pkgsite/cmd/pkgsite"
 
 [tasks.clean-generated]
 run = "rm -f *.g.go"
@@ -26,7 +30,7 @@ run = "go get -t"
 
 [tasks.test]
 description = "Run tests"
-run = "go test -v ./..."
+run = "gotestsum -f dots-v2 ./..."
 
 [tasks.doc-preview]
 run = "pkgsite"
