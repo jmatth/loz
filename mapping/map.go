@@ -1,7 +1,14 @@
+// Package mapping provides additional wrapper types for loz.Seq and loz.KVSeq
+// so that methods can change the type of the elements in the iterator. This
+// package is almost entirely generated. Refer to the documentation for
+// [github.com/jmatth/loz] for usage examples.
+//
 //go:generate go run ../internal/map_gen/map_gen.go ../ map.g
 package mapping
 
-import . "github.com/jmatth/loz/internal"
+import (
+	. "github.com/jmatth/loz/internal"
+)
 
 // Fold is identical to [Seq.Fold] except that the type of the result can
 // be different than than the type of the elements in the sequence.

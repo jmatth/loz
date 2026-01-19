@@ -5,7 +5,6 @@ import (
 	"maps"
 	"reflect"
 	"slices"
-	"strconv"
 	"testing"
 
 	"github.com/jmatth/loz"
@@ -82,45 +81,4 @@ func TestKVMap1(t *testing.T) {
 		})
 	assert.ElementsMatch(t, iterator.Keys().CollectSlice(), []string{"1", "2", "3", "4", "5"})
 	assert.ElementsMatch(t, iterator.Values().CollectSlice(), []byte{'o', 't', 't', 'f', 'f'})
-}
-
-func Example_fold() {
-	result := lom.Map1[int, string](loz.Generate(5, func(i int) int {
-		return i + 1
-	})).
-		Fold("", func(acc string, n int) string {
-			if acc == "" {
-				return fmt.Sprintf("%d", n)
-			}
-			return fmt.Sprintf("%s, %d", acc, n)
-		})
-	fmt.Printf("%v", result)
-	// Output: 1, 2, 3, 4, 5
-}
-
-func Example_haltOnError() {
-	nums, err := lom.Map1[string, int](loz.IterSlice([]string{"1", "two", "3"})).
-		Map(func(str string) int {
-			num, err := strconv.Atoi(str)
-			loz.PanicHaltIteration(err)
-			return num
-		}).
-		TryCollectSlice()
-	fmt.Printf("%v; %v\n", nums, err)
-	// Output: []; strconv.Atoi: parsing "two": invalid syntax
-}
-
-func errToBool[I, O any](mapper func(I) (O, error)) func (I) (O, bool) {
-	return func(i I) (O, bool) {
-		result, err := mapper(i)
-		return result, err == nil
-	}
-}
-
-func Example_skipOnError() {
-	nums := lom.Map1[string, int](loz.IterSlice([]string{"1", "two", "3"})).
-		FilterMap(errToBool(strconv.Atoi)).
-		CollectSlice()
-	fmt.Printf("%v\n", nums)
-	// Output: [1 3]
 }
