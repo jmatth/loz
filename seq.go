@@ -204,7 +204,7 @@ func (s Seq[V]) TryAny(test Yielder[V]) (result bool, err error) {
 	return s.Any(test), nil
 }
 
-// Every returns true if test returns false for every element of the iterator,
+// None returns true if test returns false for every element of the iterator,
 // and false otherwise. Returns true for an empty iterator.
 func (s Seq[V]) None(test Yielder[V]) bool {
 	result := true

@@ -18,7 +18,7 @@ func IterMap[K comparable, V any](input map[K]V) KVSeq[K, V] {
 	return KVSeq[K, V](maps.All(input))
 }
 
-// ToKeys converts a KVSeq[K, V] to a Seq[K], continuing the iteration with only
+// Keys converts a KVSeq[K, V] to a Seq[K], continuing the iteration with only
 // the keys.
 func (s KVSeq[K, V]) Keys() Seq[K] {
 	return func(yield Yielder[K]) {
@@ -202,7 +202,7 @@ func (s KVSeq[K, V]) TryAny(test Yielder2[K, V]) (_ bool, err error) {
 	return s.Any(test), nil
 }
 
-// Every returns true if test returns false for every key/value pair of the
+// None returns true if test returns false for every key/value pair of the
 // iterator, and false otherwise. Returns true for an empty iterator.
 func (s KVSeq[K, V]) None(test Yielder2[K, V]) bool {
 	result := true
