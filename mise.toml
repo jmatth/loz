@@ -2,7 +2,7 @@
 go = "1.25"
 "go:golang.org/x/pkgsite/cmd/pkgsite" = "latest"
 golangci-lint = "2.8.0"
-gotestsum = "1.10.0"
+gotestsum = "1.13.0"
 
 [tasks.clean-generated]
 run = "rm -f *.g.go"
