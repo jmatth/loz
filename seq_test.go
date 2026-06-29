@@ -7,14 +7,13 @@ import (
 	"testing"
 
 	"github.com/jmatth/loz"
-	lom "github.com/jmatth/loz/mapping"
 	"github.com/stretchr/testify/assert"
 )
 
 func ExampleSeq_TakeWhile() {
 	result := loz.IterSlice([]int{2, 4, 5, 6, 8}).
 		TakeWhile(func(n int) bool { return n%2 == 0 }).
-		CollectSlice()
+		Collect(loz.ToSlice[int]())
 	fmt.Printf("%v", result)
 	// Output: [2 4]
 }
@@ -22,7 +21,7 @@ func ExampleSeq_TakeWhile() {
 func ExampleSeq_SkipWhile() {
 	result := loz.IterSlice([]int{2, 4, 5, 6, 8}).
 		SkipWhile(func(n int) bool { return n%2 == 0 }).
-		CollectSlice()
+		Collect(loz.ToSlice[int]())
 	fmt.Printf("%v", result)
 	// Output: [5 6 8]
 }
@@ -32,28 +31,29 @@ func ExampleSeq_Filter() {
 		Filter(
 			func(b bool) bool {
 				return !b
-			}).CollectSlice()
+			}).
+		Collect(loz.ToSlice[bool]())
 	fmt.Printf("%v", filteredSlice)
 	// Output: [false false]
 }
 
 func ExampleSeq_Skip() {
 	nums := []int{1, 2, 3, 4, 5, 6, 7, 8, 9}
-	skipped := loz.IterSlice(nums).Skip(3).CollectSlice()
+	skipped := loz.IterSlice(nums).Skip(3).Collect(loz.ToSlice[int]())
 	fmt.Printf("%v", skipped)
 	// Output: [4 5 6 7 8 9]
 }
 
 func ExampleSeq_Take() {
 	nums := []int{1, 2, 3, 4, 5, 6, 7, 8, 9}
-	took := loz.IterSlice(nums).Take(3).CollectSlice()
+	took := loz.IterSlice(nums).Take(3).Collect(loz.ToSlice[int]())
 	fmt.Printf("%v", took)
 	// Output: [1 2 3]
 }
 
 func ExampleSeq_Map() {
 	nums := []int{1, 2, 3}
-	doubled := loz.IterSlice(nums).Map(func(n int) int { return n * 2 }).CollectSlice()
+	doubled := loz.IterSlice(nums).Map(func(n int) int { return n * 2 }).Collect(loz.ToSlice[int]())
 	fmt.Printf("%v", doubled)
 	// Output: [2 4 6]
 }
@@ -115,7 +115,7 @@ func ExampleSeq_Expand() {
 	}
 
 	nums := []int{1, 2, 3, 0, 5}
-	expanded := loz.IterSlice(nums).Expand(expander).CollectSlice()
+	expanded := loz.IterSlice(nums).Expand(expander).Collect(loz.ToSlice[int]())
 	fmt.Printf("%v", expanded)
 	// Output: [1 1 2 1 2 3 1 2 3 4 5]
 }
@@ -169,21 +169,21 @@ func ExampleSeq_ForEach() {
 
 func TestSkipAll(t *testing.T) {
 	nums := []int{1, 2, 3, 4, 5, 6, 7, 8, 9}
-	skipped := loz.IterSlice(nums).Skip(100).CollectSlice()
+	skipped := loz.IterSlice(nums).Skip(100).Collect(loz.ToSlice[int]())
 	assert.Empty(t, skipped)
 }
 
 func TestSkipAndTake(t *testing.T) {
 	nums := []int{1, 2, 3, 4, 5, 6, 7, 8, 9}
-	took := loz.IterSlice(nums).Skip(3).Take(3).CollectSlice()
+	took := loz.IterSlice(nums).Skip(3).Take(3).Collect(loz.ToSlice[int]())
 	assert.Equal(t, []int{4, 5, 6}, took)
 }
 
 func TestRepeatCalls(t *testing.T) {
 	nums := []int{1, 2, 3, 4, 5, 6, 7, 8, 9}
 	baseSeq := loz.IterSlice(nums).Skip(3)
-	took := baseSeq.Take(3).CollectSlice()
-	skipped := baseSeq.Skip(3).CollectSlice()
+	took := baseSeq.Take(3).Collect(loz.ToSlice[int]())
+	skipped := baseSeq.Skip(3).Collect(loz.ToSlice[int]())
 	assert.Equal(t, []int{4, 5, 6}, took)
 	assert.Equal(t, []int{7, 8, 9}, skipped)
 }
@@ -192,12 +192,12 @@ func TestTMP(t *testing.T) {
 }
 
 func ExampleSeq_errorHandling() {
-	result, err := lom.Map1[string, int](loz.IterSlice([]string{"1", "foo", "3"})).
+	result, err := loz.IterSlice([]string{"1", "foo", "3"}).
 		Map(func(s string) int {
 			num, err := strconv.Atoi(s)
 			loz.PanicHaltIteration(err)
 			return num
-		}).TryCollectSlice()
+		}).TryCollect(loz.ToSlice[int]())
 	fmt.Printf("%v; %v", result, err)
 	// Output: []; strconv.Atoi: parsing "foo": invalid syntax
 }
@@ -210,25 +210,26 @@ func ExampleSeq_incorrectErrorHandling() {
 		}
 	}()
 
-	result, err := lom.Map1[string, int](loz.IterSlice([]string{"1", "foo", "3"})).
+	result, err := loz.IterSlice([]string{"1", "foo", "3"}).
 		Map(func(s string) int {
 			num, err := strconv.Atoi(s)
 			if err != nil {
 				panic(err)
 			}
 			return num
-		}).TryCollectSlice()
+		}).TryCollect(loz.ToSlice[int]())
 	fmt.Printf("%v; %v", result, err)
 	// Output: example code panicked: strconv.Atoi: parsing "foo": invalid syntax
 }
 
-func ExampleSeq_AppendSlice() {
+func ExampleToSliceAppend() {
 	s := make([]int, 0, 5)
 	s = append(s, 1, 2)
-	loz.Generate(3, func(idx int) int {
+	result := loz.Generate(3, func(idx int) int {
 		return idx + 3
-	}).AppendSlice(&s)
-	fmt.Print(s)
+	}).
+		Collect(loz.ToSliceAppend(s))
+	fmt.Print(result)
 	// Output: [1 2 3 4 5]
 }
 
@@ -240,7 +241,7 @@ func ExampleSeq_FilterMap() {
 			}
 			return i / 10, true
 		}).
-		CollectSlice()
+		Collect(loz.ToSlice[int]())
 	fmt.Print(matching)
 	// Output: [1 4 5]
 }
@@ -333,4 +334,19 @@ func TestSeqTryMethods(t *testing.T) {
 			assert.Equal(t, err, haltingErr)
 		})
 	}
+}
+
+func TestMap(t *testing.T) {
+	mapped := loz.IterSlice([]int{1, 2, 3, 4, 5}).
+		Map(func(n int) string { return fmt.Sprintf("%v", n) })
+	assert.Equal(t, []string{"1", "2", "3", "4", "5"}, mapped.Collect(loz.ToSlice[string]()))
+}
+
+func TestMultiMap(t *testing.T) {
+	mapped := loz.IterSlice([]string{"1", "200", "3", "42", "55"}).
+		Map(func(s string) byte { return s[0] }).
+		Map(func(b byte) int { return int(b - 0x30) }).
+		Map(func(n int) float64 { return float64(n) * 11 / 10 }).
+		Collect(loz.ToSlice[float64]())
+	assert.Equal(t, []float64{1.1, 2.2, 3.3, 4.4, 5.5}, mapped)
 }

@@ -1,18 +1,8 @@
 [tools]
-go = "1.25"
+go = "1.27rc1"
 "go:golang.org/x/pkgsite/cmd/pkgsite" = "latest"
-golangci-lint = "2.8.0"
+# golangci-lint = "2.12.2"
 gotestsum = "1.13.0"
-
-[tasks.clean-generated]
-run = "rm -f *.g.go"
-
-[tasks.generate]
-description = "Run go code generators"
-depends = ['clean-generated']
-run = [
-  "go generate ./mapping/map.go",
-]
 
 [tasks.format]
 description = "Apply code formatting"

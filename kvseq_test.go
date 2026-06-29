@@ -13,14 +13,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func toMap[K comparable, V any](seq loz.KVSeq[K, V]) map[K]V {
-	return maps.Collect(iter.Seq2[K, V](seq))
-}
-
 func ExampleKVSeq_Keys() {
 	keys := loz.IterMap(map[int]string{1: "one", 2: "two", 3: "three"}).
 		Keys().
-		CollectSlice()
+		Collect(loz.ToSlice[int]())
 	slices.Sort(keys)
 	fmt.Printf("%v", keys)
 	// Output: [1 2 3]
@@ -29,7 +25,7 @@ func ExampleKVSeq_Keys() {
 func ExampleKVSeq_Values() {
 	vals := loz.IterMap(map[int]string{1: "one", 2: "two", 3: "three"}).
 		Values().
-		CollectSlice()
+		Collect(loz.ToSlice[string]())
 	slices.Sort(vals)
 	fmt.Printf("%v", vals)
 	// Output: [one three two]
@@ -73,52 +69,57 @@ func ExampleKVSeq_Map() {
 }
 
 func ExampleKVSeq_Take() {
-	seq := loz.IterSlice([]string{"zero", "one", "two", "three", "four"}).
+	result := loz.IterSlice([]string{"zero", "one", "two", "three", "four"}).
 		Indexed().
-		Take(2)
-	result := toMap(seq)
+		Take(2).
+		Collect(loz.ToMap[int, string]())
+		// CollectMap(loz.Identity)
 	fmt.Printf("%v", result)
 	// Output: map[0:zero 1:one]
 }
 
 func ExampleKVSeq_TakeWhile() {
-	seq := loz.IterSlice([]string{"zero", "one", "two", "three", "four"}).
+	result := loz.IterSlice([]string{"zero", "one", "two", "three", "four"}).
 		Indexed().
 		TakeWhile(func(k int, v string) bool {
 			return k < 3
-		})
-	result := toMap(seq)
+		}).
+		Collect(loz.ToMap[int, string]())
+		// CollectMap(loz.Identity)
 	fmt.Printf("%v", result)
 	// Output: map[0:zero 1:one 2:two]
 }
 
 func ExampleKVSeq_Skip() {
-	seq := loz.IterSlice([]string{"zero", "one", "two", "three", "four"}).
+	result := loz.IterSlice([]string{"zero", "one", "two", "three", "four"}).
 		Indexed().
-		Skip(3)
-	result := toMap(seq)
+		Skip(3).
+		Collect(loz.ToMap[int, string]())
+		// CollectMap(loz.Identity)
 	fmt.Printf("%v", result)
 	// Output: map[3:three 4:four]
 }
 
 func ExampleKVSeq_SkipWhile() {
-	seq := loz.IterSlice([]string{"zero", "one", "two", "three", "four"}).
+	result := loz.IterSlice([]string{"zero", "one", "two", "three", "four"}).
 		Indexed().
 		SkipWhile(func(k int, v string) bool {
 			return k < 3
-		})
-	result := toMap(seq)
+		}).
+		Collect(loz.ToMap[int, string]())
+		// CollectMap(loz.Identity)
 	fmt.Printf("%v", result)
 	// Output: map[3:three 4:four]
 }
 
 func ExampleKVSeq_Filter() {
-	seq := loz.IterSlice([]string{"zero", "one", "two", "three", "four"}).
+	result := loz.IterSlice([]string{"zero", "one", "two", "three", "four"}).
 		Indexed().
 		Filter(func(k int, v string) bool {
 			return k%2 != 0 || len(v) == 3
-		})
-	result := toMap(seq)
+		}).
+		Collect(loz.ToMap[int, string]())
+		// CollectMap(loz.Identity)
 	fmt.Printf("%v", result)
 	// Output: map[1:one 2:two 3:three]
 }
@@ -225,7 +226,7 @@ func ExampleKVSeq_FilterMap() {
 			return i1, i2, true
 		}).
 		Values().
-		CollectSlice()
+		Collect(loz.ToSlice[int]())
 	fmt.Print(matching)
 	// Output: [1 3]
 }
@@ -316,4 +317,20 @@ func TestKVSeqTryMethods(t *testing.T) {
 			assert.Equal(t, err, haltingErr)
 		})
 	}
+}
+
+func TestKVMap1(t *testing.T) {
+	m := map[int]string{
+		1: "one",
+		2: "two",
+		3: "three",
+		4: "four",
+		5: "five",
+	}
+	iterator := loz.IterMap(m).
+		Map(func(k int, v string) (string, byte) {
+			return fmt.Sprintf("%v", k), v[0]
+		})
+	assert.ElementsMatch(t, iterator.Keys().Collect(loz.ToSlice[string]()), []string{"1", "2", "3", "4", "5"})
+	assert.ElementsMatch(t, iterator.Values().Collect(loz.ToSlice[byte]()), []byte{'o', 't', 't', 'f', 'f'})
 }

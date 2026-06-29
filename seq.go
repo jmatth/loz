@@ -28,21 +28,9 @@ func IterSlice[V any](slice []V) Seq[V] {
 	return Seq[V](slices.Values(slice))
 }
 
-// CollectSlice collects all the elements within the iterator into a slice by
-// calling [slices.Collect].
-func (s Seq[V]) CollectSlice() []V {
-	return slices.Collect(iter.Seq[V](s))
-}
-
-func (s Seq[V]) AppendSlice(slice *[]V) {
-	*slice = slices.AppendSeq(*slice, iter.Seq[V](s))
-}
-
-// TryCollectSlice is identical to [Seq.CollectSlice], except it will recover
-// any panic caused by [PanicHaltIteration] and return the wrapped error.
-func (s Seq[V]) TryCollectSlice() (result []V, err error) {
-	defer RecoverHaltIteration(&err)
-	return s.CollectSlice(), nil
+// Unwrap casts a [Seq] back to an [iter.Seq].
+func (s Seq[V]) Unwrap() iter.Seq[V] {
+	return iter.Seq[V](s)
 }
 
 // ForEach consumes the iterator and calls the provided function with each of
@@ -64,10 +52,9 @@ func (s Seq[V]) TryForEach(process Processor[V]) (err error) {
 
 // Map transforms the elements within the iterator using the provided mapper
 // function. Due to limitations of the Go type system, the mapped value must be
-// the same type as the input. To perform mapping operations that change type,
-// see [Map1], [Map2], etc.
-func (s Seq[V]) Map(mapper Mapper[V, V]) Seq[V] {
-	return func(yield Yielder[V]) {
+// the same type as the input.
+func (s Seq[V]) Map[R any](mapper Mapper[V, R]) Seq[R] {
+	return func(yield Yielder[R]) {
 		s(func(v V) bool {
 			return yield(mapper(v))
 		})
@@ -78,8 +65,8 @@ func (s Seq[V]) Map(mapper Mapper[V, V]) Seq[V] {
 // mapper function returns false, then the current element of the iteration
 // will be skipped. If true is returned, then the mapped value is passed to the
 // next iteration stage.
-func (s Seq[V]) FilterMap(mapper FilteringMapper[V, V]) Seq[V] {
-	return func(yield Yielder[V]) {
+func (s Seq[V]) FilterMap[R any](mapper FilteringMapper[V, R]) Seq[R] {
+	return func(yield Yielder[R]) {
 		s(func(v V) bool {
 			mapped, ok := mapper(v)
 			if !ok {
@@ -92,7 +79,8 @@ func (s Seq[V]) FilterMap(mapper FilteringMapper[V, V]) Seq[V] {
 
 // Reduce reduces the iterator to a single value by iteratively combining its
 // elements using the provided function. If the iterator is empty a zero value
-// will be returned along with an error.
+// will be returned along with an error. To reduce to a different type and/or
+// provide a starting value, see [Seq.Fold].
 func (s Seq[V]) Reduce(combine Reducer[V, V]) (V, error) {
 	isFirst := true
 	var result V
@@ -121,7 +109,7 @@ func (s Seq[V]) TryReduce(combine Reducer[V, V]) (result V, err error) {
 // Fold reduces the iterator to a single value by iteratively combining its
 // elements with an initial value using the provided function. If the iterator
 // is empty the initial value will be returned unmodified.
-func (s Seq[V]) Fold(initial V, combine Reducer[V, V]) V {
+func (s Seq[V]) Fold[R any](initial R, combine Reducer[V, R]) R {
 	s(func(v V) bool {
 		initial = combine(initial, v)
 		return true
@@ -131,9 +119,19 @@ func (s Seq[V]) Fold(initial V, combine Reducer[V, V]) V {
 
 // TryFold is identical to [Seq.Fold], except it will recover any panic caused
 // by [PanicHaltIteration] and return the wrapped error.
-func (s Seq[V]) TryFold(initial V, combine Reducer[V, V]) (result V, err error) {
+func (s Seq[V]) TryFold[R any](initial R, combine Reducer[V, R]) (result R, err error) {
 	defer RecoverHaltIteration(&err)
 	return s.Fold(initial, combine), nil
+}
+
+func (s Seq[V]) Collect[R any](collector Collector[R, V]) R {
+	initial := collector.Initial()
+	return s.Fold(initial, collector.Collect)
+}
+
+func (s Seq[V]) TryCollect[R any](collector Collector[R, V]) (R, error) {
+	initial := collector.Initial()
+	return s.TryFold(initial, collector.Collect)
 }
 
 // First consumes the iterator and returns its first element. If the iterator
@@ -326,8 +324,8 @@ func (s Seq[V]) Indexed() KVSeq[int, V] {
 	}
 }
 
-func (s Seq[V]) Expand(toElements Mapper[V, Seq[V]]) Seq[V] {
-	return func(yield Yielder[V]) {
+func (s Seq[V]) Expand[R any](toElements Mapper[V, Seq[R]]) Seq[R] {
+	return func(yield Yielder[R]) {
 		s(func(v V) bool {
 			for e := range toElements(v) {
 				if !yield(e) {

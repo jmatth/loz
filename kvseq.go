@@ -7,6 +7,8 @@ import (
 	. "github.com/jmatth/loz/internal"
 )
 
+type void = struct{}
+
 // KVSeq is an alias to [iter.Seq2] that provides additional methods for
 // filtering, transforming, and collecting the elements. Though the name and
 // several doc comments imply it contains key/value pairs, that is only the most
@@ -16,6 +18,39 @@ type KVSeq[K, V any] iter.Seq2[K, V]
 // IterMap creates a Seq over the key/value pairs of a map.
 func IterMap[K comparable, V any](input map[K]V) KVSeq[K, V] {
 	return KVSeq[K, V](maps.All(input))
+}
+
+func (s KVSeq[K, V]) Collect[R any](collector KVCollector[R, K, V]) R {
+	initial := collector.Initial()
+	result, _ := s.Fold(initial, void{}, func(acc R, _ struct{}, iterK K, iterV V) (R, void) {
+		result := collector.Collect(acc, iterK, iterV)
+		return result, void{}
+	})
+	return result
+}
+
+func (s KVSeq[K, V]) TryCollect[R any](collector KVCollector[R, K, V]) (R, error) {
+	initial := collector.Initial()
+	result, _, err := s.TryFold(initial, void{}, func(acc R, _ struct{}, iterK K, iterV V) (R, void) {
+		result := collector.Collect(acc, iterK, iterV)
+		return result, void{}
+	})
+	return result, err
+}
+
+// // CollectMap collects all the elements within the iterator into a `map[K]V`.
+// func (s KVSeq[K, V]) CollectMap[RK comparable](keyMapper Mapper[K, RK]) map[RK]V {
+// 	return maps.Collect(
+// 		s.Map(func(k K, v V) (RK, V) {
+// 			return keyMapper(k), v
+// 		}).
+// 			Unwrap(),
+// 	)
+// }
+
+// Unwrap casts a [KVSeq] back to an [iter.Seq2].
+func (s KVSeq[K, V]) Unwrap() iter.Seq2[K, V] {
+	return iter.Seq2[K, V](s)
 }
 
 // Keys converts a KVSeq[K, V] to a Seq[K], continuing the iteration with only
@@ -57,10 +92,9 @@ func (s KVSeq[K, V]) TryForEach(process func(K, V)) (err error) {
 
 // Map transforms the key/value pairs within the iterator using the provided
 // mapper function. Due to limitations of the Go type system, the mapped keys
-// and values must be the same types as the input. To perform mapping
-// operations that change types, see [KVMap1], [KVMap2], etc.
-func (s KVSeq[K, V]) Map(mapper func(K, V) (K, V)) KVSeq[K, V] {
-	return func(yield Yielder2[K, V]) {
+// and values must be the same types as the input.
+func (s KVSeq[K, V]) Map[RK, RV any](mapper func(K, V) (RK, RV)) KVSeq[RK, RV] {
+	return func(yield Yielder2[RK, RV]) {
 		s(func(k K, v V) bool {
 			return yield(mapper(k, v))
 		})
@@ -71,8 +105,8 @@ func (s KVSeq[K, V]) Map(mapper func(K, V) (K, V)) KVSeq[K, V] {
 // provided mapper function returns false, then the current key/value pair of
 // the iteration will be skipped. If true is returned, then the mapped
 // key/value pair is passed to the next iteration stage.
-func (s KVSeq[K, V]) FilterMap(mapper func(K, V) (K, V, bool)) KVSeq[K, V] {
-	return func(yield Yielder2[K, V]) {
+func (s KVSeq[K, V]) FilterMap[RK, RV any](mapper func(K, V) (RK, RV, bool)) KVSeq[RK, RV] {
+	return func(yield Yielder2[RK, RV]) {
 		s(func(k K, v V) bool {
 			mk, mv, ok := mapper(k, v)
 			if !ok {
@@ -86,7 +120,7 @@ func (s KVSeq[K, V]) FilterMap(mapper func(K, V) (K, V, bool)) KVSeq[K, V] {
 // Reduce reduces the iterator to a single key/value pair by iteratively
 // combining its elements using the provided function. If the iterator is empty
 // then zero values will be returned along with an error.
-func (s KVSeq[K, V]) Reduce(combine Reducer2[K, V]) (K, V, error) {
+func (s KVSeq[K, V]) Reduce(combine Reducer2[K, V, K, V]) (K, V, error) {
 	var keyResult K
 	var valResult V
 	isFirst := true
@@ -108,7 +142,7 @@ func (s KVSeq[K, V]) Reduce(combine Reducer2[K, V]) (K, V, error) {
 
 // TryReduce is identical to [KVSeq.ForReduce], except it will recover any
 // panic caused by [PanicHaltIteration] and return the wrapped error.
-func (s KVSeq[K, V]) TryReduce(combine Reducer2[K, V]) (_ K, _ V, err error) {
+func (s KVSeq[K, V]) TryReduce(combine Reducer2[K, V, K, V]) (_ K, _ V, err error) {
 	defer RecoverHaltIteration(&err)
 	return s.Reduce(combine)
 }
@@ -116,7 +150,7 @@ func (s KVSeq[K, V]) TryReduce(combine Reducer2[K, V]) (_ K, _ V, err error) {
 // Fold reduces the iterator to a single key/value pair by iteratively
 // combining its elements with initial values using the provided function. If
 // the iterator is empty the initial values will be returned unmodified.
-func (s KVSeq[K, V]) Fold(initialKey K, initialVal V, combine Reducer2[K, V]) (K, V) {
+func (s KVSeq[K, V]) Fold[RK, RV any](initialKey RK, initialVal RV, combine Reducer2[K, V, RK, RV]) (RK, RV) {
 	s(func(k K, v V) bool {
 		initialKey, initialVal = combine(initialKey, initialVal, k, v)
 		return true
@@ -126,7 +160,7 @@ func (s KVSeq[K, V]) Fold(initialKey K, initialVal V, combine Reducer2[K, V]) (K
 
 // TryFold is identical to [KVSeq.Fold], except it will recover any panic
 // caused by [PanicHaltIteration] and return the wrapped error.
-func (s KVSeq[K, V]) TryFold(initialKey K, initialVal V, combine Reducer2[K, V]) (_ K, _ V, err error) {
+func (s KVSeq[K, V]) TryFold[RK, RV any](initialKey RK, initialVal RV, combine Reducer2[K, V, RK, RV]) (_ RK, _ RV, err error) {
 	defer RecoverHaltIteration(&err)
 	k, v := s.Fold(initialKey, initialVal, combine)
 	return k, v, nil
