@@ -4,12 +4,6 @@
 
 The name is because it's like `lo`, but la`z`y.
 
-## Install
-
-```shell
-go get github.com/jmatth/loz@v1
-```
-
 ## Usage
 
 `loz` provides two primary helper types: `loz.Seq` and `loz.KVSeq`, which correspond to `iter.Seq` and `iter.Seq2` respectively. You can wrap either of those types directly:
