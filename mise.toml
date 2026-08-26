@@ -1,7 +1,7 @@
 [tools]
-go = "1.27rc1"
+go = "1.27"
 "go:golang.org/x/pkgsite/cmd/pkgsite" = "latest"
-# golangci-lint = "2.12.2"
+golangci-lint = "2.13.1"
 gotestsum = "1.13.0"
 
 [tasks.format]
