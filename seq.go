@@ -132,7 +132,7 @@ func (s Seq[V]) Collect[R any](collector Collector[R, V]) R {
 	return s.Fold(initial, collector.Collect)
 }
 
-// TryCollect is identical to [Collect], except it will recover any panic
+// TryCollect is identical to [Seq.Collect], except it will recover any panic
 // caused by [PanicHaltIteration] and return the wrapped error.
 func (s Seq[V]) TryCollect[R any](collector Collector[R, V]) (R, error) {
 	initial := collector.Initial()
@@ -322,7 +322,7 @@ func (s Seq[V]) TakeWhile(test Yielder[V]) Seq[V] {
 // the original iterator and the keys are their indexes within the original
 // stream.
 func (s Seq[V]) Indexed() KVSeq[int, V] {
-	return func(yield Yielder2[int, V]) {
+	return func(yield KVYielder[int, V]) {
 		var i int
 		s(func(v V) bool {
 			result := yield(i, v)

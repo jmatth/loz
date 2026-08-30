@@ -99,7 +99,7 @@ func (s KVSeq[K, V]) TryForEach(process func(K, V)) (err error) {
 // mapper function. Due to limitations of the Go type system, the mapped keys
 // and values must be the same types as the input.
 func (s KVSeq[K, V]) Map[RK, RV any](mapper func(K, V) (RK, RV)) KVSeq[RK, RV] {
-	return func(yield Yielder2[RK, RV]) {
+	return func(yield KVYielder[RK, RV]) {
 		s(func(k K, v V) bool {
 			return yield(mapper(k, v))
 		})
@@ -111,7 +111,7 @@ func (s KVSeq[K, V]) Map[RK, RV any](mapper func(K, V) (RK, RV)) KVSeq[RK, RV] {
 // the iteration will be skipped. If true is returned, then the mapped
 // key/value pair is passed to the next iteration stage.
 func (s KVSeq[K, V]) FilterMap[RK, RV any](mapper func(K, V) (RK, RV, bool)) KVSeq[RK, RV] {
-	return func(yield Yielder2[RK, RV]) {
+	return func(yield KVYielder[RK, RV]) {
 		s(func(k K, v V) bool {
 			mk, mv, ok := mapper(k, v)
 			if !ok {
@@ -125,7 +125,7 @@ func (s KVSeq[K, V]) FilterMap[RK, RV any](mapper func(K, V) (RK, RV, bool)) KVS
 // Reduce reduces the iterator to a single key/value pair by iteratively
 // combining its elements using the provided function. If the iterator is empty
 // then zero values will be returned along with an error.
-func (s KVSeq[K, V]) Reduce(combine Reducer2[K, V, K, V]) (K, V, error) {
+func (s KVSeq[K, V]) Reduce(combine KVReducer[K, V, K, V]) (K, V, error) {
 	var keyResult K
 	var valResult V
 	isFirst := true
@@ -147,7 +147,7 @@ func (s KVSeq[K, V]) Reduce(combine Reducer2[K, V, K, V]) (K, V, error) {
 
 // TryReduce is identical to [KVSeq.ForReduce], except it will recover any
 // panic caused by [PanicHaltIteration] and return the wrapped error.
-func (s KVSeq[K, V]) TryReduce(combine Reducer2[K, V, K, V]) (_ K, _ V, err error) {
+func (s KVSeq[K, V]) TryReduce(combine KVReducer[K, V, K, V]) (_ K, _ V, err error) {
 	defer RecoverHaltIteration(&err)
 	return s.Reduce(combine)
 }
@@ -155,7 +155,7 @@ func (s KVSeq[K, V]) TryReduce(combine Reducer2[K, V, K, V]) (_ K, _ V, err erro
 // Fold reduces the iterator to a single key/value pair by iteratively
 // combining its elements with initial values using the provided function. If
 // the iterator is empty the initial values will be returned unmodified.
-func (s KVSeq[K, V]) Fold[RK, RV any](initialKey RK, initialVal RV, combine Reducer2[K, V, RK, RV]) (RK, RV) {
+func (s KVSeq[K, V]) Fold[RK, RV any](initialKey RK, initialVal RV, combine KVReducer[K, V, RK, RV]) (RK, RV) {
 	s(func(k K, v V) bool {
 		initialKey, initialVal = combine(initialKey, initialVal, k, v)
 		return true
@@ -165,7 +165,7 @@ func (s KVSeq[K, V]) Fold[RK, RV any](initialKey RK, initialVal RV, combine Redu
 
 // TryFold is identical to [KVSeq.Fold], except it will recover any panic
 // caused by [PanicHaltIteration] and return the wrapped error.
-func (s KVSeq[K, V]) TryFold[RK, RV any](initialKey RK, initialVal RV, combine Reducer2[K, V, RK, RV]) (_ RK, _ RV, err error) {
+func (s KVSeq[K, V]) TryFold[RK, RV any](initialKey RK, initialVal RV, combine KVReducer[K, V, RK, RV]) (_ RK, _ RV, err error) {
 	defer RecoverHaltIteration(&err)
 	k, v := s.Fold(initialKey, initialVal, combine)
 	return k, v, nil
@@ -222,7 +222,7 @@ func (s KVSeq[K, V]) TryLast() (_ K, _ V, err error) {
 
 // Any returns true if test returns true for at least one key/value pair in the
 // iterator, and false otherwise. Returns false for an empty iterator.
-func (s KVSeq[K, V]) Any(test Yielder2[K, V]) bool {
+func (s KVSeq[K, V]) Any(test KVYielder[K, V]) bool {
 	result := false
 	s(func(k K, v V) bool {
 		if test(k, v) {
@@ -236,14 +236,14 @@ func (s KVSeq[K, V]) Any(test Yielder2[K, V]) bool {
 
 // TryAny is identical to [KVSeq.Any], except it will recover any panic caused
 // by [PanicHaltIteration] and return the wrapped error.
-func (s KVSeq[K, V]) TryAny(test Yielder2[K, V]) (_ bool, err error) {
+func (s KVSeq[K, V]) TryAny(test KVYielder[K, V]) (_ bool, err error) {
 	defer RecoverHaltIteration(&err)
 	return s.Any(test), nil
 }
 
 // None returns true if test returns false for every key/value pair of the
 // iterator, and false otherwise. Returns true for an empty iterator.
-func (s KVSeq[K, V]) None(test Yielder2[K, V]) bool {
+func (s KVSeq[K, V]) None(test KVYielder[K, V]) bool {
 	result := true
 	s(func(k K, v V) bool {
 		if test(k, v) {
@@ -257,14 +257,14 @@ func (s KVSeq[K, V]) None(test Yielder2[K, V]) bool {
 
 // TryNone is identical to [KVSeq.None], except it will recover any panic
 // caused by [PanicHaltIteration] and return the wrapped error.
-func (s KVSeq[K, V]) TryNone(test Yielder2[K, V]) (_ bool, err error) {
+func (s KVSeq[K, V]) TryNone(test KVYielder[K, V]) (_ bool, err error) {
 	defer RecoverHaltIteration(&err)
 	return s.None(test), nil
 }
 
 // Every returns true if test returns true for every key/value pair of the
 // iterator, and false otherwise. Returns true for an empty iterator.
-func (s KVSeq[K, V]) Every(test Yielder2[K, V]) bool {
+func (s KVSeq[K, V]) Every(test KVYielder[K, V]) bool {
 	result := true
 	s(func(k K, v V) bool {
 		if !test(k, v) {
@@ -278,15 +278,15 @@ func (s KVSeq[K, V]) Every(test Yielder2[K, V]) bool {
 
 // TryEvery is identical to [KVSeq.Every], except it will recover any panic
 // caused by [PanicHaltIteration] and return the wrapped error.
-func (s KVSeq[K, V]) TryEvery(test Yielder2[K, V]) (_ bool, err error) {
+func (s KVSeq[K, V]) TryEvery(test KVYielder[K, V]) (_ bool, err error) {
 	defer RecoverHaltIteration(&err)
 	return s.Every(test), nil
 }
 
 // Filter filters the iterator to only include only key/value pairs for which
 // `filter` returns true.
-func (s KVSeq[K, V]) Filter(filter Yielder2[K, V]) KVSeq[K, V] {
-	return func(yield Yielder2[K, V]) {
+func (s KVSeq[K, V]) Filter(filter KVYielder[K, V]) KVSeq[K, V] {
+	return func(yield KVYielder[K, V]) {
 		s(func(k K, v V) bool {
 			if !filter(k, v) {
 				return true
@@ -300,7 +300,7 @@ func (s KVSeq[K, V]) Filter(filter Yielder2[K, V]) KVSeq[K, V] {
 // greater than or equal to the number of elements in the iterator the result
 // will be an empty iterator.
 func (s KVSeq[K, V]) Skip(toSkip int) KVSeq[K, V] {
-	return func(yield Yielder2[K, V]) {
+	return func(yield KVYielder[K, V]) {
 		var skipped int
 		s(func(k K, v V) bool {
 			if skipped < toSkip {
@@ -313,8 +313,8 @@ func (s KVSeq[K, V]) Skip(toSkip int) KVSeq[K, V] {
 }
 
 // SkipWhile skips the leading key/value pairs for which test returns true.
-func (s KVSeq[K, V]) SkipWhile(test Yielder2[K, V]) KVSeq[K, V] {
-	return func(yield Yielder2[K, V]) {
+func (s KVSeq[K, V]) SkipWhile(test KVYielder[K, V]) KVSeq[K, V] {
+	return func(yield KVYielder[K, V]) {
 		skipping := true
 		s(func(k K, v V) bool {
 			if skipping {
@@ -330,7 +330,7 @@ func (s KVSeq[K, V]) SkipWhile(test Yielder2[K, V]) KVSeq[K, V] {
 
 // Take restricts the iterator to at most the first toTake key/value pairs.
 func (s KVSeq[K, V]) Take(toTake int) KVSeq[K, V] {
-	return func(yield Yielder2[K, V]) {
+	return func(yield KVYielder[K, V]) {
 		var took int
 		s(func(k K, v V) bool {
 			if took >= toTake {
@@ -344,8 +344,8 @@ func (s KVSeq[K, V]) Take(toTake int) KVSeq[K, V] {
 
 // TakeWhile restricts the iterator to the leading key/value pairs for which
 // test returns true.
-func (s KVSeq[K, V]) TakeWhile(test Yielder2[K, V]) KVSeq[K, V] {
-	return func(yield Yielder2[K, V]) {
+func (s KVSeq[K, V]) TakeWhile(test KVYielder[K, V]) KVSeq[K, V] {
+	return func(yield KVYielder[K, V]) {
 		s(func(k K, v V) bool {
 			return test(k, v) && yield(k, v)
 		})
