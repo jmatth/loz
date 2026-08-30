@@ -124,11 +124,16 @@ func (s Seq[V]) TryFold[R any](initial R, combine Reducer[V, R]) (result R, err 
 	return s.Fold(initial, combine), nil
 }
 
+// Collect consumes the iterator and returns a collection containing its
+// contents. How that collection is constructed depends on the collector used.
+// See [ToSlice] for an example.
 func (s Seq[V]) Collect[R any](collector Collector[R, V]) R {
 	initial := collector.Initial()
 	return s.Fold(initial, collector.Collect)
 }
 
+// TryCollect is identical to [Collect], except it will recover any panic
+// caused by [PanicHaltIteration] and return the wrapped error.
 func (s Seq[V]) TryCollect[R any](collector Collector[R, V]) (R, error) {
 	initial := collector.Initial()
 	return s.TryFold(initial, collector.Collect)
@@ -244,7 +249,7 @@ func (s Seq[V]) TryEvery(test Yielder[V]) (result bool, err error) {
 	return s.Every(test), nil
 }
 
-// Filter filters the iterator to only include only elements for which filter
+// Filter filters the iterator to only include only elements for which `filter`
 // returns true.
 func (s Seq[V]) Filter(filter Yielder[V]) Seq[V] {
 	return func(yield Yielder[V]) {
@@ -313,6 +318,9 @@ func (s Seq[V]) TakeWhile(test Yielder[V]) Seq[V] {
 	}
 }
 
+// Indexed converts a [Seq] to a [KVSeq] where the values are the elements of
+// the original iterator and the keys are their indexes within the original
+// stream.
 func (s Seq[V]) Indexed() KVSeq[int, V] {
 	return func(yield Yielder2[int, V]) {
 		var i int
@@ -324,6 +332,7 @@ func (s Seq[V]) Indexed() KVSeq[int, V] {
 	}
 }
 
+// Expand expands each element of an iterator into zero or more elements.
 func (s Seq[V]) Expand[R any](toElements Mapper[V, Seq[R]]) Seq[R] {
 	return func(yield Yielder[R]) {
 		s(func(v V) bool {

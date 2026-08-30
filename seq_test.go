@@ -1,3 +1,4 @@
+//nolint:godoclint
 package loz_test
 
 import (
@@ -104,18 +105,18 @@ func ExampleSeq_Every() {
 }
 
 func ExampleSeq_Expand() {
-	expander := func(n int) loz.Seq[int] {
-		return func(yield func(int) bool) {
-			for i := range n {
-				if !yield(i + 1) {
-					break
+	nums := []int{1, 2, 3, 0, 5}
+	expanded := loz.IterSlice(nums).
+		Expand(func(n int) loz.Seq[int] {
+			return func(yield func(int) bool) {
+				for i := range n {
+					if !yield(i + 1) {
+						break
+					}
 				}
 			}
-		}
-	}
-
-	nums := []int{1, 2, 3, 0, 5}
-	expanded := loz.IterSlice(nums).Expand(expander).Collect(loz.ToSlice[int]())
+		}).
+		Collect(loz.ToSlice[int]())
 	fmt.Printf("%v", expanded)
 	// Output: [1 1 2 1 2 3 1 2 3 4 5]
 }
@@ -220,6 +221,13 @@ func ExampleSeq_incorrectErrorHandling() {
 		}).TryCollect(loz.ToSlice[int]())
 	fmt.Printf("%v; %v", result, err)
 	// Output: example code panicked: strconv.Atoi: parsing "foo": invalid syntax
+}
+
+func ExampleToSlice() {
+	s := loz.Generate(5, func(i int) int { return i * i }).
+		Collect(loz.ToSlice[int]())
+	fmt.Print(s)
+	// Output: [0 1 4 9 16]
 }
 
 func ExampleToSliceAppend() {

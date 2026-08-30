@@ -1,13 +1,19 @@
 package loz
 
-import . "github.com/jmatth/loz/internal"
+import (
+	. "github.com/jmatth/loz/internal"
+)
 
+// SeqError is the error type returned by some [Seq] and [KVSeq] methods.
 type SeqError int
 
 const (
+	// EmptySeqErr is the error returned when methods requiring a non-empty
+	// iterator are invoked on an empty iterator.
 	EmptySeqErr SeqError = iota
 )
 
+// Error implements [error].
 func (e SeqError) Error() string {
 	switch e {
 	case EmptySeqErr:

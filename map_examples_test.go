@@ -1,3 +1,4 @@
+//nolint:godoclint
 package loz_test
 
 import (

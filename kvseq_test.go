@@ -1,10 +1,9 @@
+//nolint:godoclint
 package loz_test
 
 import (
 	"errors"
 	"fmt"
-	"iter"
-	"maps"
 	"slices"
 	"strings"
 	"testing"
@@ -41,12 +40,29 @@ func iterKVPairs[K, V any](kvs ...any) loz.KVSeq[K, V] {
 	}
 }
 
-// func ExampleCompKKVSeq_CollectMap() {
-// 	result := CompKKVSeq[int, string](iterKVPairs[int, string](1, "one", 2, "two", 3, "three")).
-// 		CollectMap()
-// 	fmt.Printf("%v", result)
-// 	// Output: map[1:one 2:two 3:three]
-// }
+func ExampleToMap() {
+	r := iterKVPairs[int, string](1, "one", 2, "two", 2, "2", 3, "three").
+		Collect(loz.ToMap[int, string]())
+	fmt.Print(r)
+	// Output: map[1:one 2:2 3:three]
+}
+
+func ExampleToMapMerge() {
+	r := iterKVPairs[int, string](1, "one", 2, "two", 2, "2", 3, "three").
+		Collect(loz.ToMapMerge(map[int]string{
+			4: "four",
+			3: "3",
+		}))
+	fmt.Print(r)
+	// Output: map[1:one 2:2 3:three 4:four]
+}
+
+func ExampleToMapGroup() {
+	r := iterKVPairs[int, string](1, "one", 2, "two", 2, "2", 1, "1", 3, "three").
+		Collect(loz.ToMapGroup[int, string]())
+	fmt.Print(r)
+	// Output: map[1:[one 1] 2:[two 2] 3:[three]]
+}
 
 func ExampleKVSeq_ForEach() {
 	iterKVPairs[int, string](1, "one", 2, "two", 3, "three").
@@ -59,11 +75,11 @@ func ExampleKVSeq_ForEach() {
 }
 
 func ExampleKVSeq_Map() {
-	seq := iterKVPairs[int, string](1, "one", 2, "two", 3, "three").
+	result := iterKVPairs[int, string](1, "one", 2, "two", 3, "three").
 		Map(func(k int, v string) (int, string) {
 			return k * 2, v + "+" + v
-		})
-	result := maps.Collect(iter.Seq2[int, string](seq))
+		}).
+		Collect(loz.ToMap[int, string]())
 	fmt.Printf("%v", result)
 	// Output: map[2:one+one 4:two+two 6:three+three]
 }
@@ -73,7 +89,6 @@ func ExampleKVSeq_Take() {
 		Indexed().
 		Take(2).
 		Collect(loz.ToMap[int, string]())
-		// CollectMap(loz.Identity)
 	fmt.Printf("%v", result)
 	// Output: map[0:zero 1:one]
 }
@@ -85,7 +100,6 @@ func ExampleKVSeq_TakeWhile() {
 			return k < 3
 		}).
 		Collect(loz.ToMap[int, string]())
-		// CollectMap(loz.Identity)
 	fmt.Printf("%v", result)
 	// Output: map[0:zero 1:one 2:two]
 }
@@ -95,7 +109,6 @@ func ExampleKVSeq_Skip() {
 		Indexed().
 		Skip(3).
 		Collect(loz.ToMap[int, string]())
-		// CollectMap(loz.Identity)
 	fmt.Printf("%v", result)
 	// Output: map[3:three 4:four]
 }
@@ -107,7 +120,6 @@ func ExampleKVSeq_SkipWhile() {
 			return k < 3
 		}).
 		Collect(loz.ToMap[int, string]())
-		// CollectMap(loz.Identity)
 	fmt.Printf("%v", result)
 	// Output: map[3:three 4:four]
 }
@@ -119,7 +131,6 @@ func ExampleKVSeq_Filter() {
 			return k%2 != 0 || len(v) == 3
 		}).
 		Collect(loz.ToMap[int, string]())
-		// CollectMap(loz.Identity)
 	fmt.Printf("%v", result)
 	// Output: map[1:one 2:two 3:three]
 }

@@ -1,3 +1,4 @@
+//nolint:godoclint
 package internal
 
 import "fmt"

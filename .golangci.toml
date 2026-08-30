@@ -20,3 +20,8 @@ checks = [
   "-ST1021",
   "-ST1022",
 ]
+
+[linters.settings.godoclint]
+enable = [
+  "require-doc"
+]

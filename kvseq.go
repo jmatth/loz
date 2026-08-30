@@ -20,6 +20,9 @@ func IterMap[K comparable, V any](input map[K]V) KVSeq[K, V] {
 	return KVSeq[K, V](maps.All(input))
 }
 
+// Collect consumes the iterator and returns a collection containing its
+// contents. How that collection is constructed depends on the collector used.
+// See [ToMap] for an example.
 func (s KVSeq[K, V]) Collect[R any](collector KVCollector[R, K, V]) R {
 	initial := collector.Initial()
 	result, _ := s.Fold(initial, void{}, func(acc R, _ struct{}, iterK K, iterV V) (R, void) {
@@ -29,6 +32,8 @@ func (s KVSeq[K, V]) Collect[R any](collector KVCollector[R, K, V]) R {
 	return result
 }
 
+// TryCollect is identical to [KVSeq.Collect], except it will recover any panic
+// caused by [PanicHaltIteration] and return the wrapped error.
 func (s KVSeq[K, V]) TryCollect[R any](collector KVCollector[R, K, V]) (R, error) {
 	initial := collector.Initial()
 	result, _, err := s.TryFold(initial, void{}, func(acc R, _ struct{}, iterK K, iterV V) (R, void) {
@@ -278,6 +283,8 @@ func (s KVSeq[K, V]) TryEvery(test Yielder2[K, V]) (_ bool, err error) {
 	return s.Every(test), nil
 }
 
+// Filter filters the iterator to only include only key/value pairs for which
+// `filter` returns true.
 func (s KVSeq[K, V]) Filter(filter Yielder2[K, V]) KVSeq[K, V] {
 	return func(yield Yielder2[K, V]) {
 		s(func(k K, v V) bool {
