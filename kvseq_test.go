@@ -330,7 +330,7 @@ func TestKVSeqTryMethods(t *testing.T) {
 	}
 }
 
-func TestKVMap1(t *testing.T) {
+func TestKVMap(t *testing.T) {
 	m := map[int]string{
 		1: "one",
 		2: "two",

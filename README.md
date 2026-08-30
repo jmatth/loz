@@ -12,96 +12,70 @@ go get github.com/jmatth/loz@v1
 
 ## Usage
 
-`loz` provides two primary helper types: `loz.Seq` and `loz.KVSeq`, which correspond to `iter.Seq` and `iter.Seq2` respectively. You can wrap either of those types directly:
+`loz` provides two primary helper types: `loz.Seq` and `loz.KVSeq`, which correspond to `iter.Seq` and `iter.Seq2` respectively. Helper methods are provided to easily iterate over slices and maps:
 
 ```go
-var numsIter iter.Seq[int] = slices.Values([]int{1, 2, 3, 4, 5})
-evenNums := loz.Seq[int](numsIter).
+evenNums := loz.IterSlice([]int{1, 2, 3, 4, 5}).
 	Filter(func(n int) bool { return n%2 == 0 }).
-	CollectSlice()
+	Collect(loz.ToSlice[int]())
 fmt.Println(evenNums)
 // Output: [2 4]
 
-var idNameIter iter.Seq2[int, string] = maps.All(map[int]string{
+systemUsers := loz.IterMap(map[int]string{
 	0:    "root",
 	1:    "bin",
 	81:   "dbus",
 	33:   "http",
 	1000: "josh",
 	1001: "katie",
-})
-
-systemUsers := loz.KVSeq[int, string](idNameIter).
+}).
 	Filter(func(id int, _ string) bool { return id < 1000 }).
 	Values().
-	CollectSlice()
+	Collect(loz.ToSlice[string]())
 fmt.Println(systemUsers)
 // Output: [root bin dbus http]
 ```
 
-...or use some of the included helpers to create iterators with less code and fewer type annotations:
+You can also wrap an `iter.Seq` or `iter.Seq2` manually if needed:
 
 ```go
-evenNums := loz.IterSlice([]int{1, 2, 3, 4, 5}).
-	Filter(func(n int) bool { return n%2 == 0 }).
-	CollectSlice()
-fmt.Println(evenNums)
-// Output: [2 4]
-
-systemUsers :=
-	loz.IterMap(map[int]string{
-		0:    "root",
-		1:    "bin",
-		81:   "dbus",
-		33:   "http",
-		1000: "josh",
-		1001: "katie",
-	}).
-		Filter(func(id int, _ string) bool { return id < 1000 }).
-		Values().
-		CollectSlice()
-fmt.Println(systemUsers)
-// Output: [root bin dbus http]
+loz.Seq(slices.Values([]int{1, 2, 3}))
+loz.KVSeq(maps.All(map[string]int{"one": 1, "two": 2, "three": 3}))
 ```
 
-## Mapping
+## Error handling
 
-Creating a method to apply a mapping function to all values in a collection presents an interesting challenge in Go. Go's type system does not allow methods to take generic parameters; only functions without a receiver and type definitions can have generic types. To work around this, loz relies on code generation to create a series of types: `Map1` through `Map9`, each of which takes `n+1` type parameters, where the first parameter represents the initial type of the elements in the iterator and each successive type represents the type that will be returned by the next call to `.Map()`. Here is a contrived example:
+Sometimes you may encounter an error that is unrecoverable and should cause
+iteration to halt. To support this, loz provides `loz.PanicHaltIteration`.
+Calling this function with a non-nil `error` will immediately panic with a
+wrapped version of the provided error. To then recover from this panic, all
+terminal iterator methods have a "Try" version: `TryCollect`, `TryFirst`, etc.
+These methods all recover from the panic, unwrap the original error, and return
+it along with zero values for their other returns. Here is a full example:
 
 ```go
-import (
-	"github.com/jmatth/loz"
-	lom "github.com/jmatth/loz/mapping"
-)
-
-medians := lom.Map3[string, []string, []int, int](loz.IterSlice([]string{
-	"1,2,3",
-	"100",
-	"3,5",
-	"1,6,30,42,70",
-})).
-	Map(func(s string) []string { return strings.Split(s, ",") }).
-	Map(func(sl []string) []int {
-		return lom.Map1[string, int](loz.IterSlice(sl)).
-			Map(func(s string) int {
-				num, err := strconv.Atoi(s)
-				if err != nil {
-					panic(err)
-				}
-				return num
-			}).
-			CollectSlice()
-	}).
-	Filter(func(nums []int) bool { return len(nums) > 2 && len(nums)%2 != 0 }).
-	Map(func(nums []int) int { return nums[len(nums)/2] }).
-	CollectSlice()
-fmt.Println(medians)
-// Output: [2 30]
+result, err := loz.IterSlice([]string{"1", "foo", "3"}).
+	Map(func(s string) int {
+		num, err := strconv.Atoi(s)
+		loz.PanicHaltIteration(err)
+		return num
+	}).TryCollect(loz.ToSlice[int]())
+fmt.Printf("%v; %v", result, err)
+// Output: []; strconv.Atoi: parsing "foo": invalid syntax
 ```
 
-Similar types exist for `KVSeq`, named `KVMap1` through `KVMap9`.
+**Why separate "Try" versions of these methods?**
 
-A limit of 9 was chosen only because godoc arranges the index lexicographically and having `Map10`-`Map19` sorted before `Map2` etc. would make the documentation look even worse than it already does. Realistically you will probably never get close to 9 map operations on a single iterator, but if you have a use case where this is a limitation please open an issue.
+Two reasons:
+- The normal versions of the methods and the code that calls them can be simpler for not having to deal with a second return of type `error` that is never used.
+- Not having a `defer` in those functions means they might be inlined by the compiler.
+
+**Important notes:**
+
+- The "Try" suite of methods only recovers from panics raised by `PanicHaltIteration`. They will re-panic if they encounter a panic from any other source.
+- Calling `PanicHaltIteration` outside an iterator that terminates with a "Try" method will just panic as normal.
+- Iterators are evaluated lazily, so it is possible that some processing will occur before the error is encountered. This is especially relevant when using `ForEach`.
+- Similarly, a terminal method like `TryFirst` that stops before consuming the entire iterator may return successfully even if later elements in the iterator would have caused an error.
 
 [lo]: https://github.com/samber/lo
 [rust-iterator]: https://doc.rust-lang.org/std/iter/trait.Iterator.html
