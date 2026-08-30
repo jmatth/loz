@@ -351,3 +351,18 @@ func (s KVSeq[K, V]) TakeWhile(test KVYielder[K, V]) KVSeq[K, V] {
 		})
 	}
 }
+
+// Expand expands each key/value pair of an iterator into zero or more
+// key/value pairs.
+func (s KVSeq[K, V]) Expand[RK, RV any](toElements KVExpander[K, V, KVSeq[RK, RV]]) KVSeq[RK, RV] {
+	return func(yield func(RK, RV) bool) {
+		s(func(k K, v V) bool {
+			for ek, ev := range toElements(k, v) {
+				if !yield(ek, ev) {
+					return false
+				}
+			}
+			return true
+		})
+	}
+}

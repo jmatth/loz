@@ -345,3 +345,20 @@ func TestKVMap1(t *testing.T) {
 	assert.ElementsMatch(t, iterator.Keys().Collect(loz.ToSlice[string]()), []string{"1", "2", "3", "4", "5"})
 	assert.ElementsMatch(t, iterator.Values().Collect(loz.ToSlice[byte]()), []byte{'o', 't', 't', 'f', 'f'})
 }
+
+func ExampleKVSeq_Expand() {
+	expanded := loz.Generate(4, func(idx int) int { return idx }).
+		Indexed().
+		Expand(func(i1, i2 int) loz.KVSeq[int, int] {
+			return func(yield func(int, int) bool) {
+				for i := range i1 {
+					if !yield(i1, i*i2) {
+						break
+					}
+				}
+			}
+		}).
+		Collect(loz.ToMapGroup[int, int]())
+	fmt.Printf("%v", expanded)
+	// Output: map[1:[0] 2:[0 2] 3:[0 3 6]]
+}

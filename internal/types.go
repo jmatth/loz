@@ -14,6 +14,7 @@ type (
 	KVYielder[K, V any]                      = func(K, V) bool
 	KVReducer[K, V, OK, OV any]              = func(OK, OV, K, V) (OK, OV)
 	KVMapper[K1, V1, K2, V2 any]             = func(K1, V1) (K2, V2)
+	KVExpander[K1, V1, O any]                = func(K1, V1) O
 	KVFilteringMapper[K1, V1, K2, V2 any]    = func(K1, V1) (K2, V2, bool)
 	KVFilteringMapperErr[K1, V1, K2, V2 any] = func(K1, V1) (K2, V2, error)
 )
